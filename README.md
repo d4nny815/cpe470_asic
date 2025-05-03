@@ -1,1 +1,3 @@
-# pcie_vga_asic
+# CPE 470 ASIC Project
+
+## Camille Leute and Danny Gutierrez
