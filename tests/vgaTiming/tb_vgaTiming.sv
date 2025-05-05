@@ -30,10 +30,59 @@ module tb_vgaTiming();
         reset_n = 1'b1;
     endtask
 
-    task check_syncs();
+    task automatic check_syncs();
+    int errors = 0;
 
+    for (int v = 0; v < vgaTimes::V_WHOLELINE; v++) begin
+        for (int h = 0; h < vgaTimes::H_WHOLELINE; h++) begin
+            @(posedge clk_50MHz);
+
+            // in_frame check
+            if ((DUT.h_cntr < vgaTimes::H_VISIBLE_AREA) && (DUT.v_cntr < vgaTimes::V_VISIBLE_AREA)) begin
+                if (!in_frame) begin
+                    $error("[in_frame] Expected 1 at h=%0d v=%0d", DUT.h_cntr, DUT.v_cntr);
+                    errors++;
+                end
+            end else begin
+                if (in_frame) begin
+                    $error("[in_frame] Expected 0 at h=%0d v=%0d", DUT.h_cntr, DUT.v_cntr);
+                    errors++;
+                end
+            end
+
+            // h_sync active-low check
+            if ((DUT.h_cntr >= (vgaTimes::H_VISIBLE_AREA + vgaTimes::H_FRONTPORCH)) &&
+                (DUT.h_cntr <  (vgaTimes::H_VISIBLE_AREA + vgaTimes::H_FRONTPORCH + vgaTimes::H_SYNC_PULSE))) begin
+                if (h_sync) begin
+                    $error("[h_sync] Expected 0 (active-low) at h=%0d v=%0d", DUT.h_cntr, DUT.v_cntr);
+                    errors++;
+                end
+            end else begin
+                if (!h_sync) begin
+                    $error("[h_sync] Expected 1 (idle) at h=%0d v=%0d", DUT.h_cntr, DUT.v_cntr);
+                    errors++;
+                end
+            end
+
+            // v_sync active-low check
+            if ((DUT.v_cntr >= (vgaTimes::V_VISIBLE_AREA + vgaTimes::V_FRONTPORCH)) &&
+                (DUT.v_cntr <  (vgaTimes::V_VISIBLE_AREA + vgaTimes::V_FRONTPORCH + vgaTimes::V_SYNC_PULSE))) begin
+                if (v_sync) begin
+                    $error("[v_sync] Expected 0 (active-low) at h=%0d v=%0d", h_cnt, DUT.v_cntr);
+                    errors++;
+                end
+            end else begin
+                if (!v_sync) begin
+                    $error("[v_sync] Expected 1 (idle) at h=%0d v=%0d", h_cnt, DUT.v_cntr);
+                    errors++;
+                end
+            end
+        end
+    end
 
     endtask
+
+
 
     always begin
         #(CLK_PERIOD/2) 
@@ -51,7 +100,9 @@ module tb_vgaTiming();
         
         reset_dut();
 
-        #(1000000 * CLK_PERIOD)
+        check_syncs();
+
+        #(2 * CLK_PERIOD)
 
         $display("[TESTBENCH] PASSED All tests");
         $finish();
