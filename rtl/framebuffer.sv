@@ -12,6 +12,6 @@ module framebuffer (
     output reg [COLOR_CHANNEL_BITS - 1 : 0] vga_blue
     );
 
-    logic [COLOR_BITS - 1 : 0] buffer [0 : FRAME_BUF_SIZE - 1];
+    logic [COLOR_BITS - 1 : 0] buffer [0 : FRAME_SIZE - 1];
 
 endmodule
