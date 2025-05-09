@@ -42,7 +42,7 @@ module axi4_comms (
     logic [AXI_ADDR_BITS-1:0] wr_addr, rd_addr;
     logic [AXI_DATA_BITS-1:0] wr_data;
 
-
+    // write request 
     axi4_wr_chan wr_chan (
         .reset_n            (reset_n),
         .axi_clk            (axi_clk),
@@ -51,18 +51,6 @@ module axi4_comms (
         .wr_addr            (wr_addr),
         .wr_data            (wr_data),
         .wr_valid           ()
-    );
-
-    logic tmp;
-    axi4_rd_chan rd_chan (
-        .reset_n            (reset_n),
-        .axi_clk            (axi_clk),
-        .rd_chan_i          (rd_chan_i),
-        .rd_chan_o          (rd_chan_o),
-        .rd_data            ('ha5),
-        .rd_we              (tmp), 
-        .rd_addr            (rd_addr),
-        .rd_valid           (tmp)
     );
 
     // write packet encoder
@@ -84,5 +72,17 @@ module axi4_comms (
         
     // TODO: write wr_fifo_data_i to fifo 
 
+    // read request
+    logic tmp;
+    axi4_rd_chan rd_chan (
+        .reset_n            (reset_n),
+        .axi_clk            (axi_clk),
+        .rd_chan_i          (rd_chan_i),
+        .rd_chan_o          (rd_chan_o),
+        .rd_data            ('ha5),
+        .rd_we              (tmp), 
+        .rd_addr            (rd_addr),
+        .rd_valid           (tmp)
+    );
 
 endmodule
