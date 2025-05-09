@@ -1,6 +1,7 @@
 INC_DIR := ./include
 
 RTL_SRCS 	:= $(shell find rtl -name '*.sv' -or -name '*.v')
+TB_SRCS 	:= $(shell find tests -name '*.sv' -or -name '*.v')
 
 INCLUDE_DIRS := $(sort $(dir $(shell find . -name '*.svh')))
 RTL_DIRS	 := $(sort $(dir $(RTL_SRCS)))
@@ -56,11 +57,25 @@ lint: lint_all
 
 .PHONY: lint_all
 lint_all: 
-	@printf "\n$(GREEN)$(BOLD) ----- Linting All Modules ----- $(RESET)\n"
+	@printf "\n$(GREEN)$(BOLD) ----- Linting RTL Modules ----- $(RESET)\n"
 	@for src in $(RTL_SRCS); do \
 		top_module=$$(basename $$src .sv); \
 		top_module=$$(basename $$top_module .v); \
 		printf "Linting $$src . . . "; \
+		# printf "\n\t\t$(LINTER) $(LINT_OPTS)"; \
+		if $(LINTER) $(LINT_OPTS) --top-module $$top_module $$src > /dev/null 2>&1; then \
+			printf "$(GREEN)PASSED$(RESET)\n"; \
+		else \
+			printf "$(RED)FAILED$(RESET)\n"; \
+			$(LINTER) $(LINT_OPTS) --top-module $$top_module $$src; \
+		fi; \
+	done
+	@printf "\n$(GREEN)$(BOLD) ----- Linting TB Modules ----- $(RESET)\n"
+	@for src in $(TB_SRCS); do \
+		top_module=$$(basename $$src .sv); \
+		top_module=$$(basename $$top_module .v); \
+		printf "Linting $$src . . . "; \
+		# printf "\n\t\t$(LINTER) $(LINT_OPTS)"; \
 		if $(LINTER) $(LINT_OPTS) --top-module $$top_module $$src > /dev/null 2>&1; then \
 			printf "$(GREEN)PASSED$(RESET)\n"; \
 		else \
