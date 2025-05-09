@@ -78,26 +78,36 @@ module tb_axi4_comms();
         $display("[AXI WRITE] Wrote 0x%02h to 0x%08h", data, addr);
     endtask
 
-    // // read from dev to host
-    // task automatic axi_read_single(
-    //     ref axi4_ar_t ar,
-    //     ref axi4_r_t  r,
-    //     input  logic [31:0] addr,
-    //     output logic [7:0] data
-    // );
-    //     ar.araddr  = addr;
-    //     ar.arlen   = 0;
-    //     ar.arsize  = 3'b010;
-    //     ar.arburst = 2'b01;
-    //     ar.arvalid = 1;
-    //     wait (ar.arready);
-    //     ar.arvalid = 0;
+    // read from dev to host
+    task automatic axi_read_single(
+        input  logic [31:0] addr,
+        output logic [7:0]  data
+    );
+        // Send read address
+        rd_chan_i.araddr  = addr;
+        rd_chan_i.arlen   = 0;
+        rd_chan_i.arsize  = 3'b000; // 1 byte
+        rd_chan_i.arburst = 2'b01;
+        rd_chan_i.arvalid = 1;
+        rd_chan_i.rready  = 0;
 
-    //     r.rready = 1;
-    //     wait (r.rvalid);
-    //     data = r.rdata[7:0];
-    //     r.rready = 0;
-    // endtask
+        // Wait for address handshake
+        wait (rd_chan_o.arready);
+        @(posedge axi_clk);
+        @(negedge axi_clk);
+        rd_chan_i.arvalid = 0;
+
+        // Wait for read data
+        rd_chan_i.rready = 1;
+        wait (rd_chan_o.rvalid);
+        data = rd_chan_o.rdata[7:0]; // Read lowest byte
+
+        @(posedge axi_clk);
+        @(negedge axi_clk);
+        rd_chan_i.rready = 0;
+
+        $display("[AXI READ] Read 0x%02h from 0x%08h", data, addr);
+    endtask
 
     // gen clocks
     always #(VGA_CLK_PERIOD/2) vga_clk = ~vga_clk;
@@ -119,17 +129,17 @@ module tb_axi4_comms();
     endtask
 
     // tests
+    logic [7:0] rdata;
     initial begin
         $dumpfile("tb_axi4_comms.vcd");
         $dumpvars(0, tb_axi4_comms);
 
         reset_dut();
 
-        // logic [7:0] rdata;
-        axi_write_single(AXI_CSR_ADDR, 8'hA5);
-        // axi4_read(ar_chan, r_chan, 32'h1100_0000, rdata);
-        // $display("[TESTBENCH] Read value: 0x%02h", rdata);
-        // assert (rdata == 8'hA5) else $fatal("[ERROR] AXI readback mismatch");
+        // axi_write_single(AXI_CSR_ADDR, 8'hA5);
+        axi_read_single(AXI_CSR_ADDR, rdata);
+        $display("[TESTBENCH] Read value: 0x%02h", rdata);
+        assert (rdata == 8'hA5) else $fatal("[ERROR] AXI readback mismatch");
 
         $display("[TESTBENCH] PASSED all tests.");
         $finish;

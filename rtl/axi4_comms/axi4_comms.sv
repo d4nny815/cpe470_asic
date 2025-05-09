@@ -39,7 +39,7 @@ module axi4_comms (
     // * =======================================================================
     // * DATA PATH
     // * =======================================================================
-    logic [AXI_ADDR_BITS-1:0] wr_addr;
+    logic [AXI_ADDR_BITS-1:0] wr_addr, rd_addr;
     logic [AXI_DATA_BITS-1:0] wr_data;
 
 
@@ -53,6 +53,17 @@ module axi4_comms (
         .wr_valid           ()
     );
 
+    logic tmp;
+    axi4_rd_chan rd_chan (
+        .reset_n            (reset_n),
+        .axi_clk            (axi_clk),
+        .rd_chan_i          (rd_chan_i),
+        .rd_chan_o          (rd_chan_o),
+        .rd_data            ('ha5),
+        .rd_we              (tmp), 
+        .rd_addr            (rd_addr),
+        .rd_valid           (tmp)
+    );
 
     // write packet encoder
     typedef struct packed {
