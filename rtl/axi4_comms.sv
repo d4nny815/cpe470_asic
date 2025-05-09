@@ -1,5 +1,6 @@
 // TODO: danny
 `include "axi4_itf.sv"
+// `include "../../ip/sip/axi4_itf.sv"
 `include "vga_driver_structs.sv"
 
 import axi4_itf::*;

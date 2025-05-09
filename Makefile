@@ -2,11 +2,13 @@ INC_DIR := ./include
 
 RTL_SRCS 	:= $(shell find rtl -name '*.sv' -or -name '*.v')
 TB_SRCS 	:= $(shell find tests -name '*.sv' -or -name '*.v')
+IP_SRCS 	:= $(shell find ip -name '*.sv' -or -name '*.v')
 
 INCLUDE_DIRS := $(sort $(dir $(shell find . -name '*.svh')))
 RTL_DIRS	 := $(sort $(dir $(RTL_SRCS)))
+IP_DIRS			:= $(sort $(dir $(IP_SRCS)))
 # Include both Include and RTL directories for linting
-LINT_INCLUDES := $(foreach dir, $(INCLUDE_DIRS) $(RTL_DIRS), -I$(realpath $(dir))) -I$(PDKPATH) 
+LINT_INCLUDES := $(foreach dir, $(INCLUDE_DIRS) $(RTL_DIRS) $(IP_DIRS), -I$(realpath $(dir))) -I$(PDKPATH) 
 
 TEST_DIR = ./tests
 TEST_SUBDIRS = $(shell cd $(TEST_DIR) && ls -d */ | grep -v "__pycache__" )
@@ -75,7 +77,6 @@ lint_all:
 		top_module=$$(basename $$src .sv); \
 		top_module=$$(basename $$top_module .v); \
 		printf "Linting $$src . . . "; \
-		# printf "\n\t\t$(LINTER) $(LINT_OPTS)"; \
 		if $(LINTER) $(LINT_OPTS) --top-module $$top_module $$src > /dev/null 2>&1; then \
 			printf "$(GREEN)PASSED$(RESET)\n"; \
 		else \
