@@ -45,35 +45,37 @@ module tb_axi4_comms();
         input logic [31:0] addr,
         input logic [7:0]  data
     );
+        // Send address and data
         wr_chan_i.awaddr  = addr;
         wr_chan_i.awlen   = 0;
         wr_chan_i.awsize  = 3'b000; // 1 byte
-        wr_chan_i.awburst = 2'b01;  // INCR
+        wr_chan_i.awburst = 2'b01;
         wr_chan_i.awvalid = 1;
 
-        wr_chan_i.wdata  = {24'b0, data};
-        wr_chan_i.wstrb  = 4'b0001; // Lower byte enabled only
-        wr_chan_i.wlast  = 1;
-        wr_chan_i.wvalid = 1;
+        wr_chan_i.wdata   = {24'b0, data}; // Byte in lowest 8 bits
+        wr_chan_i.wstrb   = 4'b0001;       // Only lowest byte is valid
+        wr_chan_i.wlast   = 1;
+        wr_chan_i.wvalid  = 1;
 
+        // Wait for both aw and w to be accepted
         wait (wr_chan_o.awready && wr_chan_o.wready);
-        @(posedge axi_clk)
-        @(negedge axi_clk)
-        wait (!wr_chan_o.awready && !wr_chan_o.wready)
-        wr_chan_i.wvalid = 0;
+
+        // Deassert after handshake
+        @(posedge axi_clk);
+        @(negedge axi_clk);
         wr_chan_i.awvalid = 0;
+        wr_chan_i.wvalid  = 0;
 
+        // Wait for bvalid and respond with bready
         wr_chan_i.bready = 1;
-        
-        $display("AWATING RESP");
         wait (wr_chan_o.bvalid);
-        @(posedge axi_clk)
-        @(negedge axi_clk)
-        wait (!wr_chan_o.bvalid);
-        wr_chan_i.bready = 0;
-        #(100)
-        $display("DONE WITH WRITE");
 
+        @(posedge axi_clk);
+        @(negedge axi_clk);
+
+        wr_chan_i.bready = 0;
+
+        $display("[AXI WRITE] Wrote 0x%02h to 0x%08h", data, addr);
     endtask
 
     // // read from dev to host

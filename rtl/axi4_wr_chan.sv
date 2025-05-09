@@ -21,15 +21,14 @@ module axi4_wr_chan (
     // * =======================================================================
 
     typedef enum logic [1:0] {
-        IDLE,
-        LOAD,
+        READY,
         VALID,
         WAIT_RESP
     } state_t;
     state_t PS, NS;
 
     always_ff @(posedge axi_clk or negedge reset_n) begin
-        if (!reset_n) PS <= IDLE;
+        if (!reset_n) PS <= READY;
         else PS <= NS;
     end
 
@@ -42,16 +41,17 @@ module axi4_wr_chan (
         wr_data_we = 1'b0;
 
         case (PS)
-            IDLE: begin
+            READY: begin
                 wr_chan_o.awready = 1;
                 wr_chan_o.wready = 1;
-
-                if ((wr_chan_i.awvalid && wr_chan_o.awready) && 
-                    (wr_chan_i.wvalid && wr_chan_o.wready)) begin
+                if ((wr_chan_i.awvalid && wr_chan_o.awready) &&
+                    (wr_chan_i.wvalid && wr_chan_o.wready)) begin 
                     wr_addr_we = 1'b1;
                     wr_data_we = 1'b1;
                     NS = VALID;
                 end
+                else
+                    NS = READY;
             end
             
             VALID: begin
@@ -63,10 +63,11 @@ module axi4_wr_chan (
                 wr_chan_o.bvalid = 1'b1;
                 wr_chan_o.bresp  = OKAY;
 
-                if (wr_chan_i.bready) NS = IDLE;
+                if (wr_chan_i.bready) NS = READY;
+                else NS = WAIT_RESP;
             end
 
-            default: NS = IDLE;
+            default: NS = READY;
         endcase
     end
 
@@ -80,10 +81,8 @@ module axi4_wr_chan (
             awaddr_r <= 'hdeadbeef;
             wdata_r  <= 'hdeadbeef;
         end else begin
-            if (wr_addr_we) 
-                awaddr_r <= wr_chan_i.awaddr;
-            if (wr_data_we) 
-                wdata_r  <= wr_chan_i.wdata;
+                awaddr_r <= wr_addr_we ? wr_chan_i.awaddr : 0;
+                wdata_r <= wr_data_we ? wr_chan_i.wdata : 0;
         end
     end
 
