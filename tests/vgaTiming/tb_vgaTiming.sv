@@ -1,4 +1,4 @@
-`include "../../rtl/common/vgaTimes.sv"
+`include "vgaTimes.sv"
 
 module tb_vgaTiming();
     localparam CLK_PERIOD = 10;

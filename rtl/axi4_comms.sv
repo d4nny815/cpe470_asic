@@ -1,6 +1,6 @@
 // TODO: danny
-`include "common/axi4_itf.sv"
-`include "common/vga_driver_structs.sv"
+`include "axi4_itf.sv"
+`include "vga_driver_structs.sv"
 
 import axi4_itf::*;
 import vga_driver_structs::*;

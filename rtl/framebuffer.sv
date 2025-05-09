@@ -1,5 +1,5 @@
 // TODO: danny
-`include "common/displayConsts.sv"
+`include "displayConsts.sv"
 
 import displayConsts::*;
 
