@@ -1,6 +1,7 @@
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
 `include "displayConsts.sv"
+`include "axi4_wr_chan.sv"
 
 
 // ! currently only supports single writes
@@ -31,68 +32,27 @@ module axi4_comms (
 
     assign init_done = reset_n;
 
-    logic wr_chan_rdy2accpt; // !wr_fifo_full
+    // * =======================================================================
+    // * CONTROL PATH
+    // * =======================================================================
 
-    // * ==========================================================================
-    // * WRITE CONTROL
-    // * ==========================================================================
-    
-    logic wr_valid;
-    logic bvalid;
-
-    always_ff @(posedge axi_clk or negedge reset_n) begin
-        if (!reset_n) begin
-            wr_valid <= 0;
-            bvalid   <= 0;
-        end else begin
-            if (wr_chan_i.awvalid && wr_chan_rdy2accpt &&
-                wr_chan_i.wvalid  && wr_chan_rdy2accpt) begin
-                wr_valid <= 1;
-                bvalid   <= 1;
-            end else if (!wr_chan_rdy2accpt && wr_chan_i.bready) begin
-                wr_valid <= 0;
-                bvalid   <= 0;
-            end
-        end
-    end
-
-    always_comb begin
-        wr_chan_o.bvalid = bvalid;
-        wr_chan_o.bresp  = OKAY;
-
-        wr_chan_o.awready = wr_chan_rdy2accpt;
-        wr_chan_o.wready  = wr_chan_rdy2accpt;
-    end
-
-    // * ==========================================================================
-    // * COMBINATIONAL STROBES
-    // * ==========================================================================
-
-    logic wr_addr_we, wr_data_we;
-    always_comb begin
-        wr_chan_rdy2accpt = reset_n; // TODO: implement
-        wr_addr_we = wr_chan_i.awvalid && wr_chan_rdy2accpt;
-        wr_data_we = wr_chan_i.wvalid  && wr_chan_rdy2accpt;
-    end
-
-    // * ==========================================================================
-    // * WRITE DATA PATH
-    // * ==========================================================================
+    // * =======================================================================
+    // * DATA PATH
+    // * =======================================================================
     logic [AXI_ADDR_BITS-1:0] wr_addr;
     logic [AXI_DATA_BITS-1:0] wr_data;
 
-    always_ff @(posedge axi_clk or negedge reset_n) begin
-        if (!reset_n) begin
-            wr_addr <= 'hdeadbeef;
-            wr_data <= 'hdeadbeef;
-        end else begin
-            if (wr_addr_we)
-                wr_addr <= wr_chan_i.awaddr;
 
-            if (wr_data_we)
-                wr_data <= wr_chan_i.wdata;
-        end
-    end
+    axi4_wr_chan wr_chan (
+        .reset_n            (reset_n),
+        .axi_clk            (axi_clk),
+        .wr_chan_i          (wr_chan_i),
+        .wr_chan_o          (wr_chan_o),
+        .wr_addr            (wr_addr),
+        .wr_data            (wr_data),
+        .wr_valid           ()
+    );
+
 
     // write packet encoder
     typedef struct packed {

@@ -56,18 +56,24 @@ module tb_axi4_comms();
         wr_chan_i.wlast  = 1;
         wr_chan_i.wvalid = 1;
 
+        wait (wr_chan_o.awready && wr_chan_o.wready);
         @(posedge axi_clk)
-        wait (wr_chan_o.awready);
-        wait (wr_chan_o.wready);
+        @(negedge axi_clk)
+        wait (!wr_chan_o.awready && !wr_chan_o.wready)
         wr_chan_i.wvalid = 0;
         wr_chan_i.awvalid = 0;
 
-        // Wait for write response
         wr_chan_i.bready = 1;
         
-        @(posedge axi_clk)
+        $display("AWATING RESP");
         wait (wr_chan_o.bvalid);
+        @(posedge axi_clk)
+        @(negedge axi_clk)
+        wait (!wr_chan_o.bvalid);
         wr_chan_i.bready = 0;
+        #(100)
+        $display("DONE WITH WRITE");
+
     endtask
 
     // // read from dev to host
