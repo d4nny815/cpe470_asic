@@ -1,4 +1,4 @@
-// make these for the channels
+// TODO: danny
 `include "common/axi4_itf.sv"
 `include "common/vga_driver_structs.sv"
 

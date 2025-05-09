@@ -1,12 +1,19 @@
 // TODO: camille
+`include "common/vga_driver_structs.sv"
+
+import vga_driver_structs::*;
+
+/*
+    check the struct defns
+    if they dont make sense
+*/
+
 module control_unit (
-    // timing status
+    input logic clk,
 
-    // w/r status
+    input statuses_t statuses,
 
-    // timing control
-
-    // w/r control
+    output controls_t controls
     );
 
 endmodule

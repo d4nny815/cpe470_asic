@@ -23,5 +23,35 @@ package vga_driver_structs;
         fb_csr_t rd_fb_csr;
         logic [PIXEL_ADDR_BITS-1:0] rd_addr;
     } axi_comms_status_t;
+
+    typedef struct packed {
+        logic RST_N;
+        
+        // vga timing
+        logic in_frame;
+
+        // w/r reqs
+        axi_comms_status_t axi_comms;
+    } statuses_t;
+
+    typedef struct packed {
+        logic reset_n;
+        
+        // timing 
+        logic next;
+        logic vga_fetch;
+
+        // w/r reqs
+        logic wr_ld; 
+        logic rd_ld;
+        logic cr_ld;
+        logic fb_w_r;
+        logic fb_en;
+        logic wr_re;
+        logic rd_re;
+        logic rd_we;
+        logic [1:0] rd_data_sel;
+        logic rd_we;
+    } controls_t;
 endpackage
 `endif 

@@ -1,8 +1,8 @@
+// TODO: danny
 `include "common/displayConsts.sv"
 
 import displayConsts::*;
 
-// TODO: danny
 module framebuffer (
     input logic [PIXEL_ADDR_BITS-1 : 0] vga_addr,
     input logic vga_fetch_next,
