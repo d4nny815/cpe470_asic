@@ -9,13 +9,13 @@ import vga_driver_structs::*;
 */
 
 module control_unit (
+    input logic RST_N,
     input logic clk,
     input logic fb_valid,
     input logic cr,
     input statuses_t statuses,
     output controls_t controls,
-    output logic addr_sel,
-    output logic rd_we
+    output logic addr_sel
     );
 
     // VGA TIMING FSM -----------
@@ -64,11 +64,21 @@ module control_unit (
     end
 
     // R/W FSM
-    typedef enum logic [1:0] {
-        IDLE  = 2'b00,
-        WRITE = 2'b01,
-        READ  = 2'b10,
-        RESET = 2'b11
+    typedef enum logic [3:0] {
+        RESET = 4'd0,
+        IDLE = 4'd1,
+
+        WRITE_WAIT = 4'd2,
+        WR_FB_WAIT = 4'd3,
+        WR_FB = 4'd4,
+        WR_CSR = 4'd5,
+
+        READ_WAIT = 4'd6,
+        RD_FB_WAIT = 4'd7,
+        RD_FB = 4'd8,
+        RD_CNTL = 4'd9,
+        RD_STATUS = 4'd10
+
     } state_t2;
 
     state_t2 curr_state_2, next_state_2;
@@ -82,80 +92,112 @@ module control_unit (
 
     always_comb begin
         // reset all signals
-        controls.wr_ld = 0; 
-        controls.rd_ld = 0;
-        controls.cr_ld = 0;
-        controls.fb_w_r = 0;
-        controls.fb_en = 0;
-        controls.wr_re = 0;
-        controls.rd_re = 0;
-        controls.rd_we = 0;
-        controls.rd_data_sel = '0;
-        controls.rd_we = 0;
-
+        controls = '0;
         addr_sel = 0;
-        rd_we = 0;
 
         next_state_2 = curr_state_2;
 
         case (curr_state_2)
+
             RESET: begin
-                reset_n = 1;
+                controls.reset_n = 1;
+                next_state_2 = IDLE;
             end
 
             IDLE: begin
                 // set everything low
-                if (statuses.wr_req)
-                    next_state_2 = WRITE;
+                if (statuses.axi_comms.wr_req) begin
+                    next_state_2 = WRITE_WAIT;
                     controls.wr_re = 1;
-
-                else if (statuses.rd_req) begin
-                    next_state_2 = READ;
+                end else if (statuses.axi_comms.rd_req) begin
+                    next_state_2 = READ_WAIT;
                     controls.rd_re = 1;
-
                 end else
                     next_state_2 = IDLE;
             end
 
-            WRITE: begin
-                if (statuses.wr_fb_csr) begin
-                    // write to frame buffer
-                    while (statuses.wr_full) begin
-                        // wait til full goes low (write register is open then)
-                    end
+            WRITE_WAIT: begin
+                if (statuses.axi_comms.wr_full) begin
+                    next_state_2 = WRITE_WAIT;
+                end else begin
                     controls.wr_ld = 1;
-                    addr_sel = 0; // select write address
-                    while (!fb_valid) begin
-                        // wait til FB not busy
-                    end
-                    // enable write on frame buffer
-                    controls.fb_w_r = 1;
-                    controls.fb_en = 1;
-                end else begin
-                    // write to CR
-                    controls.cr_ld;
-                end
-                next_state_2 = IDLE;
-            end
 
-            READ: begin
-                if (statuses.rd_fb_csr) begin
-                    // read from frame buffer
-                    controls.rd_data_sel = 2'b01;
-                end else begin
-                    if (cr) begin
-                        // read from control
-                        controls.rd_data_sel = 2'b10;
+                    if (statuses.axi_comms.wr_fb_csr) begin
+                        next_state_2 = WR_FB_WAIT;
                     end else begin
-                        // read from status
-                        controls.rd_data_sel = 2'101;
+                        next_state_2 = WR_CSR;
                     end
                 end
-                rd_we = 1;
+            end
+
+            WR_FB_WAIT: begin
+                addr_sel = 0;
+                if (fb_valid) begin
+                    next_state_2 = WR_FB;
+                end else begin
+                    next_state_2 = WR_FB_WAIT;
+                end
+            end
+
+            WR_FB: begin
+                controls.fb_w_r = 1;
+                controls.fb_en = 1;
                 next_state_2 = IDLE;
             end
 
-            default: // reset signals and set state to IDLE
+            WR_CSR: begin
+                controls.cr_ld = 1;
+                next_state_2 = IDLE;
+            end
+
+
+            READ_WAIT: begin
+                if (!statuses.axi_comms.rd_full) begin
+                    controls.rd_ld = 1;
+                    if (statuses.axi_comms.rd_fb_csr) begin
+                        next_state_2 = RD_FB_WAIT;
+                    end else begin
+                        if (cr) begin
+                            next_state_2 = RD_CNTL;
+                        end else begin
+                            next_state_2 = RD_STATUS;
+                        end
+                    end
+                end else begin
+                    next_state_2 = READ_WAIT;
+                end
+            end
+
+            RD_FB_WAIT: begin
+                addr_sel = 1'b1;
+                if (fb_valid) begin
+                    next_state_2 = RD_FB;
+                end else begin
+                    next_state_2 = RD_FB_WAIT;
+                end
+            end
+
+            RD_FB: begin
+                controls.fb_w_r = 0;
+                controls.fb_en = 1;
+                controls.rd_we = 1;
+                controls.rd_data_sel = 2'b01;
+                next_state_2 = IDLE;
+            end
+
+            RD_CNTL: begin
+                controls.rd_data_sel = 2'b10;
+                controls.rd_we = 1;
+                next_state_2 = IDLE;
+            end
+
+            RD_STATUS: begin
+                controls.rd_data_sel = 2'b11;
+                controls.rd_we = 1;
+                next_state_2 = IDLE;
+            end
+                   
+        default: next_state_2 = IDLE;
 
         endcase
 

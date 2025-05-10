@@ -33,7 +33,7 @@ module pixel_addr_gen (
     // output pixel_addr
     always_comb begin
         if (in_frame) begin
-            pixel_addr = pixel_base + h_cnt;
+            pixel_addr = pixel_base + {{(9){1'b0}}, h_cnt};
         end else begin
             pixel_addr = 0;
         end
