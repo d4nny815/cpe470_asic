@@ -42,10 +42,10 @@ module vgaTiming (
         end
     end
 
+    assign h_cnt = h_cntr[H_CNT_BITS - 1 : 0];
+    assign v_cnt = v_cntr[V_CNT_BITS - 1 : 0];
+
     always_comb begin
-        h_cnt = h_cntr[H_CNT_BITS - 1 : 0];
-        v_cnt = v_cntr[V_CNT_BITS - 1 : 0];
-        
         h_sync = !(h_cntr >= H_VISIBLE_AREA + H_FRONTPORCH && 
                     h_cntr < H_VISIBLE_AREA + H_FRONTPORCH + H_SYNC_PULSE);
         v_sync = !(v_cntr >= V_VISIBLE_AREA + V_FRONTPORCH && 

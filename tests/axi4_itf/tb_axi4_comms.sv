@@ -63,7 +63,6 @@ module tb_axi4_comms();
 
         // Deassert after handshake
         @(posedge axi_clk);
-        @(negedge axi_clk);
         wr_chan_i.awvalid = 0;
         wr_chan_i.wvalid  = 0;
 
@@ -72,7 +71,6 @@ module tb_axi4_comms();
         wait (wr_chan_o.bvalid);
 
         @(posedge axi_clk);
-        @(negedge axi_clk);
 
         wr_chan_i.bready = 0;
 
@@ -95,7 +93,6 @@ module tb_axi4_comms();
         // Wait for address handshake
         wait (rd_chan_o.arready);
         @(posedge axi_clk);
-        @(negedge axi_clk);
         rd_chan_i.arvalid = 0;
 
         // Wait for read data
@@ -104,7 +101,6 @@ module tb_axi4_comms();
         data = rd_chan_o.rdata[7:0]; // Read lowest byte
 
         @(posedge axi_clk);
-        @(negedge axi_clk);
         rd_chan_i.rready = 0;
 
         $display("[AXI READ] Read 0x%02h from 0x%08h", data, addr);
@@ -134,7 +130,7 @@ module tb_axi4_comms();
         $display("[TESTBENCH] Reset complete");
     endtask
 
-    task write_single_test();
+    task wr_single_test();
         bit [COLOR_LUT_BITS-1:0] expected_color, color;
         bit [(PIXEL_ADDR_BITS + COLOR_LUT_BITS + 1)-1:0] expected_packet;
 
@@ -162,7 +158,6 @@ module tb_axi4_comms();
         dut_wr_fb_csr = status.wr_fb_csr;
         dut_wr_data = status.wr_data;
 
-        @(negedge vga_clk)
         assert (dut_wr_addr == expected_wr_addr &&
                 dut_wr_data == expected_color &&
                 dut_wr_fb_csr == expected_wr_fb_csr)
@@ -170,9 +165,11 @@ module tb_axi4_comms();
         wr_re = 1'b0;
 
         wait(!status.wr_req);
+        #100;
+
     endtask
 
-    task write_multiple_test();
+    task wr_multiple_test();
         bit [COLOR_LUT_BITS-1:0] expected_color, color;
         bit [(PIXEL_ADDR_BITS + COLOR_LUT_BITS + 1)-1:0] expected_packet;
 
@@ -184,9 +181,7 @@ module tb_axi4_comms();
         
 
         for (int i = 0; i < 10; i++) begin
-            // expected_wr_addr = {AXI_FB_ADDR + i}[PIXEL_ADDR_BITS-1:0];
             expected_color = i[COLOR_LUT_BITS-1:0];
-            // expected_wr_fb_csr = FB;
             axi_write_single(AXI_FB_ADDR + i, expected_color);
         end
 
@@ -200,7 +195,7 @@ module tb_axi4_comms();
             // check that its in the fifo
             expected_packet = {expected_wr_fb_csr, expected_wr_addr, expected_color};
             assert (expected_packet == DUT.wr_fifo.fifomem.mem[15 - i])
-            else #100 $error("DIDNT WRITE TO FIFO %h !== %h", 
+            else $error("DIDNT WRITE TO FIFO %h !== %h", 
                 expected_packet, DUT.wr_fifo.fifomem.mem[15 - i]);
         end
 
@@ -212,10 +207,8 @@ module tb_axi4_comms();
             expected_color = i[COLOR_LUT_BITS-1:0];
             expected_wr_fb_csr = FB;
 
-            @(negedge vga_clk)
             wr_re = 1'b1;
             @(posedge vga_clk)
-            @(negedge vga_clk)
             dut_wr_addr = status.wr_addr;
             dut_wr_fb_csr = status.wr_fb_csr;
             dut_wr_data = status.wr_data;
@@ -224,20 +217,14 @@ module tb_axi4_comms();
             assert (dut_wr_addr == expected_wr_addr &&
                     dut_wr_data == expected_color &&
                     dut_wr_fb_csr == expected_wr_fb_csr)
-            else #100 $error("DIDNT READ CORRECTLY %h !== %h",
+            else $error("DIDNT READ CORRECTLY ex: %h !== dut: %h @ %h",
                 {expected_wr_fb_csr, expected_wr_addr, expected_color}, 
-                {dut_wr_fb_csr, dut_wr_addr, dut_wr_data});
+                {dut_wr_fb_csr, dut_wr_addr, dut_wr_data}, 
+                i);
         end
         
         wait(!status.wr_req);
     endtask
-
-    task read_test();
-        bit [7:0] rdata;
-        axi_read_single(AXI_CSR_ADDR, rdata);
-        $display("[TESTBENCH] Read value: 0x%02h", rdata);
-        assert (rdata == 8'hA5) else $fatal("[ERROR] AXI readback mismatch");
-    endtask;
 
     // tests
     initial begin
@@ -246,12 +233,10 @@ module tb_axi4_comms();
 
         reset_dut();
 
-        write_single_test();
+        wr_single_test();
 
-        write_multiple_test();
+        wr_multiple_test();
 
-        // read_test();
-        
         $display("[TESTBENCH] PASSED all tests.");
         $finish;
     end

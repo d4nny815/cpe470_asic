@@ -40,9 +40,9 @@ module axi4_comms (
     // * =======================================================================
     logic wr_fifo_we_i, wr_fifo_empty;
     // write request
-    always_comb begin 
+    // always_comb begin 
 
-    end
+    // end
 
     // * =======================================================================
     // * DATA PATH
@@ -70,12 +70,22 @@ module axi4_comms (
 
     logic wr_fifo_valid_packet;
     wr_fifo_packet_t wr_fifo_data_i, wr_fifo_data_o;
+    logic [PIXEL_ADDR_BITS-1:0] wr_addr_sliced;
+    logic [COLOR_LUT_BITS-1:0] wr_data_sliced;
+
+    assign wr_addr_sliced = wr_addr[PIXEL_ADDR_BITS-1:0];
+    assign wr_data_sliced = wr_data[COLOR_LUT_BITS-1:0];
+
     always_comb begin
-        wr_fifo_data_i.addr = wr_addr[PIXEL_ADDR_BITS-1:0];
-        wr_fifo_data_i.data = wr_data[COLOR_LUT_BITS-1:0];
-        wr_fifo_data_i.fb_csr = wr_addr[PIXEL_ADDR_BITS-1:0] < CSR_ADDR_OFFSET ? FB : CSR;
+        wr_fifo_data_i.addr = wr_addr_sliced;
+        wr_fifo_data_i.data = wr_data_sliced;
+        if (wr_addr_sliced < CSR_ADDR_OFFSET)
+            wr_fifo_data_i.fb_csr = FB;
+        else
+            wr_fifo_data_i.fb_csr = CSR;
+        
         wr_fifo_valid_packet = (wr_addr < FRAME_SIZE || 
-                            (wr_addr >= CSR_ADDR_OFFSET && wr_addr <= CSR_ADDR_OFFSET + 1));
+                            (wr_addr >= AXI_CSR_ADDR && wr_addr <= AXI_CSR_ADDR + 1));
     end
         
     ASYNC_FIFO #( 
@@ -94,12 +104,10 @@ module axi4_comms (
         .wfull      (status.wr_full)       // Write full signal
     );
 
-    always_comb begin
-        status.wr_req = !wr_fifo_empty;
-        status.wr_fb_csr = wr_fifo_data_o.fb_csr;
-        status.wr_addr = wr_fifo_data_o.addr;
-        status.wr_data = wr_fifo_data_o.data;
-    end
+    assign status.wr_req     = !wr_fifo_empty;
+    assign status.wr_fb_csr  = wr_fifo_data_o.fb_csr;
+    assign status.wr_addr    = wr_fifo_data_o.addr;
+    assign status.wr_data    = wr_fifo_data_o.data;
 
     // read request
     // logic tmp;
