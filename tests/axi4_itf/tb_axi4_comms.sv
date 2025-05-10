@@ -17,12 +17,13 @@ module tb_axi4_comms();
     
     // inputs
     // axi 
-    bit reset_n;
+    bit axi_reset_n;
     bit axi_clk;
     wr_channel_input_t wr_chan_i;
     rd_channel_input_t rd_chan_i;
 
     // vga driver
+    bit vga_reset_n;
     bit vga_clk;
     bit wr_re;
     bit rd_re;
@@ -116,36 +117,146 @@ module tb_axi4_comms();
     task reset_dut();
         axi_clk = 0;
         vga_clk = 0;
-        reset_n = 1;
+        axi_reset_n = 1;
+        vga_reset_n = 1;
         wr_chan_i = '0;
         rd_chan_i  = '0;
 
-        #(1 * VGA_CLK_PERIOD)
-        reset_n = 0;
-        #(1 * VGA_CLK_PERIOD)
-        reset_n = 1;
+        #(1 * (AXI_CLK_PERIOD + VGA_CLK_PERIOD))
+        axi_reset_n = 0;
+        vga_reset_n = 0;
+
+        #(1 * (AXI_CLK_PERIOD + VGA_CLK_PERIOD))
+        axi_reset_n = 1;
+        vga_reset_n = 1;
+
         wait (init_done == 1'b1);
         $display("[TESTBENCH] Reset complete");
     endtask
 
+    task write_single_test();
+        bit [COLOR_LUT_BITS-1:0] expected_color, color;
+        bit [(PIXEL_ADDR_BITS + COLOR_LUT_BITS + 1)-1:0] expected_packet;
+
+        logic [PIXEL_ADDR_BITS-1:0] expected_wr_addr, dut_wr_addr;
+        fb_csr_t expected_wr_fb_csr, dut_wr_fb_csr;
+        logic [COLOR_LUT_BITS-1:0] expected_wr_data, dut_wr_data;
+        
+        expected_wr_addr = AXI_CSR_ADDR[PIXEL_ADDR_BITS-1:0];
+        expected_color = 'ha5;
+        expected_wr_fb_csr = CSR;
+        axi_write_single(AXI_CSR_ADDR, expected_color);
+        
+        // check that its in the fifo
+        expected_packet = {expected_wr_fb_csr, expected_wr_addr, expected_color};
+        assert (expected_packet == DUT.wr_fifo.fifomem.mem[0])
+        else $error("DIDNT WRITE TO FIFO test 1");
+
+        // read from device side
+        @(posedge vga_clk)
+        wait (status.wr_req);
+        wr_re = 1'b1;
+
+        @(posedge vga_clk)
+        dut_wr_addr = status.wr_addr;
+        dut_wr_fb_csr = status.wr_fb_csr;
+        dut_wr_data = status.wr_data;
+
+        @(negedge vga_clk)
+        assert (dut_wr_addr == expected_wr_addr &&
+                dut_wr_data == expected_color &&
+                dut_wr_fb_csr == expected_wr_fb_csr)
+        else #100 $error("DIDNT READ CORRECTLY");
+        wr_re = 1'b0;
+
+        wait(!status.wr_req);
+    endtask
+
+    task write_multiple_test();
+        bit [COLOR_LUT_BITS-1:0] expected_color, color;
+        bit [(PIXEL_ADDR_BITS + COLOR_LUT_BITS + 1)-1:0] expected_packet;
+
+        logic [PIXEL_ADDR_BITS-1:0] expected_wr_addr, dut_wr_addr;
+        fb_csr_t expected_wr_fb_csr, dut_wr_fb_csr;
+        logic [COLOR_LUT_BITS-1:0] expected_wr_data, dut_wr_data;
+        
+        int addr_temp;
+        
+
+        for (int i = 0; i < 10; i++) begin
+            // expected_wr_addr = {AXI_FB_ADDR + i}[PIXEL_ADDR_BITS-1:0];
+            expected_color = i[COLOR_LUT_BITS-1:0];
+            // expected_wr_fb_csr = FB;
+            axi_write_single(AXI_FB_ADDR + i, expected_color);
+        end
+
+
+        for (int i = 0; i < 10; i++) begin
+            addr_temp = AXI_FB_ADDR + i;
+            expected_wr_addr = addr_temp[PIXEL_ADDR_BITS-1:0];
+            expected_color = i[COLOR_LUT_BITS-1:0];
+            expected_wr_fb_csr = FB;
+
+            // check that its in the fifo
+            expected_packet = {expected_wr_fb_csr, expected_wr_addr, expected_color};
+            assert (expected_packet == DUT.wr_fifo.fifomem.mem[15 - i])
+            else #100 $error("DIDNT WRITE TO FIFO %h !== %h", 
+                expected_packet, DUT.wr_fifo.fifomem.mem[15 - i]);
+        end
+
+
+        for (int i = 0; i < 10; i++) begin
+
+            addr_temp = AXI_FB_ADDR + i;
+            expected_wr_addr = addr_temp[PIXEL_ADDR_BITS-1:0];
+            expected_color = i[COLOR_LUT_BITS-1:0];
+            expected_wr_fb_csr = FB;
+
+            @(negedge vga_clk)
+            wr_re = 1'b1;
+            @(posedge vga_clk)
+            @(negedge vga_clk)
+            dut_wr_addr = status.wr_addr;
+            dut_wr_fb_csr = status.wr_fb_csr;
+            dut_wr_data = status.wr_data;
+
+            wr_re = 1'b0;
+            assert (dut_wr_addr == expected_wr_addr &&
+                    dut_wr_data == expected_color &&
+                    dut_wr_fb_csr == expected_wr_fb_csr)
+            else #100 $error("DIDNT READ CORRECTLY %h !== %h",
+                {expected_wr_fb_csr, expected_wr_addr, expected_color}, 
+                {dut_wr_fb_csr, dut_wr_addr, dut_wr_data});
+        end
+        
+        wait(!status.wr_req);
+    endtask
+
+    task read_test();
+        bit [7:0] rdata;
+        axi_read_single(AXI_CSR_ADDR, rdata);
+        $display("[TESTBENCH] Read value: 0x%02h", rdata);
+        assert (rdata == 8'hA5) else $fatal("[ERROR] AXI readback mismatch");
+    endtask;
+
     // tests
-    logic [7:0] rdata;
     initial begin
         $dumpfile("tb_axi4_comms.vcd");
         $dumpvars(0, tb_axi4_comms);
 
         reset_dut();
 
-        // axi_write_single(AXI_CSR_ADDR, 8'hA5);
-        axi_read_single(AXI_CSR_ADDR, rdata);
-        $display("[TESTBENCH] Read value: 0x%02h", rdata);
-        assert (rdata == 8'hA5) else $fatal("[ERROR] AXI readback mismatch");
+        write_single_test();
 
+        write_multiple_test();
+
+        // read_test();
+        
         $display("[TESTBENCH] PASSED all tests.");
         $finish;
     end
 
-    initial #1000 $error("Timeout");
+    initial #100000 $error("Timeout");
 
 
 

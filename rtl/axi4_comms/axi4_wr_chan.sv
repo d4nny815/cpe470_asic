@@ -1,3 +1,5 @@
+`ifndef AXI_WR_CHAN
+`define AXI_WR_CHAN
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
 
@@ -14,6 +16,8 @@ module axi4_wr_chan (
     output logic [AXI_DATA_BITS-1:0] wr_data,
     output logic wr_valid
     );
+
+    logic wr_addr_we, wr_data_we;
 
 
     // * =======================================================================
@@ -32,20 +36,33 @@ module axi4_wr_chan (
         else PS <= NS;
     end
 
-    logic wr_addr_we, wr_data_we;
+    logic awready_r, wready_r, bvalid_r;
+    BRESP_t bresp_r;
+    
+    logic awvalid_ready, wvalid_ready, b_ready;
+    assign awvalid_ready = wr_chan_i.awvalid && awready_r;
+    assign wvalid_ready  = wr_chan_i.wvalid && wready_r;
+    assign b_ready = wr_chan_i.bready;
+
+    assign wr_chan_o.awready = awready_r;
+    assign wr_chan_o.wready  = wready_r;
+    assign wr_chan_o.bvalid  = bvalid_r;
+    assign wr_chan_o.bresp   = bresp_r;
+
     always_comb begin
-        NS = PS;
-        wr_chan_o = 'd0;
+        awready_r = 0;
+        wready_r  = 0;
+        bvalid_r  = 0;
+        bresp_r   = OKAY;
         wr_valid = 1'b0;
         wr_addr_we = 1'b0;
         wr_data_we = 1'b0;
 
         case (PS)
             READY: begin
-                wr_chan_o.awready = 1;
-                wr_chan_o.wready = 1;
-                if ((wr_chan_i.awvalid && wr_chan_o.awready) &&
-                    (wr_chan_i.wvalid && wr_chan_o.wready)) begin 
+                awready_r = 1;
+                wready_r = 1;
+                if (awvalid_ready && wvalid_ready) begin 
                     wr_addr_we = 1'b1;
                     wr_data_we = 1'b1;
                     NS = VALID;
@@ -60,10 +77,10 @@ module axi4_wr_chan (
             end
 
             WAIT_RESP: begin
-                wr_chan_o.bvalid = 1'b1;
-                wr_chan_o.bresp  = OKAY;
+                bvalid_r = 1'b1;
+                bresp_r  = OKAY;
 
-                if (wr_chan_i.bready) NS = READY;
+                if (b_ready) NS = READY;
                 else NS = WAIT_RESP;
             end
 
@@ -81,8 +98,15 @@ module axi4_wr_chan (
             awaddr_r <= 'hdeadbeef;
             wdata_r  <= 'hdeadbeef;
         end else begin
-                awaddr_r <= wr_addr_we ? wr_chan_i.awaddr : 0;
-                wdata_r <= wr_data_we ? wr_chan_i.wdata : 0;
+                if (wr_addr_we)
+                    awaddr_r <= wr_chan_i.awaddr;
+                else
+                    awaddr_r <= 0;
+
+                if (wr_data_we)
+                    wdata_r <= wr_chan_i.wdata;
+                else
+                    wdata_r <= 0;
         end
     end
 
@@ -93,3 +117,5 @@ module axi4_wr_chan (
 
 
 endmodule
+
+`endif

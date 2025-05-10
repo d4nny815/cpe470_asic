@@ -26,7 +26,7 @@ ifdef ICARUS
 SIMULATOR := iverilog
 SIMULATOR_ARGS := -g2012
 SIMULATOR_BINARY := a.out
-SIMULATOR_SRCS := $(foreach src, $(RTL_SRCS), $(realpath $(src))) *.sv
+SIMULATOR_SRCS := $(foreach src, $(RTL_SRCS) $(IP_SRCS), $(realpath $(src))) *.sv
 SIM_TOP := `$(shell pwd)/scripts/top.sh -s`
 # LINT_INCLUDES := ""
 endif
