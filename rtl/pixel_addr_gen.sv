@@ -15,20 +15,20 @@ module pixel_addr_gen (
     output logic [PIXEL_ADDR_BITS-1:0] pixel_addr
     );
 
-    logic [PIXEL_ADDR_BITS-1:0] pixel_base;
+    // logic [PIXEL_ADDR_BITS-1:0] pixel_base;
 
-    // update pixel_base
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) begin
-            pixel_base <= 0;
-        end else if (next && !in_frame) begin
-            if (v_cnt == V_VISIBLE_AREA - 1) begin
-                pixel_base <= 0;
-            end else begin
-                pixel_base <= pixel_base + H_VISIBLE_AREA;
-            end
-        end
-    end
+    // // update pixel_base
+    // always_ff @(posedge clk or posedge rst) begin
+    //     if (rst) begin
+    //         pixel_base <= 0;
+    //     end else if (next && !in_frame) begin
+    //         if (v_cnt == V_VISIBLE_AREA - 1) begin
+    //             pixel_base <= 0;
+    //         end else begin
+    //             pixel_base <= pixel_base + H_VISIBLE_AREA;
+    //         end
+    //     end
+    // end
 
     // output pixel_addr
     always_comb begin

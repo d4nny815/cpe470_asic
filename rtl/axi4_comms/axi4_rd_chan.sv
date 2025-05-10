@@ -1,3 +1,5 @@
+`ifndef AXI_RD_CHAN
+`define AXI_RD_CHAN
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
 
@@ -90,3 +92,4 @@ module axi4_rd_chan (
 
 
 endmodule
+`endif

@@ -18,50 +18,50 @@ module control_unit (
     output logic addr_sel
     );
 
-    // VGA TIMING FSM -----------
+    // // VGA TIMING FSM -----------
 
-    typedef enum logic [0:0] {
-        INFRAME  = 1'b0,
-        OUTFRAME = 1'b1
-    } state_t;
+    // typedef enum logic [0:0] {
+    //     INFRAME  = 1'b0,
+    //     OUTFRAME = 1'b1
+    // } state_t;
 
-    state_t curr_state_1, next_state_1;
+    // state_t curr_state_1, next_state_1;
 
-    always_ff @(posedge clk or negedge RST_N) begin
-        if (!RST_N)
-            curr_state_1 <= INFRAME;
-        else
-            curr_state_1 <= next_state_1;
-    end
+    // always_ff @(posedge clk or negedge RST_N) begin
+    //     if (!RST_N)
+    //         curr_state_1 <= INFRAME;
+    //     else
+    //         curr_state_1 <= next_state_1;
+    // end
 
-    always_comb begin
-        controls.next = 0;
-        controls.vga_fetch = 0;
-        next_state_1 = curr_state_1;
+    // always_comb begin
+    //     controls.next = 0;
+    //     controls.vga_fetch = 0;
+    //     next_state_1 = curr_state_1;
 
-        case (curr_state_1)
-            INFRAME: begin
-                if (statuses.in_frame) begin
-                    next_state_1 = INFRAME;
-                end else begin
-                    next_state_1 = OUTFRAME;
-                    controls.next = 1;
-                end
-             end
+    //     case (curr_state_1)
+    //         INFRAME: begin
+    //             if (statuses.in_frame) begin
+    //                 next_state_1 = INFRAME;
+    //             end else begin
+    //                 next_state_1 = OUTFRAME;
+    //                 controls.next = 1;
+    //             end
+    //          end
 
-            OUTFRAME:  begin
-                controls.vga_fetch = 1;
-                if (!statuses.in_frame) begin
-                    next_state_1 = OUTFRAME; 
-                end else begin
-                    next_state_1 = INFRAME;
-                    controls.vga_fetch = 0;
-                end
-            end
+    //         OUTFRAME:  begin
+    //             controls.vga_fetch = 1;
+    //             if (!statuses.in_frame) begin
+    //                 next_state_1 = OUTFRAME; 
+    //             end else begin
+    //                 next_state_1 = INFRAME;
+    //                 controls.vga_fetch = 0;
+    //             end
+    //         end
 
-            default:  next_state_1 = INFRAME; 
-        endcase
-    end
+    //         default:  next_state_1 = INFRAME; 
+    //     endcase
+    // end
 
     // R/W FSM
     typedef enum logic [3:0] {
@@ -81,21 +81,21 @@ module control_unit (
 
     } state_t2;
 
-    state_t2 curr_state_2, next_state_2;
+    // state_t2 curr_state_2, next_state_2;
 
-    always_ff @(posedge clk or negedge RST_N) begin
-    if (!RST_N)
-        curr_state_2 <= RESET;
-    else
-        curr_state_2 <= next_state_2;
-    end
+    // always_ff @(posedge clk or negedge RST_N) begin
+    // if (!RST_N)
+    //     curr_state_2 <= RESET;
+    // else
+    //     curr_state_2 <= next_state_2;
+    // end
 
     always_comb begin
         // reset all signals
         controls = '0;
         addr_sel = 0;
 
-        next_state_2 = curr_state_2;
+    //     next_state_2 = curr_state_2;
 
         case (curr_state_2)
 
@@ -199,9 +199,9 @@ module control_unit (
                    
         default: next_state_2 = IDLE;
 
-        endcase
+    //     endcase
 
-    end
+    // end
 
 
 
