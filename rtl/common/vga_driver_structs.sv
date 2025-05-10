@@ -60,7 +60,6 @@ package vga_driver_structs;
         logic rd_re;
         logic rd_we;
         logic [1:0] rd_data_sel;
-        logic rd_we;
     } controls_t;
 endpackage
 `endif 
