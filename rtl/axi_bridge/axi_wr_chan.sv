@@ -11,7 +11,7 @@ module axi_wr_chan (
     input logic reset_n,
     input logic axi_clk,
     input wr_channel_input_t wr_chan_i,
-    input logic not_ready_for_resp,
+    input logic wr_ready_resp,
     output wr_channel_output_t  wr_chan_o,
     output logic [AXI_ADDR_BITS-1:0] wr_addr,
     output logic [AXI_DATA_BITS-1:0] wr_data,
@@ -76,7 +76,7 @@ module axi_wr_chan (
             
             VALID: begin
                 wr_valid = 1;
-                if (!not_ready_for_resp) begin
+                if (!wr_ready_resp) begin
                     NS = WAIT_RESP;
                 end
                 else begin

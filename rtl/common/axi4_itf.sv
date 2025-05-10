@@ -41,6 +41,7 @@ package axi4_itf;
         logic [2:0]               arsize;
         logic [1:0]               arburst;
         logic                     arvalid;
+        
         logic                     rready;
     } rd_channel_input_t;
 

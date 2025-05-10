@@ -12,65 +12,90 @@ module axi_rd_chan (
     input logic axi_clk,
     input rd_channel_input_t rd_chan_i,
     output rd_channel_output_t  rd_chan_o,
-    input logic [AXI_DATA_BITS-1:0] rd_data,
     input logic rd_we, 
+    input logic [AXI_DATA_BITS-1:0] rd_data,
+    input logic rd_ready_read,
     output logic [AXI_ADDR_BITS-1:0] rd_addr,
     output logic rd_valid
     );
 
+    // ==========================================================================
+    // Internal signals
+    // ==========================================================================
     logic [AXI_ADDR_BITS-1:0] araddr_r;
     logic [AXI_DATA_BITS-1:0] rdata_r;
+
+    typedef enum logic [1:0] {
+        READY,
+        READ_ADDR,
+        WAIT_MEM,
+        SEND_RESP
+    } state_t;
+
+    state_t PS, NS;
+
+    always_ff @(posedge axi_clk or negedge reset_n) begin
+        if (!reset_n)
+            PS <= READY;
+        else
+            PS <= NS;
+    end
 
     // * =======================================================================
     // * CONTROL PATH
     // * =======================================================================
 
-    typedef enum logic [1:0] {
-        READY,
-        WAIT_MEM,
-        SEND_RESP
-    } state_t;
-    state_t PS, NS;
-
-    always_ff @(posedge axi_clk or negedge reset_n) begin
-        if (!reset_n) PS <= READY;
-        else PS <= NS;
-    end
-
+    //
     logic araddr_we;
+    logic arvalid_ready, rvalid;
+    logic arready_r, rvalid_r, rresp_r, rlast_r, rready_r;
+    
+    assign rready_r = rd_chan_i.rready;
+    assign arvalid_ready = rd_chan_i.arvalid && arready_r;
+
+    assign rd_chan_o.arready = arready_r;
+    assign rd_chan_o.rvalid  = rvalid_r;
+    assign rd_chan_o.rresp   = rresp_r;
+    assign rd_chan_o.rlast   = rlast_r;
+    assign rd_chan_o.rdata   = rvalid_r ? rdata_r : 32'hdeadbeef;
+
+
     always_comb begin
         NS = PS;
-        rd_chan_o.arready = 0;
-        rd_chan_o.rvalid  = 0;
-        rd_chan_o.rdata   = 0;
-        rd_chan_o.rresp   = 0;
-        rd_chan_o.rlast   = 0;
+        arready_r = 0;
+        rvalid_r  = 0;
+        rresp_r   = 0;
+        rlast_r   = 0;
 
         rd_valid = 0;
         araddr_we = 0;
 
         case (PS)
             READY: begin
-                rd_chan_o.arready = 1;
-                if (rd_chan_i.arvalid && rd_chan_o.arready) begin
+                arready_r = 1;
+                if (arvalid_ready) begin
                     araddr_we = 1;
-                    NS = WAIT_MEM;
+                    NS = READ_ADDR;
                 end
             end
 
-            WAIT_MEM: begin
+            READ_ADDR: begin
                 rd_valid = 1;
+                if (!rd_ready_read) 
+                    NS = WAIT_MEM;
+            end
+
+            WAIT_MEM: begin
                 if (rd_we)
                     NS = SEND_RESP;
             end
 
             SEND_RESP: begin
-                rd_chan_o.rvalid = 1;
-                rd_chan_o.rdata  = rdata_r;
-                rd_chan_o.rresp  = OKAY;
-                rd_chan_o.rlast  = 1;
+                rvalid_r = 1;
+                rresp_r  = OKAY;
+                rlast_r  = 1;
 
-                if (rd_chan_i.rready)
+                if (rready_r)
                     NS = READY;
             end
 
@@ -84,15 +109,19 @@ module axi_rd_chan (
     
     always_ff @(posedge axi_clk or negedge reset_n) begin
         if (!reset_n) begin
-            araddr_r <= 'hdeadbeef;
+            araddr_r <= 'd0;
+            rdata_r <= 'd0;
         end else begin
-            araddr_r <= araddr_we ? rd_chan_i.araddr : 0;
-            rdata_r <= rd_we ? rd_data : 0;
+            if (araddr_we)
+                araddr_r <= rd_chan_i.araddr;
+            
+            if (rd_we)
+                rdata_r <= rd_data ;
         end
     end
 
     always_comb begin
-        rd_addr = araddr_r;
+        rd_addr = rd_valid ? araddr_r : 32'hdeadbeef;
     end
 
 

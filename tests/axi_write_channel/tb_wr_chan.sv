@@ -21,7 +21,7 @@ module tb_wr_chan ();
     logic reset_n;
     logic axi_clk;
     wr_channel_input_t wr_chan_i;
-    logic not_ready_for_resp;
+    logic wr_ready_resp;
     
     // outputs
     wr_channel_output_t  wr_chan_o;
@@ -39,7 +39,7 @@ module tb_wr_chan ();
     task reset_dut();
         axi_clk = 0;
         reset_n = 1;
-        not_ready_for_resp = 0;
+        wr_ready_resp = 0;
         wr_chan_i = '0;
 
         #(2 * (AXI_CLK_PERIOD))
@@ -126,7 +126,7 @@ module tb_wr_chan ();
     // transaction completes when fifo has room 
     task test_fifo_full_write();
         #(2 * AXI_CLK_PERIOD)
-        not_ready_for_resp = 1;
+        wr_ready_resp = 1;
 
         // Send address and data
         wr_chan_i.awaddr  = AXI_FB_ADDR;
@@ -159,7 +159,7 @@ module tb_wr_chan ();
             end
         end
 
-        not_ready_for_resp = 0;
+        wr_ready_resp = 0;
         wait(wr_chan_o.bvalid);
 
         @(posedge axi_clk);
