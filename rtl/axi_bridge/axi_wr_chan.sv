@@ -85,7 +85,7 @@ module axi_wr_chan (
             end
 
             WAIT_RESP: begin
-                bvalid_r = 1'b1; // need to change when full
+                bvalid_r = 1'b1;
                 bresp_r  = OKAY;
 
                 if (b_ready) NS = READY;

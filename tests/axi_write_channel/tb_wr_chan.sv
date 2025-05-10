@@ -108,6 +108,7 @@ module tb_wr_chan ();
         axi_write_single(AXI_CSR_ADDR, 'd1);
     endtask
 
+    // TODO:
     // task test_burst_write();
     // endtask
 
@@ -117,6 +118,7 @@ module tb_wr_chan ();
         check_device(AXI_CSR_ADDR, 'd1);
     endtask
 
+    // TODO:
     // task test_multiple_read_from();
     // endtask
 
@@ -174,6 +176,8 @@ module tb_wr_chan ();
         test_single_write();
 
         test_fifo_full_write();
+
+        // TODO: add future tests
 
         $display("[TESTBENCH] PASSED all tests.");
         $finish;
