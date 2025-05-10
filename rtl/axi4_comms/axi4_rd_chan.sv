@@ -40,7 +40,12 @@ module axi4_rd_chan (
     logic araddr_we;
     always_comb begin
         NS = PS;
-        rd_chan_o = '0;
+        rd_chan_o.arready = 0;
+        rd_chan_o.rvalid  = 0;
+        rd_chan_o.rdata   = 0;
+        rd_chan_o.rresp   = 0;
+        rd_chan_o.rlast   = 0;
+
         rd_valid = 0;
         araddr_we = 0;
 
