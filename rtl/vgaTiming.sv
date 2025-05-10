@@ -4,7 +4,7 @@
 import displayConsts::*;
 
 module vgaTiming (
-    input wire clk_50MHz,
+    input wire clk,
     input wire reset_n,
     output reg [H_CNT_BITS - 1 : 0] h_cnt,
     output reg h_sync,
@@ -19,7 +19,7 @@ module vgaTiming (
     reg [H_BITS : 0] h_cntr;
     reg [V_BITS : 0] v_cntr;
 
-    always_ff @(posedge clk_50MHz) begin
+    always_ff @(posedge clk) begin
         if (!reset_n) begin
             h_cntr <= 'd0;
             v_cntr <= 'd0;

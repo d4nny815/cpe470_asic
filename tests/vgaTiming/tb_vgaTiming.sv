@@ -14,7 +14,7 @@ module tb_vgaTiming();
         assign VGND=0;
     `endif
     
-    bit clk_50MHz, reset_n;
+    bit clk, reset_n;
     bit [H_CNT_BITS - 1 : 0] h_cnt;
     bit [V_CNT_BITS - 1 : 0] v_cnt;
     bit v_sync, h_sync, in_frame;
@@ -23,7 +23,7 @@ module tb_vgaTiming();
 
     // Tasks
     task reset_dut();
-        clk_50MHz = 1'b0;
+        clk = 1'b0;
         reset_n = 1'b1;
 
         #(1 * CLK_PERIOD)
@@ -37,7 +37,7 @@ module tb_vgaTiming();
 
     for (int v = 0; v < vgaTimes::V_WHOLELINE; v++) begin
         for (int h = 0; h < vgaTimes::H_WHOLELINE; h++) begin
-            @(posedge clk_50MHz);
+            @(posedge clk);
 
             // in_frame check
             if ((DUT.h_cntr < vgaTimes::H_VISIBLE_AREA) && (DUT.v_cntr < vgaTimes::V_VISIBLE_AREA)) begin
@@ -81,14 +81,13 @@ module tb_vgaTiming();
             end
         end
     end
-
     endtask
 
 
 
     always begin
         #(CLK_PERIOD/2) 
-        clk_50MHz <= ~clk_50MHz;
+        clk <= ~clk;
     end
 
     initial begin
@@ -98,13 +97,13 @@ module tb_vgaTiming();
 
     // Tests
     initial begin
-        clk_50MHz = 1'b0;
+        clk = 1'b0;
         
         reset_dut();
 
         check_syncs();
 
-        #(2 * CLK_PERIOD)
+        #(1000 * CLK_PERIOD)
 
         $display("[TESTBENCH] PASSED All tests");
         $finish();
