@@ -7,9 +7,9 @@ import axi4_itf::*;
 package axi4_transactions;
     // write from host to dev
     task automatic axi_write_single(
-        logic axi_clk,
-        inout wr_channel_input_t wr_chan_i,
-        inout wr_channel_output_t wr_chan_o,
+        input logic axi_clk,
+        output wr_channel_input_t wr_chan_i,
+        input wr_channel_output_t wr_chan_o,
         input logic [31:0] addr,
         input logic [7:0]  data
     );
