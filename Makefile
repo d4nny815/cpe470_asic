@@ -7,8 +7,10 @@ IP_SRCS 	:= $(shell find ip -name '*.sv' -or -name '*.v')
 INCLUDE_DIRS := $(sort $(dir $(shell find . -name '*.svh')))
 RTL_DIRS	 := $(sort $(dir $(RTL_SRCS)))
 IP_DIRS			:= $(sort $(dir $(IP_SRCS)))
+TB_DIRS			:= $(sort $(dir $(TB_SRCS)))
 # Include both Include and RTL directories for linting
-LINT_INCLUDES := $(foreach dir, $(INCLUDE_DIRS) $(RTL_DIRS) $(IP_DIRS), -I$(realpath $(dir))) -I$(PDKPATH) 
+ALL_INC_DIRS := $(INCLUDE_DIRS) $(RTL_DIRS) $(IP_DIRS) $(TB_DIRS)
+LINT_INCLUDES := $(foreach dir, $(ALL_INC_DIRS), -I$(realpath $(dir))) -I$(PDKPATH) 
 
 TEST_DIR = ./tests
 TEST_SUBDIRS = $(shell cd $(TEST_DIR) && ls -d */ | grep -v "__pycache__" )
@@ -26,7 +28,7 @@ ifdef ICARUS
 SIMULATOR := iverilog
 SIMULATOR_ARGS := -g2012
 SIMULATOR_BINARY := a.out
-SIMULATOR_SRCS := $(foreach src, $(RTL_SRCS) $(IP_SRCS), $(realpath $(src))) *.sv
+SIMULATOR_SRCS := $(foreach src, $(RTL_SRCS) $(IP_SRCS) $(TB_SRCS), $(realpath $(src))) *.sv
 SIM_TOP := `$(shell pwd)/scripts/top.sh -s`
 # LINT_INCLUDES := ""
 endif

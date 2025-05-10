@@ -1,8 +1,8 @@
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
 `include "displayConsts.sv"
-`include "axi4_wr_chan.sv"
-`include "axi4_rd_chan.sv"
+`include "axi_wr_chan.sv"
+`include "axi_rd_chan.sv"
 `include "ASYNC_FIFO.sv"
 
 
@@ -13,7 +13,7 @@ import axi4_itf::*;
 import vga_driver_structs::*;
 import displayConsts::*;
 
-module axi4_comms (
+module axi_bridge (
     // axi channels
     input logic axi_reset_n,
     input logic axi_clk,
@@ -35,6 +35,8 @@ module axi4_comms (
 
     assign init_done = axi_reset_n;
 
+
+
     // * =======================================================================
     // * CONTROL PATH
     // * =======================================================================
@@ -47,8 +49,11 @@ module axi4_comms (
     logic [AXI_ADDR_BITS-1:0] wr_addr, rd_addr;
     logic [AXI_DATA_BITS-1:0] wr_data;
 
+    // * WRITE CHANNEL
+
+
     // write request 
-    axi4_wr_chan wr_chan (
+    axi_wr_chan wr_chan (
         .reset_n            (axi_reset_n),
         .axi_clk            (axi_clk),
         .wr_chan_i          (wr_chan_i),
@@ -110,55 +115,55 @@ module axi4_comms (
     // read request
     // read addr
     // logic tmp;
-    axi4_rd_chan rd_chan (
-        .reset_n            (axi_reset_n),
-        .axi_clk            (axi_clk),
-        .rd_chan_i          (rd_chan_i),
-        .rd_chan_o          (rd_chan_o),
-        .rd_data            (),
-        .rd_we              (), 
-        .rd_addr            (rd_addr),
-        .rd_valid           ()
-    );
+    // axi_rd_chan rd_chan (
+    //     .reset_n            (axi_reset_n),
+    //     .axi_clk            (axi_clk),
+    //     .rd_chan_i          (rd_chan_i),
+    //     .rd_chan_o          (rd_chan_o),
+    //     .rd_data            (),
+    //     .rd_we              (), 
+    //     .rd_addr            (rd_addr),
+    //     .rd_valid           ()
+    // );
 
-    // write packet encoder
-    typedef struct packed {
-        fb_csr_t fb_csr;
-        logic [PIXEL_ADDR_BITS-1:0] addr;
-    } rd_fifo_packet_t;
+    // // write packet encoder
+    // typedef struct packed {
+    //     fb_csr_t fb_csr;
+    //     logic [PIXEL_ADDR_BITS-1:0] addr;
+    // } rd_fifo_packet_t;
 
-    logic rd_fifo_valid_packet;
-    rd_fifo_packet_t rd_fifo_data_i, rd_fifo_data_o;
-    logic [PIXEL_ADDR_BITS-1:0] rd_addr_sliced;
+    // logic rd_fifo_valid_packet;
+    // rd_fifo_packet_t rd_fifo_data_i, rd_fifo_data_o;
+    // logic [PIXEL_ADDR_BITS-1:0] rd_addr_sliced;
 
-    assign rd_addr_sliced = rd_addr[PIXEL_ADDR_BITS-1:0];
+    // assign rd_addr_sliced = rd_addr[PIXEL_ADDR_BITS-1:0];
 
-    always_comb begin
-        rd_fifo_data_i.addr = rd_addr_sliced;
-        if (rd_addr_sliced < CSR_ADDR_OFFSET)
-            rd_fifo_data_i.fb_csr = FB;
-        else
-            rd_fifo_data_i.fb_csr = CSR;
+    // always_comb begin
+    //     rd_fifo_data_i.addr = rd_addr_sliced;
+    //     if (rd_addr_sliced < CSR_ADDR_OFFSET)
+    //         rd_fifo_data_i.fb_csr = FB;
+    //     else
+    //         rd_fifo_data_i.fb_csr = CSR;
         
-        rd_fifo_valid_packet = (rd_addr < FRAME_SIZE || 
-                            (rd_addr >= AXI_CSR_ADDR && rd_addr <= AXI_CSR_ADDR + 1));
-    end
+    //     rd_fifo_valid_packet = (rd_addr < FRAME_SIZE || 
+    //                         (rd_addr >= AXI_CSR_ADDR && rd_addr <= AXI_CSR_ADDR + 1));
+    // end
 
-    ASYNC_FIFO #( 
-        .DSIZE($bits(rd_fifo_packet_t)),
-        .ASIZE(4)
-    ) rd_fifo (
-        .rrst_n     (vga_reset_n),         // Read increment, read clock, read reset
-        .rclk       (vga_clk), 
-        .rinc       (rd_re), 
-        .wdata      (rd_fifo_data_i),      // Input data - data to be written
-        .wrst_n     (axi_reset_n),         // Write increment, write clock, write reset
-        .wclk       (axi_clk), 
-        .winc       (rd_fifo_we_i & rd_fifo_valid_packet), 
-        .rdata      (rd_fifo_data_o),      // Output data - data to be read
-        .rempty     (rd_fifo_empty),       // Read empty signal
-        .wfull      (status.rd_full)       // Write full signal
-    );
+    // ASYNC_FIFO #( 
+    //     .DSIZE($bits(rd_fifo_packet_t)),
+    //     .ASIZE(4)
+    // ) rd_fifo (
+    //     .rrst_n     (vga_reset_n),         // Read increment, read clock, read reset
+    //     .rclk       (vga_clk), 
+    //     .rinc       (rd_re), 
+    //     .wdata      (rd_fifo_data_i),      // Input data - data to be written
+    //     .wrst_n     (axi_reset_n),         // Write increment, write clock, write reset
+    //     .wclk       (axi_clk), 
+    //     .winc       (rd_fifo_we_i & rd_fifo_valid_packet), 
+    //     .rdata      (rd_fifo_data_o),      // Output data - data to be read
+    //     .rempty     (rd_fifo_empty),       // Read empty signal
+    //     .wfull      (status.rd_full)       // Write full signal
+    // );
 
     // read data
 

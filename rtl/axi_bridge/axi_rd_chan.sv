@@ -7,7 +7,7 @@ import axi4_itf::*;
 import vga_driver_structs::*;
 import displayConsts::*;
 
-module axi4_rd_chan (
+module axi_rd_chan (
     input logic reset_n,
     input logic axi_clk,
     input rd_channel_input_t rd_chan_i,

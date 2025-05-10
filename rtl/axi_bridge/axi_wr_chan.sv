@@ -7,7 +7,7 @@ import axi4_itf::*;
 import vga_driver_structs::*;
 import displayConsts::*;
 
-module axi4_wr_chan (
+module axi_wr_chan (
     input logic reset_n,
     input logic axi_clk,
     input wr_channel_input_t wr_chan_i,
@@ -19,7 +19,6 @@ module axi4_wr_chan (
     );
 
     logic wr_addr_we, wr_data_we;
-
 
     // * =======================================================================
     // * CONTROL PATH

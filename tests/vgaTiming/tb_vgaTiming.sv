@@ -1,3 +1,5 @@
+`ifndef TB_VGA_TIMING
+`define TB_VGA_TIMING
 `include "vgaTimes.sv"
 
 module tb_vgaTiming();
@@ -107,7 +109,6 @@ module tb_vgaTiming();
         $display("[TESTBENCH] PASSED All tests");
         $finish();
     end
-
-
-
 endmodule
+
+`endif
