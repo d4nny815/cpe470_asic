@@ -11,6 +11,7 @@ module axi4_wr_chan (
     input logic reset_n,
     input logic axi_clk,
     input wr_channel_input_t wr_chan_i,
+    input logic wr_fifo_full,
     output wr_channel_output_t  wr_chan_o,
     output logic [AXI_ADDR_BITS-1:0] wr_addr,
     output logic [AXI_DATA_BITS-1:0] wr_data,
@@ -73,11 +74,14 @@ module axi4_wr_chan (
             
             VALID: begin
                 wr_valid = 1;
-                NS = WAIT_RESP;
+                if (!wr_fifo_full)
+                    NS = WAIT_RESP;
+                else
+                    NS = VALID;
             end
 
             WAIT_RESP: begin
-                bvalid_r = 1'b1;
+                bvalid_r = 1'b1; // need to change when full
                 bresp_r  = OKAY;
 
                 if (b_ready) NS = READY;

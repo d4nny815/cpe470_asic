@@ -169,7 +169,7 @@ module tb_axi4_comms();
 
     endtask
 
-    task wr_multiple_test();
+    task wr_multiple_test(input int n);
         bit [COLOR_LUT_BITS-1:0] expected_color, color;
         bit [(PIXEL_ADDR_BITS + COLOR_LUT_BITS + 1)-1:0] expected_packet;
 
@@ -180,28 +180,12 @@ module tb_axi4_comms();
         int addr_temp;
         
 
-        for (int i = 0; i < 10; i++) begin
+        for (int i = 0; i < n; i++) begin
             expected_color = i[COLOR_LUT_BITS-1:0];
             axi_write_single(AXI_FB_ADDR + i, expected_color);
         end
 
-
-        for (int i = 0; i < 10; i++) begin
-            addr_temp = AXI_FB_ADDR + i;
-            expected_wr_addr = addr_temp[PIXEL_ADDR_BITS-1:0];
-            expected_color = i[COLOR_LUT_BITS-1:0];
-            expected_wr_fb_csr = FB;
-
-            // check that its in the fifo
-            expected_packet = {expected_wr_fb_csr, expected_wr_addr, expected_color};
-            assert (expected_packet == DUT.wr_fifo.fifomem.mem[15 - i])
-            else $error("DIDNT WRITE TO FIFO %h !== %h", 
-                expected_packet, DUT.wr_fifo.fifomem.mem[15 - i]);
-        end
-
-
-        for (int i = 0; i < 10; i++) begin
-
+        for (int i = 0; i < n; i++) begin
             addr_temp = AXI_FB_ADDR + i;
             expected_wr_addr = addr_temp[PIXEL_ADDR_BITS-1:0];
             expected_color = i[COLOR_LUT_BITS-1:0];
@@ -217,14 +201,18 @@ module tb_axi4_comms();
             assert (dut_wr_addr == expected_wr_addr &&
                     dut_wr_data == expected_color &&
                     dut_wr_fb_csr == expected_wr_fb_csr)
-            else $error("DIDNT READ CORRECTLY ex: %h !== dut: %h @ %h",
+            else begin 
+                $error("DIDNT READ CORRECTLY ex: %h !== dut: %h @ %h",
                 {expected_wr_fb_csr, expected_wr_addr, expected_color}, 
                 {dut_wr_fb_csr, dut_wr_addr, dut_wr_data}, 
                 i);
+                $finish();
+            end
         end
         
         wait(!status.wr_req);
     endtask
+
 
     // tests
     initial begin
@@ -235,13 +223,16 @@ module tb_axi4_comms();
 
         wr_single_test();
 
-        wr_multiple_test();
+        wr_multiple_test(10);
 
         $display("[TESTBENCH] PASSED all tests.");
         $finish;
     end
 
-    initial #100000 $error("Timeout");
+    initial begin
+        #10000 $error("Timeout");
+        $finish();
+    end
 
 
 

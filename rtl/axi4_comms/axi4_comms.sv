@@ -55,6 +55,7 @@ module axi4_comms (
         .reset_n            (axi_reset_n),
         .axi_clk            (axi_clk),
         .wr_chan_i          (wr_chan_i),
+        .wr_fifo_full       (status.wr_full),
         .wr_chan_o          (wr_chan_o),
         .wr_addr            (wr_addr),
         .wr_data            (wr_data),
