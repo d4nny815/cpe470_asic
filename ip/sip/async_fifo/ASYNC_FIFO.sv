@@ -1,5 +1,9 @@
 `ifndef ASYNC_FIFO
 `define ASYNC_FIFO
+
+// ! Source
+// https://github.com/ujjwal-2001/Async_FIFO_Design#
+
 //--------------DESCRIPTION-----------------
 // This is a FIFO module with a configurable data size and address size.
 // This is a top level module which wraps all the submodules together.
