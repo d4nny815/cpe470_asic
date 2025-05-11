@@ -73,34 +73,84 @@ module axi_bridge (
     output logic init_done
     );
 
-    assign init_done = axi_reset_n;
+    // * =======================================================================
+    // * Internal Signals
+    // * =======================================================================
 
+    typedef enum logic { 
+        INIT,
+        RUNNING
+    } state_t;
+    state_t PS, NS;
+
+    always_ff @(posedge vga_clk or negedge axi_reset_n or negedge vga_reset_n) begin
+        if (!vga_reset_n || !axi_reset_n) 
+            PS <= INIT;
+        else
+            PS <= NS;
+    end
 
     // * =======================================================================
     // * CONTROL PATH
     // * =======================================================================
-    logic wr_fifo_we_i, wr_fifo_empty;
+
+    logic int_reset_n;
+
+    // status signals
+    logic axi_wr_recieved, wr_fifo_empty, wr_fifo_full, wr_fifo_valid_packet;
     
+    // control signals
+    logic wr_req, wr_full;
+    logic wr_ready_resp, wr_fifo_we, wr_fifo_re;
+    
+
+    always_comb begin
+        NS = PS;
+        init_done = 0;
+        wr_ready_resp = 0;
+        wr_fifo_we = 0;
+        wr_fifo_re = 0;
+        
+        case(PS)
+            INIT: begin
+                int_reset_n = axi_reset_n & vga_reset_n;
+                if (int_reset_n)
+                    NS = RUNNING;                
+            end
+
+            RUNNING: begin
+                init_done = 1;
+
+                // wr requests
+                wr_ready_resp = ~wr_fifo_full;
+                wr_fifo_we      = axi_wr_recieved & wr_fifo_valid_packet;
+                wr_fifo_re      = wr_re;
+                wr_full         = wr_fifo_full;
+                wr_req          = ~wr_fifo_empty;
+
+            end
+            default : NS = INIT;
+        endcase
+    end
 
     // * =======================================================================
     // * DATA PATH
     // * =======================================================================
-    logic [AXI_ADDR_BITS-1:0] wr_addr, rd_addr;
+    logic [AXI_ADDR_BITS-1:0] wr_addr;
     logic [AXI_DATA_BITS-1:0] wr_data;
 
+
     // * WRITE CHANNEL
-
-
     // write request 
     axi_wr_chan wr_chan (
         .reset_n            (axi_reset_n),
         .axi_clk            (axi_clk),
         .wr_chan_i          (wr_chan_i),
-        .wr_fifo_full       (status.wr_full),
+        .wr_ready_resp      (wr_ready_resp),
         .wr_chan_o          (wr_chan_o),
         .wr_addr            (wr_addr),
         .wr_data            (wr_data),
-        .wr_valid           (wr_fifo_we_i)
+        .wr_valid           (axi_wr_recieved)
     );
 
     // write packet encoder
@@ -110,7 +160,6 @@ module axi_bridge (
         logic [COLOR_LUT_BITS-1:0] data;
     } wr_fifo_packet_t;
 
-    logic wr_fifo_valid_packet;
     wr_fifo_packet_t wr_fifo_data_i, wr_fifo_data_o;
     logic [PIXEL_ADDR_BITS-1:0] wr_addr_sliced;
     logic [COLOR_LUT_BITS-1:0] wr_data_sliced;
@@ -132,21 +181,22 @@ module axi_bridge (
         
     ASYNC_FIFO #( 
         .DSIZE($bits(wr_fifo_packet_t)),
-        .ASIZE(4)
+        .ASIZE(4) // TODO: determine buffer size
     ) wr_fifo (
         .rrst_n     (vga_reset_n),         // Read increment, read clock, read reset
         .rclk       (vga_clk), 
-        .rinc       (wr_re), 
+        .rinc       (wr_fifo_re), 
         .wdata      (wr_fifo_data_i),      // Input data - data to be written
         .wrst_n     (axi_reset_n),         // Write increment, write clock, write reset
         .wclk       (axi_clk), 
-        .winc       (wr_fifo_we_i & wr_fifo_valid_packet), 
+        .winc       (wr_fifo_we), 
         .rdata      (wr_fifo_data_o),      // Output data - data to be read
         .rempty     (wr_fifo_empty),       // Read empty signal
-        .wfull      (status.wr_full)       // Write full signal
+        .wfull      (wr_fifo_full)       // Write full signal
     );
 
-    assign status.wr_req     = !wr_fifo_empty;
+    assign status.wr_req     = wr_req;
+    assign status.wr_full    = wr_full;
     assign status.wr_fb_csr  = wr_fifo_data_o.fb_csr;
     assign status.wr_addr    = wr_fifo_data_o.addr;
     assign status.wr_data    = wr_fifo_data_o.data;

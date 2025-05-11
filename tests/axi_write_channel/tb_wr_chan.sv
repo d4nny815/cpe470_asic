@@ -69,8 +69,8 @@ module tb_wr_chan ();
         wr_chan_i.wvalid  = 1;
 
         // Wait for both aw and w to be accepted
-        @(posedge axi_clk);
         wait (wr_chan_o.awready && wr_chan_o.wready);
+        @(posedge axi_clk);
 
         // Deassert after handshake
         wr_chan_i.awvalid = 0;
@@ -141,8 +141,7 @@ module tb_wr_chan ();
         wr_chan_i.wvalid  = 1;
 
         // Wait for both aw and w to be accepted
-        @(posedge axi_clk);
-        wait (wr_chan_o.awready && wr_chan_o.wready);
+        wait (!wr_chan_o.awready && !wr_chan_o.wready);
         wr_chan_i.awvalid = 0;
         wr_chan_i.wvalid  = 0;
 
