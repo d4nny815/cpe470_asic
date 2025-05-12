@@ -5,52 +5,9 @@
 `include "axi_rd_chan.sv"
 `include "ASYNC_FIFO.sv"
 
-// ! DONT KNOW if it works for proper AXI read/write
-// ! TESTED with my own vip  
-
 import axi4_itf::*;
 import vga_driver_structs::*;
 import displayConsts::*;
-
-    // axi_wr_chan tmp (
-    //     .reset_n        (),
-    //     .axi_clk        (),
-    //     .wr_chan_i      (),
-    //     .wr_ready_resp  (),
-    //     .wr_chan_o      (),
-    //     .wr_addr        (),
-    //     .wr_data        (),
-    //     .wr_valid       ()
-    // );
-
-    // axi_rd_chan tmp (
-    //     .reset_n        (),
-    //     .axi_clk        (),
-    //     .rd_chan_i      (),
-    //     .rd_chan_o      (),
-    //     .rd_we          (), 
-    //     .rd_data        (),
-    //     .rd_ready_read  (),
-    //     .rd_addr        (),
-    //     .rd_valid       (),
-    //     .waiting        ()
-    // );
-
-// TODO:
-/*
-    write channel
-        axi wr
-        wr_fifo
-        wr_status_signals
-
-    rd channel
-        axi rd_addr
-        rd_addr_fifo
-        rd_data_fifo
-        axi_rd_data
-        rd_status_signals
-
-*/
 
 // ? add a rd ack incase rdd fifo full
 module axi_bridge (
