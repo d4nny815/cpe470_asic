@@ -37,8 +37,6 @@ import displayConsts::*;
 
 // TODO:
 /*
-    reset conds
-
     write channel
         axi wr
         wr_fifo
@@ -122,7 +120,7 @@ module axi_bridge (
                 init_done = 1;
 
                 // wr requests
-                wr_ready_resp = ~wr_fifo_full;
+                wr_ready_resp   = ~wr_fifo_full;
                 wr_fifo_we      = axi_wr_recieved & wr_fifo_valid_packet;
                 wr_fifo_re      = wr_re;
                 wr_full         = wr_fifo_full;
@@ -142,16 +140,17 @@ module axi_bridge (
 
     // * WRITE CHANNEL
     // write request 
-    axi_wr_chan wr_chan (
-        .reset_n            (axi_reset_n),
-        .axi_clk            (axi_clk),
-        .wr_chan_i          (wr_chan_i),
-        .wr_ready_resp      (wr_ready_resp),
-        .wr_chan_o          (wr_chan_o),
-        .wr_addr            (wr_addr),
-        .wr_data            (wr_data),
-        .wr_valid           (axi_wr_recieved)
-    );
+    // TODO: fix, hangs for sim time
+    // axi_wr_chan wr_chan (
+    //     .reset_n            (axi_reset_n),
+    //     .axi_clk            (axi_clk),
+    //     .wr_chan_i          (wr_chan_i),
+    //     .wr_ready_resp      (wr_ready_resp),
+    //     .wr_chan_o          (wr_chan_o),
+    //     .wr_addr            (wr_addr),
+    //     .wr_data            (wr_data),
+    //     .wr_valid           (axi_wr_recieved)
+    // );
 
     // write packet encoder
     typedef struct packed {
@@ -175,14 +174,14 @@ module axi_bridge (
         else
             wr_fifo_data_i.fb_csr = CSR;
         
-        wr_fifo_valid_packet = (wr_addr < FRAME_SIZE || 
-                            (wr_addr >= AXI_CSR_ADDR && wr_addr <= AXI_CSR_ADDR + 1));
+        wr_fifo_valid_packet = ((wr_addr >= AXI_FB_ADDR && wr_addr < AXI_CSR_ADDR) || 
+                            (wr_addr >= AXI_CSR_ADDR && wr_addr < AXI_CSR_ADDR + 1));
     end
-        
+
     ASYNC_FIFO #( 
         .DSIZE($bits(wr_fifo_packet_t)),
-        .ASIZE(4) // TODO: determine buffer size
-    ) wr_fifo (
+        .ASIZE(WRITE_REQ_FIFO_BITS)
+        ) wr_fifo (
         .rrst_n     (vga_reset_n),         // Read increment, read clock, read reset
         .rclk       (vga_clk), 
         .rinc       (wr_fifo_re), 

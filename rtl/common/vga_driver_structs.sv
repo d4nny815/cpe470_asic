@@ -16,6 +16,9 @@ package vga_driver_structs;
     localparam CR_ADDR = CSR_ADDR_OFFSET;
     localparam SR_ADDR = CR_ADDR + 1;
 
+    localparam WRITE_REQ_FIFO_BITS = 4;
+    localparam WRITE_REQ_FIFO_SIZE = 1 << WRITE_REQ_FIFO_BITS;
+
     typedef enum logic { 
         FB = 1'b0,
         CSR = 1'b1
