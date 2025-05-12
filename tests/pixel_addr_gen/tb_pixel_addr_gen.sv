@@ -29,6 +29,12 @@ module tb_pixel_addr_gen();
         #8 clk = ~clk;  // 60MHz clock
     end
 
+    initial begin
+    // Name as needed
+        $dumpfile("tb_pixel_addr_gen.vcd");
+        $dumpvars(0);
+    end
+
     // Test variables
     int row;
     int col;
