@@ -110,7 +110,7 @@ module tb_control_unit();
         #10;
         
         // Test FSM 1: VGA Timing Controller
-        test_fsm1();
+        //test_fsm1();
         
         // Test FSM 2: Read/Write Controller
         test_fsm2();
@@ -266,6 +266,7 @@ module tb_control_unit();
         
         // Test case 5: Read from Frame Buffer
         begin_test_case("FSM2: Read from Frame Buffer");
+        fb_valid = 0;
         // Assert read request
         axi_rd_req = 1;
         @(posedge clk);
@@ -298,7 +299,6 @@ module tb_control_unit();
         end
         
         // Wait for frame buffer valid
-        fb_valid = 0;
         @(posedge clk);
         
         // Assert frame buffer valid

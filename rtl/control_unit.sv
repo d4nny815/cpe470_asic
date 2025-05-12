@@ -120,14 +120,9 @@ module control_unit (
 
         WRITE_WAIT = 4'd2,
         WR_FB_WAIT = 4'd3,
-        WR_FB = 4'd4,
-        WR_CSR = 4'd5,
 
         READ_WAIT = 4'd6,
-        RD_FB_WAIT = 4'd7,
-        RD_FB = 4'd8,
-        RD_CNTL = 4'd9,
-        RD_STATUS = 4'd10
+        RD_FB_WAIT = 4'd7
 
     } state_t2;
 
@@ -184,7 +179,8 @@ module control_unit (
                     if (statuses.axi_comms.wr_fb_csr == FB) begin
                         next_state_2 = WR_FB_WAIT;
                     end else begin
-                        next_state_2 = WR_CSR;
+                        controls.cr_ld = 1;
+                        next_state_2 = IDLE;
                     end
                 end
             end
@@ -192,23 +188,13 @@ module control_unit (
             WR_FB_WAIT: begin
                 addr_sel = 0;
                 if (fb_valid) begin
-                    next_state_2 = WR_FB;
+                    controls.fb_w_r = 1; // high is write, low is read
+                    controls.fb_en = 1;
+                    next_state_2 = IDLE;
                 end else begin
                     next_state_2 = WR_FB_WAIT;
                 end
             end
-
-            WR_FB: begin
-                controls.fb_w_r = 1;
-                controls.fb_en = 1;
-                next_state_2 = IDLE;
-            end
-
-            WR_CSR: begin
-                controls.cr_ld = 1;
-                next_state_2 = IDLE;
-            end
-
 
             READ_WAIT: begin
                 if (!statuses.axi_comms.rd_full) begin
@@ -216,10 +202,14 @@ module control_unit (
                     if (statuses.axi_comms.rd_fb_csr == FB) begin
                         next_state_2 = RD_FB_WAIT;
                     end else begin
-                        if (cr) begin
-                            next_state_2 = RD_CNTL;
-                        end else begin
-                            next_state_2 = RD_STATUS;
+                        if (cr) begin // if CR high, read from Control Register
+                            controls.rd_data_sel = 2'b10;
+                            controls.rd_we = 1;
+                            next_state_2 = IDLE;
+                        end else begin // else read from status register
+                            controls.rd_data_sel = 2'b11;
+                            controls.rd_we = 1;
+                            next_state_2 = IDLE;
                         end
                     end
                 end else begin
@@ -230,30 +220,14 @@ module control_unit (
             RD_FB_WAIT: begin
                 addr_sel = 1'b1;
                 if (fb_valid) begin
-                    next_state_2 = RD_FB;
+                    controls.fb_w_r = 0;
+                    controls.fb_en = 1;
+                    controls.rd_we = 1;
+                    controls.rd_data_sel = 2'b01;
+                    next_state_2 = IDLE;
                 end else begin
                     next_state_2 = RD_FB_WAIT;
                 end
-            end
-
-            RD_FB: begin
-                controls.fb_w_r = 0;
-                controls.fb_en = 1;
-                controls.rd_we = 1;
-                controls.rd_data_sel = 2'b01;
-                next_state_2 = IDLE;
-            end
-
-            RD_CNTL: begin
-                controls.rd_data_sel = 2'b10;
-                controls.rd_we = 1;
-                next_state_2 = IDLE;
-            end
-
-            RD_STATUS: begin
-                controls.rd_data_sel = 2'b11;
-                controls.rd_we = 1;
-                next_state_2 = IDLE;
             end
                    
         default: next_state_2 = IDLE;
