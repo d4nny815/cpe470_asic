@@ -10,6 +10,7 @@ module tb_axi_bridge();
 
     localparam VGA_CLK_PERIOD = 40;
     localparam AXI_CLK_PERIOD = 15;
+    localparam DUMMY_DATA = 8'ha5;
 
     `ifdef USE_POWER_PINS
         wire VPWR;
@@ -67,6 +68,11 @@ module tb_axi_bridge();
         force DUT.axi_wr_recieved = 0;
         force DUT.wr_addr   = 'hdeadbeef;
         force DUT.wr_data   = 'ha5;
+
+        force DUT.axi_rd_recieved = 0;
+        force DUT.axi_rd_waiting = 0;
+        force DUT.rd_addr   = 'hdeadbeef;
+
         // end of tmp
 
 
@@ -116,7 +122,7 @@ module tb_axi_bridge();
         force DUT.wr_data   = 0;
     endtask
 
-    task read_write_request(
+    task handle_write_req(
         output fb_csr_t fb_csr,
         output logic [PIXEL_ADDR_BITS-1:0] addr,
         output logic [COLOR_LUT_BITS-1:0] data);
@@ -145,7 +151,7 @@ module tb_axi_bridge();
 
         send_write_request(expected_wr_addr, expected_color);
 
-        read_write_request(dut_wr_fb_csr, dut_wr_addr, dut_wr_data);
+        handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_wr_data);
 
         assert (dut_wr_fb_csr == expected_wr_fb_csr &&
             dut_wr_addr    == expected_wr_addr     &&
@@ -170,7 +176,7 @@ module tb_axi_bridge();
         expected_color = 'hff;
 
         send_write_request(expected_wr_addr, expected_color);
-        read_write_request(dut_wr_fb_csr, dut_wr_addr, dut_color);
+        handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_color);
 
         assert (dut_wr_fb_csr == expected_wr_fb_csr &&
             dut_wr_addr    == expected_wr_addr     &&
@@ -192,7 +198,6 @@ module tb_axi_bridge();
             $error("test_csr_write_req FAILED:\nWrote to Status Register");
             $fatal;
         end
-
     endtask
 
     task test_mult_write_req(input int n);
@@ -216,7 +221,7 @@ module tb_axi_bridge();
 
         // read
         for (int i = 0; i < n; i++) begin
-            read_write_request(dut_wr_fb_csr, dut_wr_addr, dut_color);
+            handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_color);
 
             assert (dut_wr_fb_csr == expected_wr_fb_csr  &&
                     dut_wr_addr   == expected_wr_addr[i] &&
@@ -262,7 +267,7 @@ module tb_axi_bridge();
 
         // read buffer
         for (int i = 0; i < WRITE_REQ_FIFO_SIZE; i++) begin
-            read_write_request(dut_wr_fb_csr, dut_wr_addr, dut_color);
+            handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_color);
         end
 
         // check 
@@ -284,6 +289,73 @@ module tb_axi_bridge();
         end
     endtask
 
+    task send_read_addr(input logic [PIXEL_ADDR_BITS-1:0] addr);
+        // TODO: change this to axi
+        // reconstruct axi addr and data
+        bit [AXI_ADDR_BITS-1:0] axi_addr = AXI_BASE_ADDR;
+        axi_addr[PIXEL_ADDR_BITS-1:0] = addr;
+
+        $display("[TB] send_read_request: addr=0x%0h -> axi_addr=0x%0h at time %0t",
+             addr, axi_addr, $time);
+
+        @(posedge axi_clk);
+        force DUT.axi_rd_recieved = 1;
+        force DUT.axi_rd_waiting = 1;
+        force DUT.rd_addr = axi_addr;
+
+        @(posedge axi_clk);
+        force DUT.axi_rd_recieved = 0;
+        force DUT.rd_addr   = 0;
+    endtask
+
+    task handle_read_req(input logic [COLOR_LUT_BITS-1:0] data);
+        // wait for rd req
+        wait (status.rd_req);
+        
+        // read rd_addr
+        @(posedge vga_clk);
+        rd_re = 1;
+
+        // send rd_data
+        @(posedge vga_clk);
+        rd_re = 0;
+        rd_data = data;
+
+        rd_we = 1;
+        @(posedge vga_clk);
+        rd_we = 0;
+
+        wait(!DUT.rdd_fifo_empty);
+        
+        @(posedge axi_clk)
+        force DUT.axi_rd_waiting = 0;
+
+    endtask
+    
+
+    task send_read_request(
+        input logic [PIXEL_ADDR_BITS-1:0] addr,
+        output logic [COLOR_LUT_BITS-1:0] data);
+
+        logic [COLOR_LUT_BITS-1:0] tmp_data = DUMMY_DATA;
+
+        // send addr
+        send_read_addr(addr);
+
+        // handle req
+        handle_read_req(DUMMY_DATA);
+
+        // check data
+        wait(!DUT.axi_rd_waiting);
+        data = DUT.rd_data_small;
+
+        assert(data == tmp_data)
+        else begin
+            $error("send_read_request FAILED at addr=0x%0h: expected=0x%0h, got=0x%0h",
+               addr, tmp_data, data);
+            $fatal;
+        end
+    endtask
 
     // tests
     initial begin
@@ -294,6 +366,7 @@ module tb_axi_bridge();
         end
     end
 
+    logic [COLOR_LUT_BITS-1:0] t;
     initial begin
         $dumpfile("tb_axi_bridge.vcd");
         $dumpvars(0, tb_axi_bridge);
@@ -312,6 +385,10 @@ module tb_axi_bridge();
 
         test_block_write_req();
         #100;
+
+        $display("[TESTBENCH] PASSED Write Requests Tests");
+
+        // TODO: reading test
 
         $display("[TESTBENCH] PASSED all tests.");
 

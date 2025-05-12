@@ -18,6 +18,8 @@ package vga_driver_structs;
 
     localparam WRITE_REQ_FIFO_BITS = 4;
     localparam WRITE_REQ_FIFO_SIZE = 1 << WRITE_REQ_FIFO_BITS;
+    localparam READ_REQ_FIFO_BITS = 4;
+    localparam READ_REQ_FIFO_SIZE = 1 << READ_REQ_FIFO_BITS;
 
     typedef enum logic { 
         FB = 1'b0,
@@ -30,7 +32,7 @@ package vga_driver_structs;
         fb_csr_t wr_fb_csr;
         logic [PIXEL_ADDR_BITS-1:0] wr_addr;
         logic [DATA_BITS-1:0] wr_data;
-        logic rd_full;
+        logic rd_full; // TODO: talk to camille bout if needs 2 rda and rdd
         logic rd_req;
         fb_csr_t rd_fb_csr;
         logic [PIXEL_ADDR_BITS-1:0] rd_addr;

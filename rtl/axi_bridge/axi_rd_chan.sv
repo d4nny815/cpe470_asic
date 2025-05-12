@@ -7,6 +7,7 @@ import axi4_itf::*;
 import vga_driver_structs::*;
 import displayConsts::*;
 
+// TODO: does it need a output saying waiting on mem
 module axi_rd_chan (
     input logic reset_n,
     input logic axi_clk,
@@ -16,7 +17,8 @@ module axi_rd_chan (
     input logic [AXI_DATA_BITS-1:0] rd_data,
     input logic rd_ready_read,
     output logic [AXI_ADDR_BITS-1:0] rd_addr,
-    output logic rd_valid
+    output logic rd_valid,
+    output logic waiting
     );
 
     // ==========================================================================
@@ -59,7 +61,6 @@ module axi_rd_chan (
     assign rd_chan_o.rlast   = rlast_r;
     assign rd_chan_o.rdata   = rvalid_r ? rdata_r : 32'hdeadbeef;
 
-
     always_comb begin
         NS = PS;
         arready_r = 0;
@@ -69,6 +70,7 @@ module axi_rd_chan (
 
         rd_valid = 0;
         araddr_we = 0;
+        waiting = 0;
 
         case (PS)
             READY: begin
@@ -86,6 +88,7 @@ module axi_rd_chan (
             end
 
             WAIT_MEM: begin
+                waiting = 1;
                 if (rd_we)
                     NS = SEND_RESP;
             end

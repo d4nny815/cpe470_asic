@@ -29,6 +29,7 @@ module tb_rd_chan ();
     bit [AXI_ADDR_BITS-1:0] rd_addr;
     bit [AXI_DATA_BITS-1:0] rd_data;
     bit rd_valid;
+    bit waiting;
 
     // DUT instance
     axi_rd_chan DUT (.*);
