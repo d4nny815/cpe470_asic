@@ -9,7 +9,7 @@ package axi4_itf;
         EXOKAY  = 2'b01,
         SLVERR  = 2'b10,
         DECERR  = 2'b11
-    } BRESP_t;
+    } RESP_t;
 
     typedef struct packed {
         logic [AXI_ADDR_BITS-1:0] awaddr;
@@ -31,7 +31,7 @@ package axi4_itf;
         
         logic        wready;
 
-        BRESP_t      bresp;
+        RESP_t      bresp;
         logic        bvalid;
     } wr_channel_output_t;
 

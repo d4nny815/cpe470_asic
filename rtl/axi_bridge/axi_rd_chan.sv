@@ -47,13 +47,10 @@ module axi_rd_chan (
     // * CONTROL PATH
     // * =======================================================================
 
-    //
     logic araddr_we;
     logic arvalid_ready, rvalid;
-    logic arready_r, rvalid_r, rresp_r, rlast_r, rready_r;
-    
-    assign rready_r = rd_chan_i.rready;
-    assign arvalid_ready = rd_chan_i.arvalid && arready_r;
+    logic arready_r, rvalid_r, rlast_r, rready_r;
+    RESP_t rresp_r;
 
     assign rd_chan_o.arready = arready_r;
     assign rd_chan_o.rvalid  = rvalid_r;
@@ -65,7 +62,7 @@ module axi_rd_chan (
         NS = PS;
         arready_r = 0;
         rvalid_r  = 0;
-        rresp_r   = 0;
+        rresp_r   = OKAY;
         rlast_r   = 0;
 
         rd_valid = 0;
@@ -74,8 +71,8 @@ module axi_rd_chan (
 
         case (PS)
             READY: begin
-                arready_r = 1;
-                if (arvalid_ready) begin
+                arready_r = rd_ready_read;
+                if (rd_chan_i.arvalid) begin
                     araddr_we = 1;
                     NS = READ_ADDR;
                 end
@@ -98,7 +95,7 @@ module axi_rd_chan (
                 rresp_r  = OKAY;
                 rlast_r  = 1;
 
-                if (rready_r)
+                if (rd_chan_i.rready)
                     NS = READY;
             end
 

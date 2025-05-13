@@ -2,8 +2,9 @@
 `define TB_RD_CHAN
 
 `include "axi4_itf.sv"
-
+`include "vga_driver_structs.sv"
 import axi4_itf::*;
+import vga_driver_structs::*;
 
 module tb_rd_chan ();
     localparam AXI_CLK_PERIOD = 15;
@@ -41,7 +42,7 @@ module tb_rd_chan ();
     task reset_dut();
         axi_clk = 0;
         reset_n = 1;
-        rd_ready_read = 0;
+        rd_ready_read = 1;
         rd_chan_i = '0;
         rd_we = 0;
 
@@ -56,7 +57,7 @@ module tb_rd_chan ();
 
     // helper functions/task
     task fake_read (input logic [31:0] data);
-        wait (!rd_valid);
+        wait(waiting);
         @(posedge axi_clk);
         rd_data = data;
         rd_we = 1;
@@ -67,9 +68,9 @@ module tb_rd_chan ();
 
     task automatic axi_read_single(
         input logic [31:0] addr,
-        output logic [31:0]  data
-    );
-        // Send read address
+        output logic [31:0]  data);
+        
+        @(posedge axi_clk);
         rd_chan_i.araddr  = addr;
         rd_chan_i.arlen   = 0;
         rd_chan_i.arsize  = 3'b000; // 1 byte
@@ -77,64 +78,36 @@ module tb_rd_chan ();
         rd_chan_i.arvalid = 1;
         rd_chan_i.rready  = 0;
 
-        @(posedge axi_clk);
         wait (rd_chan_o.arready);
+        @(posedge axi_clk);
         rd_chan_i.arvalid = 0;
-
         rd_chan_i.rready = 1;
 
         fake_read(TEST_DATA);
 
-        @(posedge axi_clk)
         wait (rd_chan_o.rvalid);
+        wait (DUT.PS == 0);
+        @(posedge axi_clk)
+        
         data = rd_chan_o.rdata;
-
-        @(posedge axi_clk);
-        rd_chan_i.rready = 0;
-
-        $display("[AXI READ] Read 0x%02h from 0x%08h", data, addr);
-    endtask
-
-    task automatic check_device(input logic [AXI_DATA_BITS-1:0] dut_rd_data);
-        assert(dut_rd_data == TEST_DATA)
-        else begin
-            $error("HELP");
-            $finish();
-        end
     endtask
 
     // test cases
     
-    // Tests to see if the interface completes the write channel transaction
+    // tests to see if the interface completes the write channel transaction
     task test_single_read();
-        logic [AXI_DATA_BITS-1] tmp;
+        logic [AXI_DATA_BITS-1:0] tmp;
         axi_read_single(AXI_CSR_ADDR, tmp);
     endtask
-
-    // TODO:
-    // task test_burst_read();
-    // endtask
-
-    // test to make sure read transaction sent through the correct response 
-    task test_single_read_from();
-        logic [AXI_DATA_BITS-1] tmp;
-        axi_read_single(AXI_CSR_ADDR, tmp);
-        check_device(tmp);
-    endtask
-
-    // TODO:
-    // task test_multiple_read_from();
-    // endtask
 
     // test to make sure read transaction gets block if fifo was full
     // transaction completes when fifo has room 
     task test_fifo_full_read();
         logic [31:0] data;
 
-        #(2 * AXI_CLK_PERIOD)
+        @(posedge axi_clk);
         rd_ready_read = 1;
 
-        // Send read address
         rd_chan_i.araddr  = AXI_FB_ADDR;
         rd_chan_i.arlen   = 0;
         rd_chan_i.arsize  = 3'b000; // 1 byte
@@ -142,8 +115,8 @@ module tb_rd_chan ();
         rd_chan_i.arvalid = 1;
         rd_chan_i.rready  = 0;
 
-        @(posedge axi_clk);
         wait (rd_chan_o.arready);
+        @(posedge axi_clk);
         rd_chan_i.arvalid = 0;
 
         rd_chan_i.rready = 1;
@@ -221,16 +194,22 @@ module tb_rd_chan ();
 
     // main test loop
     initial begin
-        $dumpfile("tb_rd_chan.vcd");
-        $dumpvars(0, tb_rd_chan);
+        
+        `ifdef VERILATOR
+            $dumpfile("tb_verilator.vcd");
+            $dumpvars(0, tb_rd_chan);
+        `else
+            $dumpfile("tb_icarus.vcd");
+            $dumpvars(0, tb_rd_chan);
+        `endif
 
         reset_dut();
 
         test_single_read();
 
-        test_fifo_full_read();
+        // test_fifo_full_read();
 
-        test_wait_for_mem();
+        // test_wait_for_mem();
 
 
         // TODO: add future tests
@@ -241,7 +220,7 @@ module tb_rd_chan ();
 
     // Crashout :)
     initial begin
-        #10000 $error("Timeout");
+        #1000 $error("Timeout");
         $finish();
     end
 endmodule

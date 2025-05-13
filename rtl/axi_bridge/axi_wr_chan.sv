@@ -38,7 +38,7 @@ module axi_wr_chan (
     // * =======================================================================
 
     logic awready_r, wready_r, bvalid_r;
-    BRESP_t bresp_r;
+    RESP_t bresp_r;
     logic wr_addr_we, wr_data_we;
 
     assign wr_chan_o.awready = awready_r;
