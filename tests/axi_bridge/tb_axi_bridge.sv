@@ -50,17 +50,8 @@ module tb_axi_bridge();
     axi_bridge DUT (.*);
 
     // gen clocks
-    // VGA clock
-    initial begin
-        vga_clk = 0;
-        forever #(VGA_CLK_PERIOD/2) vga_clk = ~vga_clk;
-    end
-
-    // AXI clock
-    initial begin
-        axi_clk = 0;
-        forever #(AXI_CLK_PERIOD/2) axi_clk = ~axi_clk;
-    end
+    always #(AXI_CLK_PERIOD/2) axi_clk = ~axi_clk;
+    always #(VGA_CLK_PERIOD/2) vga_clk = ~vga_clk;
 
     // housekeeping
     task reset_dut();
@@ -74,8 +65,6 @@ module tb_axi_bridge();
         force DUT.rd_addr   = 'hdeadbeef;
 
         // end of tmp
-
-
         axi_reset_n = 1;
         vga_reset_n = 1;
         wr_chan_i = '0;
@@ -98,6 +87,7 @@ module tb_axi_bridge();
     endtask
 
     // helper tasks
+    /* verilator lint_off IMPLICITSTATIC */
     task send_write_request(input logic [PIXEL_ADDR_BITS-1:0] addr,
         input logic [COLOR_LUT_BITS-1:0] data);
 
@@ -121,6 +111,7 @@ module tb_axi_bridge();
         force DUT.wr_addr   = 0;
         force DUT.wr_data   = 0;
     endtask
+    /* verilator lint_on IMPLICITSTATIC */
 
     task handle_write_req(
         output fb_csr_t fb_csr,
@@ -131,12 +122,15 @@ module tb_axi_bridge();
 
         @(posedge vga_clk);
         wr_re = 1;
-
-        @(posedge vga_clk);
-        wr_re = 0;
         fb_csr = status.wr_fb_csr;
         addr = status.wr_addr;
         data = status.wr_data;
+
+        @(posedge vga_clk);
+        wr_re = 0;
+
+        // $display("[TESTBENCH] Got : {{csr=%0d, addr=0x%0h, data=0x%0h}}",
+                // fb_csr, addr, data);
     endtask
 
     // tests
@@ -153,11 +147,12 @@ module tb_axi_bridge();
 
         handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_wr_data);
 
+        @(posedge vga_clk);
         assert (dut_wr_fb_csr == expected_wr_fb_csr &&
             dut_wr_addr    == expected_wr_addr     &&
             dut_wr_data    == expected_color)
         else begin
-            $error("test_fb_write_req FAILED:\n" +
+            $error("[TESTBENCH] test_fb_write_req FAILED:\n" +
                 "  Expected: {{csr=%0d, addr=0x%0h, data=0x%0h}}\n" +
                 "     Got : {{csr=%0d, addr=0x%0h, data=0x%0h}}",
                 expected_wr_fb_csr, expected_wr_addr, expected_color,
@@ -178,6 +173,7 @@ module tb_axi_bridge();
         send_write_request(expected_wr_addr, expected_color);
         handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_color);
 
+        @(posedge vga_clk);
         assert (dut_wr_fb_csr == expected_wr_fb_csr &&
             dut_wr_addr    == expected_wr_addr     &&
             dut_color    == expected_color)
@@ -200,7 +196,7 @@ module tb_axi_bridge();
         end
     endtask
 
-    task test_mult_write_req(input int n);
+    task automatic test_mult_write_req(input int n);
         logic [PIXEL_ADDR_BITS-1:0] expected_wr_addr [$];
         bit [COLOR_LUT_BITS-1:0] expected_color [$];
 
@@ -223,6 +219,7 @@ module tb_axi_bridge();
         for (int i = 0; i < n; i++) begin
             handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_color);
 
+            @(posedge vga_clk);
             assert (dut_wr_fb_csr == expected_wr_fb_csr  &&
                     dut_wr_addr   == expected_wr_addr[i] &&
                     dut_color     == expected_color[i])
@@ -237,7 +234,7 @@ module tb_axi_bridge();
         end
     endtask
 
-    task test_block_write_req();
+    task automatic test_block_write_req();
         fb_csr_t dut_wr_fb_csr;
         logic [PIXEL_ADDR_BITS-1:0] dut_wr_addr;
         bit [COLOR_LUT_BITS-1:0] dut_color;
@@ -248,7 +245,6 @@ module tb_axi_bridge();
         end
 
         // check 
-        @(posedge vga_clk);
         @(posedge vga_clk);
         assert(status.wr_full);
         else begin
@@ -289,6 +285,7 @@ module tb_axi_bridge();
         end
     endtask
 
+    /* verilator lint_off IMPLICITSTATIC */
     task send_read_addr(input logic [PIXEL_ADDR_BITS-1:0] addr);
         // TODO: change this to axi
         // reconstruct axi addr and data
@@ -307,6 +304,7 @@ module tb_axi_bridge();
         force DUT.axi_rd_recieved = 0;
         force DUT.rd_addr   = 0;
     endtask
+    /* verilator lint_on IMPLICITSTATIC */
 
     task handle_read_req(input logic [COLOR_LUT_BITS-1:0] data);
         // wait for rd req
@@ -329,11 +327,10 @@ module tb_axi_bridge();
         
         @(posedge axi_clk)
         force DUT.axi_rd_waiting = 0;
-
     endtask
     
 
-    task send_read_request(
+    task automatic send_read_request(
         input logic [PIXEL_ADDR_BITS-1:0] addr,
         output logic [COLOR_LUT_BITS-1:0] data);
 
@@ -368,8 +365,13 @@ module tb_axi_bridge();
 
     logic [COLOR_LUT_BITS-1:0] t;
     initial begin
-        $dumpfile("tb_axi_bridge.vcd");
-        $dumpvars(0, tb_axi_bridge);
+        `ifdef VERILATOR
+            $dumpfile("tb_verilator.vcd");
+            $dumpvars(0, tb_axi_bridge);
+        `else
+            $dumpfile("tb_icarus.vcd");
+            $dumpvars(0, tb_axi_bridge);
+        `endif
 
         reset_dut();
         #50;

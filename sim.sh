@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+# set -euo pipefail
 
 # ! Courtesy of chat :)
 
@@ -13,7 +13,9 @@ usage() {
 
 # need at least one argument
 if (( $# < 1 )); then
-  usage
+  make "tests"
+  make "itests"
+  exit 0
 fi
 
 test_dir=$1
