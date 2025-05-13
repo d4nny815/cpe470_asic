@@ -234,7 +234,7 @@ module tb_axi_bridge();
         end
     endtask
 
-    task automatic test_block_write_req();
+    task automatic test_blocking_write_req();
         fb_csr_t dut_wr_fb_csr;
         logic [PIXEL_ADDR_BITS-1:0] dut_wr_addr;
         bit [COLOR_LUT_BITS-1:0] dut_color;
@@ -248,7 +248,7 @@ module tb_axi_bridge();
         @(posedge vga_clk);
         assert(status.wr_full);
         else begin
-            $error("test_block_write_req FAILED: status.wr_full expected 1 after %0d writes, got %b",
+            $error("test_blocking_write_req FAILED: status.wr_full expected 1 after %0d writes, got %b",
                    WRITE_REQ_FIFO_SIZE, status.wr_full);
             $fatal;
         end
@@ -256,7 +256,7 @@ module tb_axi_bridge();
         // make sure cant write
         assert(!DUT.wr_ready_resp);
         else begin
-            $error("test_block_write_req FAILED: DUT.wr_ready_resp expected 0 when FIFO is full, got %b",
+            $error("test_blocking_write_req FAILED: DUT.wr_ready_resp expected 0 when FIFO is full, got %b",
                DUT.wr_ready_resp);
             $fatal;
         end
@@ -271,7 +271,7 @@ module tb_axi_bridge();
         @(posedge vga_clk);
         assert(!status.wr_full);
         else begin
-            $error("test_block_write_req FAILED: status.wr_full expected 0 after draining, got %b",
+            $error("test_blocking_write_req FAILED: status.wr_full expected 0 after draining, got %b",
                status.wr_full);
             $fatal;
         end
@@ -279,7 +279,7 @@ module tb_axi_bridge();
         // make sure cant write
         assert(DUT.wr_ready_resp);
         else begin
-            $error("test_block_write_req FAILED: DUT.wr_ready_resp expected 1 when FIFO has space, got %b",
+            $error("test_blocking_write_req FAILED: DUT.wr_ready_resp expected 1 when FIFO has space, got %b",
                DUT.wr_ready_resp);
             $fatal;
         end
@@ -306,7 +306,8 @@ module tb_axi_bridge();
     endtask
     /* verilator lint_on IMPLICITSTATIC */
 
-    task handle_read_req(input logic [COLOR_LUT_BITS-1:0] data);
+    task handle_read_req(input logic [COLOR_LUT_BITS-1:0] data,
+        output logic [PIXEL_ADDR_BITS-1:0] addr);
         // wait for rd req
         wait (status.rd_req);
         
@@ -314,6 +315,7 @@ module tb_axi_bridge();
         @(posedge vga_clk);
         rd_re = 1;
 
+        addr = status.rd_addr;
         // send rd_data
         @(posedge vga_clk);
         rd_re = 0;
@@ -324,34 +326,126 @@ module tb_axi_bridge();
         rd_we = 0;
 
         wait(!DUT.rdd_fifo_empty);
-        
-        @(posedge axi_clk)
-        force DUT.axi_rd_waiting = 0;
     endtask
     
-
-    task automatic send_read_request(
-        input logic [PIXEL_ADDR_BITS-1:0] addr,
-        output logic [COLOR_LUT_BITS-1:0] data);
-
-        logic [COLOR_LUT_BITS-1:0] tmp_data = DUMMY_DATA;
-
-        // send addr
-        send_read_addr(addr);
-
-        // handle req
-        handle_read_req(DUMMY_DATA);
-
-        // check data
+    task read_from_axi(output logic [COLOR_LUT_BITS-1:0] data);
         wait(!DUT.axi_rd_waiting);
+        @(posedge axi_clk);
         data = DUT.rd_data_small;
 
-        assert(data == tmp_data)
+        @(posedge axi_clk);
+    endtask
+
+    task test_read_req();
+        fb_csr_t expected_rd_fb_csr, dut_rd_fb_csr;
+        logic [PIXEL_ADDR_BITS-1:0] expected_rd_addr, dut_rd_addr;
+        bit [COLOR_LUT_BITS-1:0] expected_color, dut_color;
+        
+        expected_rd_fb_csr = CSR;
+        expected_rd_addr = SR_ADDR;
+        expected_color = DUMMY_DATA;
+
+        send_read_addr(expected_rd_addr);
+
+        wait (status.rd_req);
+        @(posedge vga_clk);
+        rd_re = 1;
+        dut_rd_fb_csr = status.rd_fb_csr;
+        dut_rd_addr = status.rd_addr;
+
+        @(posedge vga_clk);
+        rd_re = 0;
+
+        rd_data = expected_color;
+        rd_we = 1;
+
+        @(posedge vga_clk);
+        rd_we = 0;
+        force DUT.axi_rd_waiting = 0;
+        wait(!DUT.rdd_fifo_empty);
+
+        @(posedge axi_clk);
+        dut_color = DUT.rd_data_small;
+
+        @(posedge axi_clk)
+        assert (dut_rd_fb_csr == expected_rd_fb_csr &&
+                dut_rd_addr   == expected_rd_addr &&
+                dut_color     == expected_color)
         else begin
-            $error("send_read_request FAILED at addr=0x%0h: expected=0x%0h, got=0x%0h",
-               addr, tmp_data, data);
+            $error("[TESTBENCH] test_fb_rdite_req FAILED:\n" +
+                "  Expected: {{csr=%0d, addr=0x%0h, data=0x%0h}}\n" +
+                "     Got : {{csr=%0d, addr=0x%0h, data=0x%0h}}",
+                expected_rd_fb_csr, expected_rd_addr, expected_color,
+                dut_rd_fb_csr,     dut_rd_addr,     dut_color);
             $fatal;
         end
+    endtask
+
+    task automatic test_mult_read_req(input int n);
+        logic [PIXEL_ADDR_BITS-1:0] expected_rd_addr [$];
+        bit [COLOR_LUT_BITS-1:0] expected_color [$];
+
+        fb_csr_t dut_rd_fb_csr, expected_rd_fb_csr = FB;
+        logic [PIXEL_ADDR_BITS-1:0] dut_rd_addr;
+        bit [COLOR_LUT_BITS-1:0] dut_color;
+
+        // read addr
+        for (int i = 0; i < n; i++) begin
+
+            dut_rd_addr = i[PIXEL_ADDR_BITS-1:0];
+            // dut_color = 255 - i[COLOR_LUT_BITS-1:0];
+            expected_rd_addr.push_back(dut_rd_addr);
+            
+            send_read_addr(dut_rd_addr);
+        end
+
+        // handle req
+        for (int i = 0; i < n; i++) begin   
+            dut_color = 255 - i[COLOR_LUT_BITS-1:0];
+            expected_color.push_back(dut_color);
+            
+            handle_read_req(dut_color, dut_rd_addr);
+            
+            assert(dut_rd_addr == expected_rd_addr[i])
+            else begin
+                $error("test_read_req FAILED at iteration %0d:\n" +
+                        "  Expected rd_addr = 0x%0h,  Got = 0x%0h",
+                        i, expected_rd_addr[i], dut_rd_addr);
+                $fatal;
+            end
+        end
+
+
+        // read from axi
+        // for (int i = 0; i < n; i++) begin   
+        //     handle_read_req(dut_color, dut_rd_addr);
+            
+        //     assert(dut_rd_addr == expected_rd_addr[i])
+        //     else begin
+        //         $error("test_read_req FAILED at iteration %0d:\n" +
+        //                 "  Expected rd_addr = 0x%0h,  Got = 0x%0h",
+        //                 i, expected_rd_addr[i], dut_rd_addr);
+        //         $fatal;
+        //     end
+        // end
+
+        // read
+        // for (int i = 0; i < n; i++) begin
+        //     handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_color);
+
+        //     @(posedge vga_clk);
+        //     assert (dut_wr_fb_csr == expected_wr_fb_csr  &&
+        //             dut_wr_addr   == expected_wr_addr[i] &&
+        //             dut_color     == expected_color[i])
+        //     else begin
+        //         $error("test_csr_write_req FAILED: iter : %d\n" +
+        //             "  Expected: {{csr=%0d, addr=0x%0h, data=0x%0h}}\n" +
+        //             "     Got : {{csr=%0d, addr=0x%0h, data=0x%0h}}", i,
+        //             expected_wr_fb_csr, expected_wr_addr[i], expected_color[i],
+        //             dut_wr_fb_csr,     dut_wr_addr,     dut_color);
+        //         $fatal;
+        //     end
+        // end
     endtask
 
     // tests
@@ -385,15 +479,25 @@ module tb_axi_bridge();
         test_mult_write_req(WRITE_REQ_FIFO_SIZE / 3);
         #100;
 
-        test_block_write_req();
+        test_blocking_write_req();
         #100;
 
         $display("[TESTBENCH] PASSED Write Requests Tests");
 
         // TODO: reading test
+        test_read_req();
+        #100;
+
+        test_mult_read_req(READ_REQ_FIFO_SIZE / 3);
+        #100;
+
+        // test_blocking_read_req();
+        // #100;
+
+        $display("[TESTBENCH] PASSED Read Requests Tests");
+
 
         $display("[TESTBENCH] PASSED all tests.");
-
         test_done = 1;
         #100;
         $finish();
