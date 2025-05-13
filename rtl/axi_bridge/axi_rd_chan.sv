@@ -71,7 +71,7 @@ module axi_rd_chan (
 
         case (PS)
             READY: begin
-                arready_r = rd_ready_read;
+                arready_r = 1;
                 if (rd_chan_i.arvalid) begin
                     araddr_we = 1;
                     NS = READ_ADDR;
@@ -80,7 +80,7 @@ module axi_rd_chan (
 
             READ_ADDR: begin
                 rd_valid = 1;
-                if (!rd_ready_read) 
+                if (rd_ready_read) 
                     NS = WAIT_MEM;
             end
 

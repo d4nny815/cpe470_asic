@@ -57,8 +57,8 @@ module tb_rd_chan ();
 
     // helper functions/task
     task fake_read (input logic [31:0] data);
-        wait(waiting);
         @(posedge axi_clk);
+        wait(waiting);
         rd_data = data;
         rd_we = 1;
 
@@ -103,10 +103,8 @@ module tb_rd_chan ();
     // test to make sure read transaction gets block if fifo was full
     // transaction completes when fifo has room 
     task test_fifo_full_read();
-        logic [31:0] data;
-
         @(posedge axi_clk);
-        rd_ready_read = 1;
+        rd_ready_read = 0;
 
         rd_chan_i.araddr  = AXI_FB_ADDR;
         rd_chan_i.arlen   = 0;
@@ -115,33 +113,30 @@ module tb_rd_chan ();
         rd_chan_i.arvalid = 1;
         rd_chan_i.rready  = 0;
 
-        wait (rd_chan_o.arready);
+        wait(!rd_chan_o.arready);
         @(posedge axi_clk);
-        rd_chan_i.arvalid = 0;
-
-        rd_chan_i.rready = 1;
 
         // make sure i dont get back ready
         for (int i = 0; i < 10; i++) begin
             @(posedge axi_clk);
-
             assert(rd_valid)
             else begin
-                $error("[FIFO FULL TEST] wrote to full FIFO");
+                $error("[FIFO FULL TEST] wrote to full FIFO %d", rd_valid);
                 $finish();
             end
         end
 
-        rd_ready_read = 0;
+        @(posedge axi_clk);
+        rd_ready_read = 1;
+
+        rd_chan_i.arvalid = 0;
+        rd_chan_i.rready = 1;
 
         fake_read(TEST_DATA);
 
-        @(posedge axi_clk)
         wait (rd_chan_o.rvalid);
-        data = rd_chan_o.rdata;
-
+        wait (DUT.PS == 0);
         @(posedge axi_clk);
-        rd_chan_i.rready = 0;
 
     endtask
 
@@ -151,7 +146,6 @@ module tb_rd_chan ();
         #(2 * AXI_CLK_PERIOD)
         rd_we = 0;
 
-        // Send read address
         rd_chan_i.araddr  = AXI_FB_ADDR;
         rd_chan_i.arlen   = 0;
         rd_chan_i.arsize  = 3'b000; // 1 byte
@@ -207,7 +201,7 @@ module tb_rd_chan ();
 
         test_single_read();
 
-        // test_fifo_full_read();
+        test_fifo_full_read();
 
         // test_wait_for_mem();
 
