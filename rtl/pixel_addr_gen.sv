@@ -1,4 +1,5 @@
 // TODO: camille
+`timescale 1ns/1ps
 `include "common/displayConsts.sv"
 `include "common/vgaTimes.sv"
 
@@ -33,9 +34,9 @@ module pixel_addr_gen (
     // output pixel_addr
     always_comb begin
         if (in_frame) begin
-            pixel_addr = pixel_base + {{(9){1'b0}}, h_cnt};
+            pixel_addr = pixel_base + {{(PIXEL_ADDR_BITS-H_BITS){1'b0}}, h_cnt};
         end else begin
-            pixel_addr = 0;
+            pixel_addr = pixel_base;
         end
     end
     
