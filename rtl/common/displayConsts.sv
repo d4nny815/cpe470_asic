@@ -15,6 +15,7 @@ package displayConsts;
 
     localparam FRAME_SIZE = H_VISIBLE_AREA * V_VISIBLE_AREA; 
     localparam PIXEL_ADDR_BITS = $clog2(FRAME_SIZE);
+
 endpackage
 
 `endif

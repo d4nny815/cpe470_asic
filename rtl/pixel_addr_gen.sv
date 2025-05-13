@@ -1,4 +1,6 @@
 // TODO: camille
+`ifndef PIXEL_ADDR_GEN
+`define PIXEL_ADDR_GEN
 `timescale 1ns/1ps
 `include "common/displayConsts.sv"
 `include "common/vgaTimes.sv"
@@ -41,3 +43,4 @@ module pixel_addr_gen (
     end
     
 endmodule
+`endif

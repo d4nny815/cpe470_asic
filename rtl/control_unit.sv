@@ -1,3 +1,5 @@
+`ifndef CONTROL_UNIT
+`define CONTROL_UNIT
 `timescale 1ns / 1ps
 
 `include "common/vga_driver_structs.sv"
@@ -237,3 +239,4 @@ module control_unit (
     end
 
 endmodule
+`endif

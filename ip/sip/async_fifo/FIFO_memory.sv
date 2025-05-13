@@ -1,3 +1,5 @@
+`ifndef FIFO_MEMORY
+`define FIFO_MEMORY
 //----------------DISCRIPTION-----------------
 // This code is for FIFO memory module. It is 
 // a synchronous FIFO memory module with a
@@ -35,3 +37,4 @@ endmodule
 // to control the writing process. The write data is stored in the memory
 // array on the rising edge of the write clock (wclk).
 // -----------------------------------------------------------------------
+`endif

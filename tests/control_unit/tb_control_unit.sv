@@ -2,6 +2,7 @@
 
 `include "displayConsts.sv"
 `include "vga_driver_structs.sv"
+`include "control_unit.sv"
 
 import vga_driver_structs::*;
 

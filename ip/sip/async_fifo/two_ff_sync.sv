@@ -1,3 +1,5 @@
+`ifndef FIFO_FF_SYNC
+`define FIFO_FF_SYNC
 // -----------------DESCRIPTION------------------
 // This is a 2-stage synchronous FIFO module.
 // ----------------------------------------------
@@ -29,5 +31,5 @@ endmodule
 // is loaded into q1. The reset signal (rst_n) is active low, meaning the 
 // FIFO is reset when rst_n is low.  
 // -----------------------------------------------------------------------
- 
+`endif
 

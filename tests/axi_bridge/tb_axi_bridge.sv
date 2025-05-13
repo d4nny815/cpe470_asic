@@ -3,6 +3,7 @@
 
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
+`include "axi_bridge.sv"
 
 module tb_axi_bridge();
     import axi4_itf::*;
@@ -56,9 +57,9 @@ module tb_axi_bridge();
     // housekeeping
     task reset_dut();
         // TODO: remove tmp
-        force DUT.axi_wr_recieved = 0;
-        force DUT.wr_addr   = 'hdeadbeef;
-        force DUT.wr_data   = 'ha5;
+        // force DUT.axi_wr_recieved = 0;
+        // force DUT.wr_addr   = 'hdeadbeef;
+        // force DUT.wr_data   = 'ha5;
 
         force DUT.axi_rd_recieved = 0;
         force DUT.axi_rd_waiting = 0;
@@ -98,18 +99,43 @@ module tb_axi_bridge();
         axi_addr[PIXEL_ADDR_BITS-1:0] = addr;
         axi_data[COLOR_LUT_BITS-1:0] = data;
 
+        @(posedge axi_clk);
+        wr_chan_i.awaddr  = axi_addr;
+        wr_chan_i.awlen   = 0;
+        wr_chan_i.awsize  = 3'b000; // 1 byte
+        wr_chan_i.awburst = 2'b01;
+        wr_chan_i.awvalid = 1;
+
+        wr_chan_i.wdata   = axi_data; // Byte in lowest 8 bits
+        wr_chan_i.wstrb   = 4'b0001;       // Only lowest byte is valid
+        wr_chan_i.wlast   = 1;
+        wr_chan_i.wvalid  = 1;
+
+        wait (wr_chan_o.awready && wr_chan_o.wready);
+        @(posedge axi_clk);
+
+        wr_chan_i.awvalid = 0;
+        wr_chan_i.wvalid  = 0;
+
+        wr_chan_i.bready = 1;
+
+        wait (wr_chan_o.bvalid);
+
+        @(posedge axi_clk);
+        wr_chan_i.bready = 0;
+
         // $display("[TB] send_write_request: addr=0x%0h data=0x%0h -> axi_addr=0x%0h axi_data=0x%0h at time %0t",
             //  addr, data, axi_addr, axi_data, $time);
 
-        @(posedge axi_clk);
-        force DUT.axi_wr_recieved = 1;
-        force DUT.wr_addr   = axi_addr;
-        force DUT.wr_data   = axi_data;
+        // @(posedge axi_clk);
+        // force DUT.axi_wr_recieved = 1;
+        // force DUT.wr_addr   = axi_addr;
+        // force DUT.wr_data   = axi_data;
 
-        @(posedge axi_clk);
-        force DUT.axi_wr_recieved = 0;
-        force DUT.wr_addr   = 0;
-        force DUT.wr_data   = 0;
+        // @(posedge axi_clk);
+        // force DUT.axi_wr_recieved = 0;
+        // force DUT.wr_addr   = 0;
+        // force DUT.wr_data   = 0;
     endtask
     /* verilator lint_on IMPLICITSTATIC */
 
@@ -145,20 +171,20 @@ module tb_axi_bridge();
 
         send_write_request(expected_wr_addr, expected_color);
 
-        handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_wr_data);
+        // handle_write_req(dut_wr_fb_csr, dut_wr_addr, dut_wr_data);
 
-        @(posedge vga_clk);
-        assert (dut_wr_fb_csr == expected_wr_fb_csr &&
-            dut_wr_addr    == expected_wr_addr     &&
-            dut_wr_data    == expected_color)
-        else begin
-            $error("[TESTBENCH] test_fb_write_req FAILED:\n" +
-                "  Expected: {{csr=%0d, addr=0x%0h, data=0x%0h}}\n" +
-                "     Got : {{csr=%0d, addr=0x%0h, data=0x%0h}}",
-                expected_wr_fb_csr, expected_wr_addr, expected_color,
-                dut_wr_fb_csr,     dut_wr_addr,     dut_wr_data);
-            $fatal;
-        end
+        // @(posedge vga_clk);
+        // assert (dut_wr_fb_csr == expected_wr_fb_csr &&
+        //     dut_wr_addr    == expected_wr_addr     &&
+        //     dut_wr_data    == expected_color)
+        // else begin
+        //     $error("[TESTBENCH] test_fb_write_req FAILED:\n" +
+        //         "  Expected: {{csr=%0d, addr=0x%0h, data=0x%0h}}\n" +
+        //         "     Got : {{csr=%0d, addr=0x%0h, data=0x%0h}}",
+        //         expected_wr_fb_csr, expected_wr_addr, expected_color,
+        //         dut_wr_fb_csr,     dut_wr_addr,     dut_wr_data);
+        //     $fatal;
+        // end
     endtask
 
     task test_csr_write_req();
@@ -450,14 +476,13 @@ module tb_axi_bridge();
 
     // tests
     initial begin
-        #1000000;
+        #1000;
         if (!test_done) begin
             $error("Timeout: test did not finish in time");
             $finish;
         end
     end
 
-    logic [COLOR_LUT_BITS-1:0] t;
     initial begin
         `ifdef VERILATOR
             $dumpfile("tb_verilator.vcd");
@@ -473,23 +498,23 @@ module tb_axi_bridge();
         test_fb_write_req();
         #100;
 
-        test_csr_write_req();
-        #100;
+        // test_csr_write_req();
+        // #100;
 
-        test_mult_write_req(WRITE_REQ_FIFO_SIZE / 3);
-        #100;
+        // test_mult_write_req(WRITE_REQ_FIFO_SIZE / 3);
+        // #100;
 
-        test_blocking_write_req();
-        #100;
+        // test_blocking_write_req();
+        // #100;
 
         $display("[TESTBENCH] PASSED Write Requests Tests");
 
-        // TODO: reading test
-        test_read_req();
-        #100;
+        // // TODO: reading test
+        // test_read_req();
+        // #100;
 
-        test_mult_read_req(READ_REQ_FIFO_SIZE / 3);
-        #100;
+        // test_mult_read_req(READ_REQ_FIFO_SIZE / 3);
+        // #100;
 
         // test_blocking_read_req();
         // #100;

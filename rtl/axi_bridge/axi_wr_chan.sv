@@ -70,7 +70,7 @@ module axi_wr_chan (
             
             VALID: begin
                 wr_valid = 1;
-                if (!wr_ready_resp) begin
+                if (wr_ready_resp) begin
                     NS = WAIT_RESP;
                 end
                 else begin

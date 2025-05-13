@@ -1,6 +1,7 @@
 `timescale 1ns/1ps
 `include "common/displayConsts.sv"
 `include "common/vgaTimes.sv"
+`include "pixel_addr_gen.sv"
 
 module tb_pixel_addr_gen();
 

@@ -1,6 +1,10 @@
 `ifndef ASYNC_FIFO
 `define ASYNC_FIFO
-
+`include "FIFO_memory.sv"
+`include "rptr_empty.sv"
+`include "wptr_full.sv"
+`include "two_ff_sync.sv"
+// `include ".sv"
 // ! Source
 // https://github.com/ujjwal-2001/Async_FIFO_Design#
 

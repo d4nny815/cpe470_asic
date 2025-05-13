@@ -1,3 +1,5 @@
+`ifndef FIFO_RPTR_EMPTY
+`define FIFO_RPTR_EMPTY
 //---------------DESCRIPTION-----------------------
 // This is a FIFO read pointer Handle module with empty flag.
 //--------------------------------------------------
@@ -51,3 +53,4 @@ endmodule
 // the FIFO is empty. The read pointer and empty flag are updated on each
 // clock cycle, and the read address is calculated from the read pointer.
 // -----------------------------------------------------------------------
+`endif

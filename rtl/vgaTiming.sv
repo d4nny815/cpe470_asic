@@ -1,3 +1,5 @@
+`ifndef VGA_TIMING
+`define VGA_TIMING
 `include "common/vgaTimes.sv"
 `include "common/displayConsts.sv"
 
@@ -57,3 +59,4 @@ module vgaTiming (
     end
 
 endmodule
+`endif

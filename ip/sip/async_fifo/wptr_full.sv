@@ -1,3 +1,5 @@
+`ifndef FIFO_WPTR_FULL
+`define FIFO_WPTR_FULL
 //-------------DESCRIPTION---------------------------
 // This is a FIFO write pointer Handle module with full flag.
 //--------------------------------------------------
@@ -56,4 +58,5 @@ endmodule
 // when the write pointer is equal to the read pointer, indicating that
 // the FIFO is full. The write pointer and full flag are updated on each
 // clock cycle, and the write address is calculated from the write pointer.
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------]
+`endif

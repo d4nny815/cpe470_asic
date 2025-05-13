@@ -1,3 +1,6 @@
+`ifndef AXI_BRIDGE
+`define AXI_BRIDGE
+
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
 `include "displayConsts.sv"
@@ -128,16 +131,16 @@ module axi_bridge (
 
     // * WRITE REQUESTS 
     // TODO: fix, hangs for sim time
-    // axi_wr_chan wr_chan (
-    //     .reset_n            (axi_reset_n),
-    //     .axi_clk            (axi_clk),
-    //     .wr_chan_i          (wr_chan_i),
-    //     .wr_ready_resp      (wr_ready_resp),
-    //     .wr_chan_o          (wr_chan_o),
-    //     .wr_addr            (wr_addr),
-    //     .wr_data            (wr_data),
-    //     .wr_valid           (axi_wr_recieved)
-    // );
+    axi_wr_chan wr_chan (
+        .reset_n            (axi_reset_n),
+        .axi_clk            (axi_clk),
+        .wr_chan_i          (wr_chan_i),
+        .wr_ready_resp      (wr_ready_resp),
+        .wr_chan_o          (wr_chan_o),
+        .wr_addr            (wr_addr),
+        .wr_data            (wr_data),
+        .wr_valid           (axi_wr_recieved)
+    );
 
     // write packet encoder
     typedef struct packed {
@@ -265,3 +268,4 @@ module axi_bridge (
     assign status.rd_addr = rda_fifo_data_o.addr;
 
 endmodule
+`endif

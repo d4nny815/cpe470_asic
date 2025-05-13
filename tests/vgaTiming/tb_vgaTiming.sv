@@ -1,6 +1,7 @@
 `ifndef TB_VGA_TIMING
 `define TB_VGA_TIMING
 `include "vgaTimes.sv"
+`include "vgaTiming.sv"
 
 module tb_vgaTiming();
     localparam CLK_PERIOD = 10;

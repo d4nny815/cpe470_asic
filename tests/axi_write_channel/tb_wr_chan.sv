@@ -3,6 +3,8 @@
 
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
+`include "axi_wr_chan.sv"
+
 
 import axi4_itf::*;
 import vga_driver_structs::*;
