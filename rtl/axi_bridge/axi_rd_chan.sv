@@ -115,7 +115,7 @@ module axi_rd_chan (
             if (araddr_we)
                 araddr_r <= rd_chan_i.araddr;
             
-            if (rd_we)
+            if (rd_we && PS == WAIT_MEM)
                 rdata_r <= rd_data ;
         end
     end

@@ -57,8 +57,8 @@ module tb_rd_chan ();
 
     // helper functions/task
     task fake_read (input logic [31:0] data);
-        @(posedge axi_clk);
         wait(waiting);
+        @(posedge axi_clk);
         rd_data = data;
         rd_we = 1;
 
@@ -144,7 +144,9 @@ module tb_rd_chan ();
         logic [31:0] data;
 
         #(2 * AXI_CLK_PERIOD)
-        rd_we = 0;
+
+        @(posedge axi_clk);
+        rd_ready_read = 1;
 
         rd_chan_i.araddr  = AXI_FB_ADDR;
         rd_chan_i.arlen   = 0;
@@ -153,37 +155,38 @@ module tb_rd_chan ();
         rd_chan_i.arvalid = 1;
         rd_chan_i.rready  = 0;
 
+        wait(!rd_chan_o.arready);
         @(posedge axi_clk);
-        wait (rd_chan_o.arready);
         rd_chan_i.arvalid = 0;
-
         rd_chan_i.rready = 1;
 
-        @(posedge axi_clk)
-        wait (!rd_valid);
-
-        // make sure i dont get back ready
+        // wait for mem here
         for (int i = 0; i < 10; i++) begin
             @(posedge axi_clk);
 
-            assert(!rd_chan_o.rvalid)
+            assert(waiting)
             else begin
-                $error("[FIFO FULL TEST]");
+                $error("[WAIT FOR MEM] Should be waiting for mem");
                 $finish();
             end
         end
 
+        @(posedge axi_clk);
         rd_data = TEST_DATA;
         rd_we = 1;
 
-        @(posedge axi_clk)
+        wait (!waiting);
         wait (rd_chan_o.rvalid);
-        data = rd_chan_o.rdata;
-
+        
         @(posedge axi_clk);
+        wait (DUT.PS == 0);
         rd_chan_i.rready = 0;
+        rd_we = 0;
 
         @(posedge axi_clk);
+
+        #100;
+
     endtask
 
     // main test loop
@@ -203,7 +206,7 @@ module tb_rd_chan ();
 
         test_fifo_full_read();
 
-        // test_wait_for_mem();
+        test_wait_for_mem();
 
 
         // TODO: add future tests
