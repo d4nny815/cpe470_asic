@@ -1,11 +1,36 @@
 `ifndef AXI_WR_CHAN
 `define AXI_WR_CHAN
+
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
 
 import axi4_itf::*;
 import vga_driver_structs::*;
 import displayConsts::*;
+
+/**
+ * AXI4 Full Write Channel Slave Interface
+ *
+ * Implements the slave side of the AXI4 full write channel by coordinating
+ * the combined write address (AW) and write data (W) handshake. When
+ * `wr_valid` is asserted, the master-side address and data carried on
+ * `wr_chan_i` are valid. Once the slave asserts `wr_ready_resp`, the
+ * transaction completes and `wr_valid` is deasserted.
+ *
+ * Ports
+ * -----
+ * Inputs:
+ *   reset_n        : Active-low synchronous reset.
+ *   axi_clk        : AXI clock.
+ *   wr_chan_i      : Packed write channel input struct, including:
+ *   wr_ready_resp  : Slave-side ready response, completing the handshake.
+ *
+ * Outputs:
+ *   wr_chan_o      : Packed write channel output (forwarded or registered).
+ *   wr_addr        : Write address [AXI_ADDR_BITS-1:0].
+ *   wr_data        : Write data    [AXI_DATA_BITS-1:0].
+ *   wr_valid       : Assert when `wr_addr` and `wr_data` are valid.
+ */
 
 module axi_wr_chan (
     input logic reset_n,

@@ -87,7 +87,7 @@ if [[ -n $build_only ]]; then
     i|v) build_sim "$build_only" ;;
     *)   usage ;;
   esac
-  launch_surfer "$build_only"
+  # launch_surfer "$build_only"
   exit 0
 fi
 

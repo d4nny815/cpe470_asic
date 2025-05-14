@@ -1,15 +1,21 @@
 `ifndef TB_WR_CHAN
 `define TB_WR_CHAN
 
+`define WAIT(cond, clk)        \
+  begin                         \
+    while (!(cond))             \
+      @(posedge clk);           \
+    @(posedge clk);             \
+  end
+
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
 `include "axi_wr_chan.sv"
 
-
 import axi4_itf::*;
 import vga_driver_structs::*;
 
-module tb_wr_chan ();
+module tb_axi_wr_chan ();
     localparam AXI_CLK_PERIOD = 15;
 
     `ifdef USE_POWER_PINS
@@ -44,10 +50,12 @@ module tb_wr_chan ();
         wr_ready_resp = 0;
         wr_chan_i = '0;
 
-        #(2 * (AXI_CLK_PERIOD))
+        @(posedge axi_clk);
+        @(posedge axi_clk);
         reset_n = 0;
 
-        #(2 * (AXI_CLK_PERIOD))
+        @(posedge axi_clk);
+        @(posedge axi_clk);
         reset_n = 1;
 
         $display("[TESTBENCH] Reset complete");
@@ -58,8 +66,7 @@ module tb_wr_chan ();
         input bit [AXI_ADDR_BITS-1:0] expected_wr_addr,
         input bit [AXI_DATA_BITS-1:0] expected_wr_data);
 
-        wait(wr_valid);
-        @(posedge axi_clk);
+        `WAIT(wr_valid, axi_clk);
         assert(wr_addr == expected_wr_addr && wr_data == expected_wr_data)
         else begin
             $error("check_device failed:\n  Expected: addr = 0x%08h, data = 0x%08h\n  Got:      addr = 0x%08h, data = 0x%08h",
@@ -69,7 +76,7 @@ module tb_wr_chan ();
     endtask
 
     task automatic axi_write_single(input logic [31:0] addr,
-        input logic [7:0]  data);
+        input logic [31:0]  data);
         
         @(posedge axi_clk);
         wr_chan_i.awaddr  = addr;
@@ -78,23 +85,24 @@ module tb_wr_chan ();
         wr_chan_i.awburst = 2'b01;
         wr_chan_i.awvalid = 1;
 
-        wr_chan_i.wdata   = {24'b0, data}; // Byte in lowest 8 bits
+        wr_chan_i.wdata   = data; // Byte in lowest 8 bits
         wr_chan_i.wstrb   = 4'b0001;       // Only lowest byte is valid
         wr_chan_i.wlast   = 1;
         wr_chan_i.wvalid  = 1;
 
-        wait (wr_chan_o.awready && wr_chan_o.wready);
-        @(posedge axi_clk);
+        `WAIT(wr_chan_o.awready && wr_chan_o.wready, axi_clk);
 
         wr_chan_i.awvalid = 0;
         wr_chan_i.wvalid  = 0;
-
         wr_chan_i.bready = 1;
 
-        wait (wr_chan_o.bvalid);
-        wait(DUT.PS == 2'b00);
+        check_device(addr, data);
 
-        @(posedge axi_clk);
+        wr_ready_resp = 1;
+
+        `WAIT(wr_chan_o.bvalid, axi_clk);
+
+        wr_ready_resp = 0;
         wr_chan_i.bready = 0;
     endtask
 
@@ -109,9 +117,8 @@ module tb_wr_chan ();
     // transaction completes when fifo has room 
     task test_fifo_full_write();
         @(posedge axi_clk);
-        wr_ready_resp = 1;
+        wr_ready_resp = 0;
 
-        // Send address and data
         wr_chan_i.awaddr  = AXI_FB_ADDR;
         wr_chan_i.awlen   = 0;
         wr_chan_i.awsize  = 3'b000; // 1 byte
@@ -123,9 +130,8 @@ module tb_wr_chan ();
         wr_chan_i.wlast   = 1;
         wr_chan_i.wvalid  = 1;
 
-        wait (!wr_chan_o.awready && !wr_chan_o.wready);
-        @(posedge axi_clk);
-        
+        `WAIT(wr_chan_o.awready && wr_chan_o.wready, axi_clk);
+
         wr_chan_i.awvalid = 0;
         wr_chan_i.wvalid  = 0;
         wr_chan_i.bready = 1;
@@ -141,19 +147,22 @@ module tb_wr_chan ();
             end
         end
 
-        wr_ready_resp = 0;
+        wr_ready_resp = 1;
         
-        wait (wr_chan_o.bvalid);
-        wait(DUT.PS == 2'b00);
-
-        @(posedge axi_clk);
+        `WAIT(wr_chan_o.bvalid, axi_clk);
         wr_chan_i.bready = 0;
+        wr_ready_resp = 0;
     endtask
 
     // main test loop
     initial begin
-        $dumpfile("tb_wr_chan.vcd");
-        $dumpvars(0, tb_wr_chan);
+        `ifdef VERILATOR
+            $dumpfile("tb_verilator.vcd");
+            $dumpvars(0, tb_axi_wr_chan);
+        `else
+            $dumpfile("tb_icarus.vcd");
+            $dumpvars(0, tb_axi_wr_chan);
+        `endif
 
         reset_dut();
 
@@ -161,15 +170,13 @@ module tb_wr_chan ();
 
         test_fifo_full_write();
 
-        // TODO: add future tests
-
         $display("[TESTBENCH] PASSED all tests.");
         $finish;
     end
 
     // Crashout :)
     initial begin
-        #10000 $error("Timeout");
+        #1000 $error("Timeout");
         $finish();
     end
 endmodule

@@ -7,7 +7,33 @@ import axi4_itf::*;
 import vga_driver_structs::*;
 import displayConsts::*;
 
-// TODO: does it need a output saying waiting on mem
+/**
+ * AXI4 Full Read Channel Slave Interface
+ *
+ * Coordinates the AXI4 full read channel by handling both the read address (AR)
+ * and read data (R) handshakes. When `rd_valid` is asserted, the address on
+ * `rd_chan_i` is valid. The slave asserts `rd_ready_read` (ARREADY) to accept
+ * that address. Once data is available, the slave drives `rd_data` and asserts
+ * `rd_we` (RVALID). The `waiting` flag remains high while a read request is
+ * pending data.
+ *
+ * Ports
+ * -----
+ * Inputs:
+ *   reset_n         : Active-low synchronous reset.
+ *   axi_clk         : AXI clock.
+ *   rd_chan_i       : Packed read channel input struct
+ *   rd_we           : Read-data valid from slave
+ *   rd_data         : Read data from slave
+ *   rd_ready_read   : Slave ready to accept read addr
+ *
+ * Outputs:
+ *   rd_chan_o       : Packed read channel output (forwarded or registered).
+ *   rd_addr         : Read address
+ *   rd_valid        : Assert when `rd_addr` is valid
+ *   waiting         : High while awaiting read-data from slave.
+ */
+
 module axi_rd_chan (
     input logic reset_n,
     input logic axi_clk,

@@ -30,12 +30,11 @@ package vga_driver_structs;
         logic wr_full;
         logic wr_req;
         fb_csr_t wr_fb_csr;
-        logic [PIXEL_ADDR_BITS-1:0] wr_addr;
-        logic [DATA_BITS-1:0] wr_data;
+        
         logic rd_full; // TODO: talk to camille bout if needs 2 rda and rdd
         logic rd_req;
         fb_csr_t rd_fb_csr;
-        logic [PIXEL_ADDR_BITS-1:0] rd_addr;
+        
     } axi_comms_status_t;
 
     typedef struct packed {
