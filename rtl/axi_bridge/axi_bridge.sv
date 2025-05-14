@@ -15,42 +15,48 @@ import displayConsts::*;
 /**
  * AXI–VGA Subsystem Bridge
  *
- * This module bridges AXI4 write and read channels from the AXI clock domain
- * into simple request/response signals in the VGA (design) clock domain.
- * It handles reset synchronization, clock‐domain crossing, and an
- * initialization sequence before normal operation.
+ * Bridges AXI4 write and read channels in the AXI clock domain into
+ * simple request/response signals in the VGA (design) clock domain.
+ * Handles reset synchronization, clock-domain crossing, and an
+ * initialization handshake before normal operation.
  *
- * On the design side, asserting `wr_re` or `rd_re` issues a write or read
- * request. During the same cycle that `*_re` is asserted, the generated
- * `wr_addr`, `wr_data`, and `rd_addr` outputs are undefined; valid address/data
- * appear in subsequent cycles. The `status` output reflects ongoing AXI
- * transaction flags, and `init_done` indicates that reset and synchronization
- * have completed.
+ * Operation:
+ *  - In the VGA domain, assert `wr_re` or `rd_re` to issue a write or read
+ *    request. On that same cycle, the corresponding `wr_addr`, `wr_data`,
+ *    or `rd_addr` outputs appear (asynchronous reads). 
+ *  - When read data is ready, assert `rd_we` and present it on `rd_data` for
+ *    the AXI master.
+ *  - In the AXI domain, `wr_chan_i`/`rd_chan_i` carry AW+W or AR channel
+ *    inputs; `wr_chan_o`/`rd_chan_o` report AWREADY+WREADY or RVALID+RDATA.
+ *  - `status` reflects VGA transaction flags for VGA controller; `init_done` indicates
+ *    completion of reset release and synchronization.
  *
  * Ports
  * -----
  * * AXI interface
- * input  logic                      axi_reset_n,  // Active‐low reset (AXI domain)
- * input  logic                      axi_clk,      // AXI clock
- * input  wr_channel_input_t         wr_chan_i,    // AXI write channel input (AW+W bundled)
- * input  rd_channel_input_t         rd_chan_i,    // AXI read channel input (AR)
- * output wr_channel_output_t        wr_chan_o,    // AXI write channel output (AWREADY+WREADY)
- * output rd_channel_output_t        rd_chan_o,    // AXI read channel output (RVALID+RDATA+RRESP)
+ * * Input
+ * axi_clk,      // AXI clock
+ * axi_reset_n,  // Active‐low reset (AXI domain)
+ * wr_chan_i,    // AXI write channel input (AW+W bundled)
+ * rd_chan_i,    // AXI read channel input (AR)
+ * * Output
+ * wr_chan_o,    // AXI write channel output (AWREADY+WREADY)
+ * rd_chan_o,    // AXI read channel output (RVALID+RDATA+RRESP)
  *
  * * Design/VGA interface
- * input  logic                      vga_reset_n,  // Active‐low reset (VGA domain)
- * input  logic                      vga_clk,      // VGA/design clock
- * input  logic                      wr_re,        // Write request enable (design → bridge)
- * input  logic                      rd_re,        // Read  request enable (design → bridge)
- * input  logic                      rd_we,        // Read-data valid from design
- * input  logic [DATA_BITS-1:0]      rd_data,      // Read-data from design
- * output logic [PIXEL_ADDR_BITS-1:0] wr_addr,     // Write address to design
- * output logic [DATA_BITS-1:0]      wr_data,      // Write data    to design
- * output logic [PIXEL_ADDR_BITS-1:0] rd_addr,     // Read  address to design
- *
- * * Status & initialization
- * output axi_comms_status_t         status,       // AXI transaction status flags
- * output logic                      init_done     // Asserted when initialization is complete
+ * * Input
+ * vga_reset_n,  // Active‐low reset (VGA domain)
+ * vga_clk,      // VGA/design clock
+ * wr_re,        // Write request enable (design → bridge)
+ * wr_addr,     // Write address to design
+ * wr_data,      // Write data    to design
+ * rd_re,        // Read  request enable (design → bridge)
+ * rd_addr,     // Read  address to design
+ * * Output
+ * rd_we,        // Read-data valid from design
+ * rd_data,      // Read-data from design
+ * status,       // Read/Write transaction flags
+ * init_done     // Asserted when initialization is complete
  */
 
 module axi_bridge (
