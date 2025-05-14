@@ -5,7 +5,7 @@
 `include "vga_driver_structs.sv"
 `include "displayConsts.sv"
 `include "axi_wr_chan.sv"
-`include "axi_rd_chan.sv"
+// `include "axi_rd_chan.sv"
 `include "ASYNC_FIFO.sv"
 
 import axi4_itf::*;

@@ -1,0 +1,56 @@
+{
+  "extensionVersion": "1.3.4",
+  "fileName": "/home/danny/school/asic-tools/workspace/pcie_vga_asic/tests/axi_bridge/tb_icarus.vcd",
+  "markerTime": null,
+  "altMarkerTime": null,
+  "selectedSignal": {
+    "name": "tb_axi_bridge.DUT.wr_chan.wr_chan_o",
+    "numberFormat": "hexadecimal",
+    "msb": 4,
+    "lsb": 0
+  },
+  "zoomRatio": 0.0024955562299488424,
+  "scrollLeft": 0,
+  "displayedSignals": [
+    {
+      "netlistId": 199,
+      "name": "tb_axi_bridge.DUT.wr_chan.reset_n",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 198,
+      "name": "tb_axi_bridge.DUT.wr_chan.axi_clk",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 200,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_chan_i",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 202,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_chan_o",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 201,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_ready_resp",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    }
+  ]
+}

@@ -1,6 +1,13 @@
 `ifndef TB_RD_CHAN
 `define TB_RD_CHAN
 
+`define WAIT(cond, clk)        \
+  begin                         \
+    while (!(cond))             \
+      @(posedge clk);           \
+    @(posedge clk);             \
+  end
+
 `include "axi4_itf.sv"
 `include "vga_driver_structs.sv"
 `include "axi_rd_chan.sv"
@@ -8,7 +15,7 @@
 import axi4_itf::*;
 import vga_driver_structs::*;
 
-module tb_rd_chan ();
+module tb_axi_rd_chan ();
     localparam AXI_CLK_PERIOD = 15;
 
     `ifdef USE_POWER_PINS
@@ -44,7 +51,7 @@ module tb_rd_chan ();
     task reset_dut();
         axi_clk = 0;
         reset_n = 1;
-        rd_ready_read = 1;
+        rd_ready_read = 0;
         rd_chan_i = '0;
         rd_we = 0;
 
@@ -58,11 +65,14 @@ module tb_rd_chan ();
     endtask
 
     // helper functions/task
-    task fake_read (input logic [31:0] data);
-        wait(waiting);
-        @(posedge axi_clk);
+    task fake_read(input logic [31:0] data);
+        rd_ready_read = 1;
+
+        `WAIT(waiting, axi_clk);
         rd_data = data;
+        
         rd_we = 1;
+        rd_ready_read = 0;
 
         @(posedge axi_clk)
         rd_we = 0;
@@ -80,18 +90,14 @@ module tb_rd_chan ();
         rd_chan_i.arvalid = 1;
         rd_chan_i.rready  = 0;
 
-        wait (rd_chan_o.arready);
-        @(posedge axi_clk);
+        `WAIT(rd_chan_o.arready, axi_clk);
         rd_chan_i.arvalid = 0;
         rd_chan_i.rready = 1;
 
         fake_read(TEST_DATA);
 
-        wait (rd_chan_o.rvalid);
-        wait (DUT.PS == 0);
-        @(posedge axi_clk)
-        
-        data = rd_chan_o.rdata;
+        `WAIT(rd_chan_o.rvalid, axi_clk);
+        data = rd_chan_o.rdata;       
     endtask
 
     // test cases
@@ -108,22 +114,23 @@ module tb_rd_chan ();
         @(posedge axi_clk);
         rd_ready_read = 0;
 
-        rd_chan_i.araddr  = AXI_FB_ADDR;
+        rd_chan_i.araddr  = AXI_CSR_ADDR;
         rd_chan_i.arlen   = 0;
         rd_chan_i.arsize  = 3'b000; // 1 byte
         rd_chan_i.arburst = 2'b01;
         rd_chan_i.arvalid = 1;
         rd_chan_i.rready  = 0;
 
-        wait(!rd_chan_o.arready);
-        @(posedge axi_clk);
+        `WAIT(rd_chan_o.arready, axi_clk);
+        rd_chan_i.arvalid = 0;
+        rd_chan_i.rready = 1;
 
-        // make sure i dont get back ready
         for (int i = 0; i < 10; i++) begin
             @(posedge axi_clk);
-            assert(rd_valid)
+
+            assert(!rd_chan_o.rvalid && rd_valid)
             else begin
-                $error("[FIFO FULL TEST] wrote to full FIFO %d", rd_valid);
+                $error("[FIFO FULL TEST] device shouldnt be ready");
                 $finish();
             end
         end
@@ -131,21 +138,13 @@ module tb_rd_chan ();
         @(posedge axi_clk);
         rd_ready_read = 1;
 
-        rd_chan_i.arvalid = 0;
-        rd_chan_i.rready = 1;
-
         fake_read(TEST_DATA);
 
-        wait (rd_chan_o.rvalid);
-        wait (DUT.PS == 0);
-        @(posedge axi_clk);
-
+        `WAIT(rd_chan_o.rvalid, axi_clk);
     endtask
 
     task test_wait_for_mem();
         logic [31:0] data;
-
-        #(2 * AXI_CLK_PERIOD)
 
         @(posedge axi_clk);
         rd_ready_read = 1;
@@ -157,16 +156,16 @@ module tb_rd_chan ();
         rd_chan_i.arvalid = 1;
         rd_chan_i.rready  = 0;
 
-        wait(!rd_chan_o.arready);
-        @(posedge axi_clk);
+        `WAIT(rd_chan_o.arready, axi_clk);
         rd_chan_i.arvalid = 0;
         rd_chan_i.rready = 1;
 
-        // wait for mem here
+        `WAIT(rd_valid, axi_clk);
+
         for (int i = 0; i < 10; i++) begin
             @(posedge axi_clk);
 
-            assert(waiting)
+            assert(!rd_valid && waiting)
             else begin
                 $error("[WAIT FOR MEM] Should be waiting for mem");
                 $finish();
@@ -177,17 +176,10 @@ module tb_rd_chan ();
         rd_data = TEST_DATA;
         rd_we = 1;
 
-        wait (!waiting);
-        wait (rd_chan_o.rvalid);
-        
-        @(posedge axi_clk);
-        wait (DUT.PS == 0);
+        `WAIT(!waiting && rd_chan_o.rvalid, axi_clk);
+
         rd_chan_i.rready = 0;
         rd_we = 0;
-
-        @(posedge axi_clk);
-
-        #100;
 
     endtask
 
@@ -196,10 +188,10 @@ module tb_rd_chan ();
         
         `ifdef VERILATOR
             $dumpfile("tb_verilator.vcd");
-            $dumpvars(0, tb_rd_chan);
+            $dumpvars(0, tb_axi_rd_chan);
         `else
             $dumpfile("tb_icarus.vcd");
-            $dumpvars(0, tb_rd_chan);
+            $dumpvars(0, tb_axi_rd_chan);
         `endif
 
         reset_dut();
@@ -209,9 +201,6 @@ module tb_rd_chan ();
         test_fifo_full_read();
 
         test_wait_for_mem();
-
-
-        // TODO: add future tests
 
         $display("[TESTBENCH] PASSED all tests.");
         $finish;
