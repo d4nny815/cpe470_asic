@@ -12,7 +12,47 @@ import axi4_itf::*;
 import vga_driver_structs::*;
 import displayConsts::*;
 
-// ? add a rd ack incase rdd fifo full
+/**
+ * AXI–VGA Subsystem Bridge
+ *
+ * This module bridges AXI4 write and read channels from the AXI clock domain
+ * into simple request/response signals in the VGA (design) clock domain.
+ * It handles reset synchronization, clock‐domain crossing, and an
+ * initialization sequence before normal operation.
+ *
+ * On the design side, asserting `wr_re` or `rd_re` issues a write or read
+ * request. During the same cycle that `*_re` is asserted, the generated
+ * `wr_addr`, `wr_data`, and `rd_addr` outputs are undefined; valid address/data
+ * appear in subsequent cycles. The `status` output reflects ongoing AXI
+ * transaction flags, and `init_done` indicates that reset and synchronization
+ * have completed.
+ *
+ * Ports
+ * -----
+ * * AXI interface
+ * input  logic                      axi_reset_n,  // Active‐low reset (AXI domain)
+ * input  logic                      axi_clk,      // AXI clock
+ * input  wr_channel_input_t         wr_chan_i,    // AXI write channel input (AW+W bundled)
+ * input  rd_channel_input_t         rd_chan_i,    // AXI read channel input (AR)
+ * output wr_channel_output_t        wr_chan_o,    // AXI write channel output (AWREADY+WREADY)
+ * output rd_channel_output_t        rd_chan_o,    // AXI read channel output (RVALID+RDATA+RRESP)
+ *
+ * * Design/VGA interface
+ * input  logic                      vga_reset_n,  // Active‐low reset (VGA domain)
+ * input  logic                      vga_clk,      // VGA/design clock
+ * input  logic                      wr_re,        // Write request enable (design → bridge)
+ * input  logic                      rd_re,        // Read  request enable (design → bridge)
+ * input  logic                      rd_we,        // Read-data valid from design
+ * input  logic [DATA_BITS-1:0]      rd_data,      // Read-data from design
+ * output logic [PIXEL_ADDR_BITS-1:0] wr_addr,     // Write address to design
+ * output logic [DATA_BITS-1:0]      wr_data,      // Write data    to design
+ * output logic [PIXEL_ADDR_BITS-1:0] rd_addr,     // Read  address to design
+ *
+ * * Status & initialization
+ * output axi_comms_status_t         status,       // AXI transaction status flags
+ * output logic                      init_done     // Asserted when initialization is complete
+ */
+
 module axi_bridge (
     // axi channels
     input logic axi_reset_n,
@@ -23,14 +63,17 @@ module axi_bridge (
     output rd_channel_output_t  rd_chan_o,
     
     // design channels
-    input logic vga_reset_n,
-    input logic vga_clk,
-    input logic wr_re,
-    input logic rd_re,
-    input logic rd_we,
-    input logic [DATA_BITS-1:0] rd_data,
-    output axi_comms_status_t status,
-    output logic init_done
+    input logic         vga_reset_n,
+    input logic         vga_clk,
+    input logic         wr_re,
+    input logic         rd_re,
+    input logic         rd_we,
+    input logic [DATA_BITS-1:0]         rd_data,
+    output logic [PIXEL_ADDR_BITS-1:0]  wr_addr,
+    output logic [DATA_BITS-1:0]        wr_data, 
+    output logic [PIXEL_ADDR_BITS-1:0]  rd_addr,
+    output axi_comms_status_t           status,
+    output logic                        init_done
     );
 
     // * =======================================================================
@@ -64,6 +107,7 @@ module axi_bridge (
     // control signals
     logic wr_req, wr_full;
     logic wr_ready_resp, wr_fifo_we, wr_fifo_re;
+    logic rd_ready_read;
     
     logic rd_req, rd_full;
     logic rda_ready_read, rda_fifo_we, rda_fifo_re;
@@ -123,10 +167,10 @@ module axi_bridge (
     // * =======================================================================
     // * DATA PATH
     // * =======================================================================
-    logic [AXI_ADDR_BITS-1:0] wr_addr;
-    logic [AXI_DATA_BITS-1:0] wr_data;
+    logic [AXI_ADDR_BITS-1:0] wr_addr_axi;
+    logic [AXI_DATA_BITS-1:0] wr_data_axi;
 
-    logic [AXI_ADDR_BITS-1:0] rd_addr;
+    logic [AXI_ADDR_BITS-1:0] rd_addr_axi;
     logic [DATA_BITS-1:0] rd_data_small;
 
     // * WRITE REQUESTS 
@@ -137,8 +181,8 @@ module axi_bridge (
         .wr_chan_i          (wr_chan_i),
         .wr_ready_resp      (wr_ready_resp),
         .wr_chan_o          (wr_chan_o),
-        .wr_addr            (wr_addr),
-        .wr_data            (wr_data),
+        .wr_addr            (wr_addr_axi),
+        .wr_data            (wr_data_axi),
         .wr_valid           (axi_wr_recieved)
     );
 
@@ -153,8 +197,8 @@ module axi_bridge (
     logic [PIXEL_ADDR_BITS-1:0] wr_addr_sliced;
     logic [COLOR_LUT_BITS-1:0] wr_data_sliced;
 
-    assign wr_addr_sliced = wr_addr[PIXEL_ADDR_BITS-1:0];
-    assign wr_data_sliced = wr_data[COLOR_LUT_BITS-1:0];
+    assign wr_addr_sliced = wr_addr_axi[PIXEL_ADDR_BITS-1:0];
+    assign wr_data_sliced = wr_data_axi[COLOR_LUT_BITS-1:0];
 
     always_comb begin
         wr_fifo_data_i.addr = wr_addr_sliced;
@@ -164,8 +208,8 @@ module axi_bridge (
         else
             wr_fifo_data_i.fb_csr = CSR;
         
-        wr_fifo_valid_packet = ((wr_addr >= AXI_FB_ADDR && wr_addr < AXI_CSR_ADDR) || 
-                            (wr_addr >= AXI_CSR_ADDR && wr_addr < AXI_CSR_ADDR + 1));
+        wr_fifo_valid_packet = ((wr_addr_axi >= AXI_FB_ADDR && wr_addr_axi < AXI_CSR_ADDR) || 
+                            (wr_addr_axi >= AXI_CSR_ADDR && wr_addr_axi < AXI_CSR_ADDR + 1));
     end
 
     ASYNC_FIFO #( 
@@ -187,25 +231,25 @@ module axi_bridge (
     assign status.wr_req     = wr_req;
     assign status.wr_full    = wr_full;
     assign status.wr_fb_csr  = wr_fifo_data_o.fb_csr;
-    assign status.wr_addr    = wr_fifo_data_o.addr;
-    assign status.wr_data    = wr_fifo_data_o.data;
+    assign wr_addr           = wr_fifo_data_o.addr;
+    assign wr_data           = wr_fifo_data_o.data;
 
     // * READ REQUESTS 
 
     // read addr
     // TODO: add axi rd channel module
-    // axi_rd_chan rd_chan (
-    //     .reset_n        (axi_reset_n),
-    //     .axi_clk        (axi_clk),
-    //     .rd_chan_i      (rd_chan_i),
-    //     .rd_chan_o      (rd_chan_o),
-    //     .rd_we          (axi_rd_we), 
-    //     .rd_data        (),
-    //     .rd_ready_read  (rd_ready_read),
-    //     .rd_addr        (rd_addr),
-    //     .rd_valid       (axi_rd_recieved),
-    //     .waiting        (axi_rd_waiting)
-    // );
+    axi_rd_chan rd_chan (
+        .reset_n        (axi_reset_n),
+        .axi_clk        (axi_clk),
+        .rd_chan_i      (rd_chan_i),
+        .rd_chan_o      (rd_chan_o),
+        .rd_we          (axi_rd_we), 
+        .rd_data        (),
+        .rd_ready_read  (rd_ready_read),
+        .rd_addr        (rd_addr_axi),
+        .rd_valid       (axi_rd_recieved),
+        .waiting        (axi_rd_waiting)
+    );
 
     // read packet encoder
     typedef struct packed {
@@ -216,7 +260,7 @@ module axi_bridge (
     rd_fifo_packet_t rda_fifo_data_i, rda_fifo_data_o;
     logic [PIXEL_ADDR_BITS-1:0] rd_addr_sliced;
 
-    assign rd_addr_sliced = rd_addr[PIXEL_ADDR_BITS-1:0];
+    assign rd_addr_sliced = rd_addr_axi[PIXEL_ADDR_BITS-1:0];
 
     always_comb begin
         rda_fifo_data_i.addr = rd_addr_sliced;
@@ -225,8 +269,8 @@ module axi_bridge (
         else
             rda_fifo_data_i.fb_csr = CSR;
         
-        rd_fifo_valid_packet = ((rd_addr >= AXI_FB_ADDR && rd_addr < AXI_CSR_ADDR) || 
-                            (rd_addr >= AXI_CSR_ADDR && rd_addr <= AXI_CSR_ADDR + 1));
+        rd_fifo_valid_packet = ((rd_addr_axi >= AXI_FB_ADDR && rd_addr_axi < AXI_CSR_ADDR) || 
+                            (rd_addr_axi >= AXI_CSR_ADDR && rd_addr_axi <= AXI_CSR_ADDR + 1));
     end
 
     ASYNC_FIFO #( 
@@ -262,10 +306,10 @@ module axi_bridge (
         .wfull      (rdd_fifo_full)         // Write full signal
     );
 
-    assign status.rd_req = rd_req;
-    assign status.rd_full = rda_fifo_full;
+    assign status.rd_req    = rd_req;
+    assign status.rd_full   = rda_fifo_full;
     assign status.rd_fb_csr = rda_fifo_data_o.fb_csr;
-    assign status.rd_addr = rda_fifo_data_o.addr;
+    assign rd_addr          = rda_fifo_data_o.addr;
 
 endmodule
 `endif

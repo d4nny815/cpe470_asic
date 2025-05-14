@@ -1,27 +1,67 @@
 {
   "extensionVersion": "1.3.4",
-  "fileName": "/home/danny/school/asic-tools/workspace/pcie_vga_asic/tests/axi_bridge/tb_icarus.vcd",
-  "markerTime": null,
+  "fileName": "/home/danny/school/asic-tools/workspace/pcie_vga_asic/tests/tb_axi_bridge/tb_icarus.vcd",
+  "markerTime": 41449,
   "altMarkerTime": null,
   "selectedSignal": {
-    "name": "tb_axi_bridge.DUT.wr_chan.wr_chan_o",
+    "name": "tb_axi_bridge.DUT.wr_chan.reset_n",
     "numberFormat": "hexadecimal",
-    "msb": 4,
-    "lsb": 0
+    "msb": -1,
+    "lsb": -1
   },
-  "zoomRatio": 0.0024955562299488424,
-  "scrollLeft": 0,
+  "zoomRatio": 0.00521123519015272,
+  "scrollLeft": 83,
   "displayedSignals": [
     {
-      "netlistId": 199,
-      "name": "tb_axi_bridge.DUT.wr_chan.reset_n",
+      "netlistId": 11,
+      "name": "tb_axi_bridge.wr_chan_i",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 21,
+      "name": "tb_axi_bridge.DUT.axi_clk",
       "numberFormat": "binary",
       "colorIndex": 0,
       "renderType": "binary",
       "valueLinkCommand": ""
     },
     {
-      "netlistId": 198,
+      "netlistId": 22,
+      "name": "tb_axi_bridge.DUT.axi_reset_n",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 31,
+      "name": "tb_axi_bridge.DUT.wr_fifo_full",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 32,
+      "name": "tb_axi_bridge.DUT.wr_fifo_empty",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 30,
+      "name": "tb_axi_bridge.DUT.wr_re",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 224,
       "name": "tb_axi_bridge.DUT.wr_chan.axi_clk",
       "numberFormat": "binary",
       "colorIndex": 0,
@@ -29,7 +69,15 @@
       "valueLinkCommand": ""
     },
     {
-      "netlistId": 200,
+      "netlistId": 225,
+      "name": "tb_axi_bridge.DUT.wr_chan.reset_n",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 226,
       "name": "tb_axi_bridge.DUT.wr_chan.wr_chan_i",
       "numberFormat": "hexadecimal",
       "colorIndex": 0,
@@ -37,7 +85,15 @@
       "valueLinkCommand": ""
     },
     {
-      "netlistId": 202,
+      "netlistId": 227,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_ready_resp",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 228,
       "name": "tb_axi_bridge.DUT.wr_chan.wr_chan_o",
       "numberFormat": "hexadecimal",
       "colorIndex": 0,
@@ -45,8 +101,104 @@
       "valueLinkCommand": ""
     },
     {
-      "netlistId": 201,
-      "name": "tb_axi_bridge.DUT.wr_chan.wr_ready_resp",
+      "netlistId": 229,
+      "name": "tb_axi_bridge.DUT.wr_chan.NS",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 230,
+      "name": "tb_axi_bridge.DUT.wr_chan.PS",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 231,
+      "name": "tb_axi_bridge.DUT.wr_chan.awaddr_r",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 232,
+      "name": "tb_axi_bridge.DUT.wr_chan.awready_r",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 233,
+      "name": "tb_axi_bridge.DUT.wr_chan.bresp_r",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 234,
+      "name": "tb_axi_bridge.DUT.wr_chan.bvalid_r",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 235,
+      "name": "tb_axi_bridge.DUT.wr_chan.wdata_r",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 236,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_addr",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 237,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_addr_we",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 238,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_data",
+      "numberFormat": "hexadecimal",
+      "colorIndex": 0,
+      "renderType": "multiBit",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 239,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_data_we",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 240,
+      "name": "tb_axi_bridge.DUT.wr_chan.wr_valid",
+      "numberFormat": "binary",
+      "colorIndex": 0,
+      "renderType": "binary",
+      "valueLinkCommand": ""
+    },
+    {
+      "netlistId": 241,
+      "name": "tb_axi_bridge.DUT.wr_chan.wready_r",
       "numberFormat": "binary",
       "colorIndex": 0,
       "renderType": "binary",
