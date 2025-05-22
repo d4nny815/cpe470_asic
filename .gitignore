@@ -1,3 +1,4 @@
 tmp/*
 sim_build/
 results.xml
+.venv/

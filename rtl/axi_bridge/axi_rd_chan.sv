@@ -32,9 +32,26 @@
  */
 
 module axi_rd_chan (
+    // * axi
     input logic reset_n,
     input logic axi_clk,
-    axi4_itf.sub s_if,
+
+    //  READ ADDRESS CHANNEL
+    input logic [AXI_ADDR_BITS-1:0]   s_axi_araddr,
+    input logic [7:0]                 s_axi_arlen,
+    input logic [2:0]                 s_axi_arsize,
+    input logic [1:0]                 s_axi_arburst,
+    input logic                       s_axi_arvalid,
+    output logic                      s_axi_arready,
+
+    //  READ DATA CHANNEL
+    output logic [AXI_DATA_BITS-1:0]   s_axi_rdata,
+    output logic [1:0]                 s_axi_rresp,
+    output logic                       s_axi_rlast,
+    output logic                       s_axi_rvalid,
+    input logic                        s_axi_rready,
+
+    // * design
     input logic rd_we, 
     input logic [AXI_DATA_BITS-1:0] rd_data,
     input logic rd_ready_read,
@@ -74,11 +91,11 @@ module axi_rd_chan (
     logic arready_r, rvalid_r, rlast_r, rready_r;
     resp_t rresp_r;
 
-    assign s_if.arready = arready_r;
-    assign s_if.rvalid  = rvalid_r;
-    assign s_if.rresp   = rresp_r;
-    assign s_if.rlast   = rlast_r;
-    assign s_if.rdata   = rvalid_r ? rdata_r : 32'hdeadbeef;
+    assign s_axi_arready = arready_r;
+    assign s_axi_rvalid  = rvalid_r;
+    assign s_axi_rresp   = rresp_r;
+    assign s_axi_rlast   = rlast_r;
+    assign s_axi_rdata   = rvalid_r ? rdata_r : 32'hdeadbeef;
 
     always_comb begin
         NS = PS;
@@ -94,7 +111,7 @@ module axi_rd_chan (
         case (PS)
             READY: begin
                 arready_r = 1;
-                if (s_if.arvalid) begin
+                if (s_axi_arvalid) begin
                     araddr_we = 1;
                     NS = READ_ADDR;
                 end
@@ -117,7 +134,7 @@ module axi_rd_chan (
                 rresp_r  = OKAY;
                 rlast_r  = 1;
 
-                if (s_if.rready)
+                if (s_axi_rready)
                     NS = READY;
             end
 
@@ -135,7 +152,7 @@ module axi_rd_chan (
             rdata_r <= 'd0;
         end else begin
             if (araddr_we)
-                araddr_r <= s_if.araddr;
+                araddr_r <= s_axi_araddr;
             
             if (rd_we && PS == WAIT_MEM)
                 rdata_r <= rd_data ;

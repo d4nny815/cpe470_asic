@@ -5,7 +5,7 @@
 `include "vga_driver_structs.svh"
 `include "displayConsts.svh"
 `include "axi_wr_chan.sv"
-// `include "axi_rd_chan.sv"
+`include "axi_rd_chan.sv"
 `include "ASYNC_FIFO.sv"
 
 
@@ -57,12 +57,45 @@
  */
 
 module axi_bridge (
-    // axi channels
+    // * axi channels
     input logic axi_reset_n,
     input logic axi_clk,
-    axi4_itf.sub s_if,
+    // WRITE ADDRESS CHANNEL
+    input logic [AXI_ADDR_BITS-1:0]    s_axi_awaddr,
+    input logic [7:0]                  s_axi_awlen,
+    input logic [2:0]                  s_axi_awsize,
+    input logic [1:0]                  s_axi_awburst,
+    input logic                        s_axi_awvalid,
+    output logic                       s_axi_awready,
+
+    // WRITE DATA CHANNEL
+    input logic [AXI_DATA_BITS-1:0]    s_axi_wdata,
+    input logic [AXI_DATA_BITS/8-1:0]  s_axi_wstrb,
+    input logic                        s_axi_wlast,
+    input logic                        s_axi_wvalid,
+    output logic                       s_axi_wready,
+
+    // WRITE RESPONSE CHANNEL
+    output logic [1:0]                 s_axi_bresp,
+    output logic                       s_axi_bvalid,
+    input logic                        s_axi_bready,
+
+    // READ ADDRESS CHANNEL
+    input logic [AXI_ADDR_BITS-1:0]   s_axi_araddr,
+    input logic [7:0]                 s_axi_arlen,
+    input logic [2:0]                 s_axi_arsize,
+    input logic [1:0]                 s_axi_arburst,
+    input logic                       s_axi_arvalid,
+    output logic                       s_axi_arready,
+
+    // READ DATA CHANNEL
+    output logic [AXI_DATA_BITS-1:0]   s_axi_rdata,
+    output logic [1:0]                 s_axi_rresp,
+    output logic                       s_axi_rlast,
+    output logic                       s_axi_rvalid,
+    input logic                        s_axi_rready,
     
-    // design channels
+    // * design channels
     input logic         vga_reset_n,
     input logic         vga_clk,
     input logic         wr_re,
@@ -178,11 +211,11 @@ module axi_bridge (
     axi_wr_chan wr_chan (
         .reset_n            (axi_reset_n),
         .axi_clk            (axi_clk),
-        .s_if               (s_if),
         .wr_ready_resp      (wr_ready_resp),
         .wr_addr            (wr_addr_axi),
         .wr_data            (wr_data_axi),
-        .wr_valid           (axi_wr_recieved)
+        .wr_valid           (axi_wr_recieved),
+        .*
     );
 
     // write packet encoder
@@ -240,13 +273,13 @@ module axi_bridge (
     axi_rd_chan rd_chan (
         .reset_n        (axi_reset_n),
         .axi_clk        (axi_clk),
-        .s_if           (s_if),
         .rd_we          (axi_rd_we), 
         .rd_data        (),
         .rd_ready_read  (rd_ready_read),
         .rd_addr        (rd_addr_axi),
         .rd_valid       (axi_rd_recieved),
-        .waiting        (axi_rd_waiting)
+        .waiting        (axi_rd_waiting),
+        .*
     );
 
     // read packet encoder

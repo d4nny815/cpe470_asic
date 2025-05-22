@@ -5,7 +5,7 @@ TB_SRCS 	:= $(shell find tests -name '*.sv' -or -name '*.v')
 
 INCLUDE_DIRS := $(sort $(dir $(shell find . -name '*.svh')))
 RTL_DIRS	 := $(sort $(dir $(RTL_SRCS)))
-TB_DIRS			:= $(sort $(dir $(TB_SRCS)))
+TB_DIRS	     := $(sort $(dir $(TB_SRCS)))
 
 ALL_INC_DIRS := $(INCLUDE_DIRS) $(RTL_DIRS) $(TB_DIRS)
 LINT_INCLUDES := $(foreach dir, $(ALL_INC_DIRS), -I$(realpath $(dir))) -I$(PDKPATH) 
@@ -117,6 +117,7 @@ lint_all:
 	done
 else
 lint_all: 
+	@printf "\n$(ALL_INC_DIRS)\n" 
 	@printf "\n$(GREEN)$(BOLD) ----- Linting RTL Modules ----- $(RESET)\n"
 	@for src in $(RTL_SRCS); do \
 		top_module=$$(basename $$src .sv); \

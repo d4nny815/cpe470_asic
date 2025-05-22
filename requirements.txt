@@ -1,0 +1,2 @@
+cocotb>=1.8
+cocotb-bus          # optional, handy AXI & Wishbone helpers
