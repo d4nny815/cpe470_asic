@@ -8,6 +8,7 @@
 `include "axi_bridge.sv"
 `include "control_unit.sv"
 `include "pixel_addr_gen.sv"
+`include "framebuffer.sv"
 
 module vga_driver (
     input logic axi_clk,
@@ -70,6 +71,7 @@ module vga_driver (
     logic [PIXEL_ADDR_BITS-1:0] pixel_addr;
     logic [V_CNT_BITS-1:0] v_cnt;
     logic [H_CNT_BITS-1:0] h_cnt;
+    logic [COLOR_LUT_BITS-1:0] color_ind;
 
     // Control Signals
     controls_t controls;
@@ -143,6 +145,21 @@ module vga_driver (
     // * ======================================================================
     // * Framebuffer
     // * ======================================================================
+
+    // framebuffer framebuffer(
+    //     .clk            (vga_clk),
+    //     .reset_n        (vga_reset_n),
+    //     .vga_addr       (pixel_addr),
+    //     .vga_fetch_next (controls.vga_fetch),
+    //     .vga_re         (controls.vga_re),
+    //     .fb_addr        (0),
+    //     .fb_data_i      (0),
+    //     .fb_w_r         (0),
+    //     .fb_en          (0),
+    //     .lut_index      (color_ind),
+    //     .fb_valid       (),
+    //     .fb_data_o      ()
+    // );
 
     // * ======================================================================
     // * Pixel Color LUT
