@@ -336,7 +336,8 @@ module axi_bridge (
 
     assign status.rd_req    = rd_req;
     assign status.rd_full   = rda_fifo_full;
-    assign status.rd_fb_csr = rda_fifo_data_o.fb_csr;
+    // assign status.rd_fb_csr = rda_fifo_data_o.fb_csr;
+    assign status.rd_fb_csr = CSR;
     assign rd_addr          = rda_fifo_data_o.addr;
 
 endmodule

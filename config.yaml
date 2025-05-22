@@ -1,8 +1,34 @@
 ---
-DESIGN_NAME: fib
-VERILOG_FILES: dir::rtl/*.sv
-CLOCK_PERIOD: 7
-CLOCK_PORT: clk
+DESIGN_NAME: vga_driver
+VERILOG_FILES:
+  - "dir::rtl/vga_driver.sv"
+  - "dir::rtl/vga_timing.sv"
+  - "dir::rtl/control_unit.sv"
+  - "dir::rtl/framebuffer.sv"
+  - "dir::rtl/pixel_addr_gen.sv"
+  - "dir::rtl/pixel_lut.sv"
+  - "dir::rtl/axi_bridge/axi_bridge.sv"
+  - "dir::rtl/axi_bridge/axi_wr_chan.sv"
+  - "dir::rtl/axi_bridge/axi_rd_chan.sv"
+  - "dir::rtl/ip/async_fifo/ASYNC_FIFO.sv"
+  - "dir::rtl/ip/async_fifo/FIFO_memory.sv"
+  - "dir::rtl/ip/async_fifo/wptr_full.sv"
+  - "dir::rtl/ip/async_fifo/rptr_empty.sv"
+  - "dir::rtl/ip/async_fifo/two_ff_sync.sv"
+
+
+VERILOG_INCLUDE_DIRS:
+  - "rtl/common"
+  - "rtl/axi_bridge"
+  - "rtl/ip/async_fifo"
+
+CLOCK_PORT: 
+  - axi_clk
+  - vga_clk
+
+PNR_SDC_FILE: constraints.sdc
+SIGNOFF_SDC_FILE: constraints.sdc
+
 # Power Distribution Stuff
 FP_PDN_VOFFSET: 7
 FP_PDN_HOFFSET: 7

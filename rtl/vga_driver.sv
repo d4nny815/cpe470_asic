@@ -6,6 +6,8 @@
 `include "vga_driver_structs.svh"
 `include "vga_timing.sv"
 `include "axi_bridge.sv"
+`include "control_unit.sv"
+`include "pixel_addr_gen.sv"
 
 module vga_driver (
     input logic axi_clk,
@@ -59,8 +61,15 @@ module vga_driver (
     // * ======================================================================
     // * Internal Signals
     // * ======================================================================
+    
+    // AXI Requests
     logic [PIXEL_ADDR_BITS-1:0] wr_addr, rd_addr;
     logic [DATA_BITS-1:0] wr_data, rd_data;
+
+    // VGA Signals
+    logic [PIXEL_ADDR_BITS-1:0] pixel_addr;
+    logic [V_CNT_BITS-1:0] v_cnt;
+    logic [H_CNT_BITS-1:0] h_cnt;
 
     // Control Signals
     controls_t controls;
@@ -72,9 +81,13 @@ module vga_driver (
     // * ======================================================================
     // * Control Unit
     // * ======================================================================
-    assign controls.wr_re = 0;
-    assign controls.rd_re = 0;
-    assign controls.rd_we = 1;
+    
+    assign status.RST_N = 1;
+    control_unit control_unit(
+        .clk        (vga_clk),
+        .statuses   (status),
+        .controls   (controls)
+    );
 
     // * ======================================================================
     // * AXI Bridge
@@ -100,7 +113,6 @@ module vga_driver (
     // * Request Registers
     // * ======================================================================
 
-
     // * ======================================================================
     // * VGA Timing
     // * ======================================================================
@@ -108,15 +120,25 @@ module vga_driver (
     vga_timing timing (
     .clk      (vga_clk),
     .reset_n  (vga_reset_n),
-    .h_cnt    (),
+    .h_cnt    (h_cnt),
     .h_sync   (vga_hsync),
-    .v_cnt    (),
+    .v_cnt    (v_cnt),
     .v_sync   (vga_vsync),
-    .in_frame ());
+    .in_frame (status.in_frame));
 
     // * ======================================================================
     // * Pixel Addr Gen
     // * ======================================================================
+    
+    pixel_addr_gen pixel_addr_gen (
+        .clk        (vga_clk),
+        .rst_n      (vga_reset_n),
+        .h_cnt      (h_cnt),
+        .v_cnt      (v_cnt),
+        .next       (controls.next), 
+        .pixel_addr (pixel_addr),
+        .in_frame   (status.in_frame)
+    );
 
     // * ======================================================================
     // * Framebuffer
@@ -129,12 +151,5 @@ module vga_driver (
     // * ======================================================================
     // * DAC
     // * ======================================================================
-
-    `ifdef ICARUS
-        logic wr_req;
-        $display("IN SIM");
-        assign wr_req = status.axi_comms.wr_req;
-    `endif
-
 
 endmodule

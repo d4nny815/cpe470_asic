@@ -1,3 +1,4 @@
+import os
 import random
 import cocotb
 from cocotb.clock     import Clock
@@ -45,10 +46,7 @@ class TB:
         self.dut.axi_reset_n.value = 1
         
         while not self.dut.bridge_init_done.value:
-            await RisingEdge(self.dut.vga_clk)
-
-        await RisingEdge(self.dut.axi_clk)
-        await RisingEdge(self.dut.vga_clk)
+            await FallingEdge(self.dut.vga_clk)
 
     async def axi_write(self, addr, val, tmo_ns=1000):
         DATA_BYTES = 4
@@ -135,22 +133,57 @@ async def test_fill_write_req(dut):
 #     for _ in range(3):
 #         await RisingEdge(dut.vga_clk)
 
+@cocotb.test()
+async def test_next_pixel(dut):
+    if os.getenv("VERBOSE_CTB") != "1":
+        dut._log.info("Skipping test_next_pixel (set VERBOSE_CTB=1 to run)")
+        return
+    
+    tb = TB(dut)
+    await tb.cycle_reset()
 
-# @cocotb.test()
-# async def test_vga_sync_activity(dut):
-#     await start_clocks(dut)
-#     await reset_dut(dut)
+    WIDTH      = 640
+    HEIGHT     = 480
+    HCNT_LINE  = 800
+    VCNT_LINE  = 525
 
-#     seen_hs = seen_vs = False
-#     for _ in range(800 * 525):
-#         await RisingEdge(dut.vga_clk)
-#         if not dut.vga_hsync.value:
-#             seen_hs = True
-#         if not dut.vga_vsync.value:
-#             seen_vs = True
-#         if seen_hs and seen_vs:
-#             break
+    exp_addr = 0
 
-#     assert seen_hs, "HSYNC never toggled high"
-#     assert seen_vs, "VSYNC never toggled high"
-#     dut._log.info("HSYNC and VSYNC activity observed.")
+    for y in range(HEIGHT):
+        for x in range(HCNT_LINE):
+            in_frame = bool(dut.timing.in_frame.value)
+
+            if in_frame:
+                exp_addr += 1
+                dut_addr = int(dut.pixel_addr.value)
+                assert dut_addr == exp_addr, (
+                    f"Mismatch @ line {y} col {x}: "
+                    f"exp {exp_addr}, got {dut_addr}"
+                )
+
+            await FallingEdge(dut.vga_clk)
+
+
+
+
+@cocotb.test()
+async def test_vga_sync_activity(dut):
+    if os.getenv("VERBOSE_CTB") != "1":
+        dut._log.info("Skipping test_next_pixel (set VERBOSE_CTB=1 to run)")
+        return
+    await start_clocks(dut)
+    await reset_dut(dut)
+
+    seen_hs = seen_vs = False
+    for _ in range(800 * 525):
+        await RisingEdge(dut.vga_clk)
+        if not dut.vga_hsync.value:
+            seen_hs = True
+        if not dut.vga_vsync.value:
+            seen_vs = True
+        if seen_hs and seen_vs:
+            break
+
+    assert seen_hs, "HSYNC never toggled high"
+    assert seen_vs, "VSYNC never toggled high"
+    dut._log.info("HSYNC and VSYNC activity observed.")

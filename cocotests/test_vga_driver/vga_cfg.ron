@@ -1,0 +1,422 @@
+(
+    show_hierarchy: None,
+    show_menu: None,
+    show_ticks: None,
+    show_toolbar: None,
+    show_tooltip: None,
+    show_overview: None,
+    show_statusbar: None,
+    align_names_right: None,
+    show_variable_indices: None,
+    show_variable_direction: None,
+    show_empty_scopes: None,
+    show_parameters_in_scopes: None,
+    waves: Some((
+        source: File("sim_build/vga_driver.fst"),
+        format: Fst,
+        active_scope: Some(WaveScope((
+            strs: [
+                "vga_driver",
+                "control_unit",
+            ],
+        ))),
+        displayed_items_order: [
+            (8),
+            (2),
+            (3),
+            (10),
+            (12),
+            (4),
+            (1),
+            (21),
+            (22),
+            (9),
+            (5),
+            (6),
+            (7),
+            (11),
+            (13),
+            (19),
+            (14),
+            (20),
+            (15),
+            (16),
+            (18),
+            (17),
+        ],
+        displayed_items: {
+            (21): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "control_unit",
+                        ],
+                    ),
+                    name: "curr_state_1",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "curr_state_1",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (20): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "pixel_addr_gen",
+                        ],
+                    ),
+                    name: "v_cnt",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "v_cnt [8:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Unsigned"),
+                field_formats: [],
+            )),
+            (12): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "status",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "…bridge.status [5:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Binary"),
+                field_formats: [],
+            )),
+            (14): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "pixel_addr_gen",
+                        ],
+                    ),
+                    name: "h_cnt",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "h_cnt [9:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Unsigned"),
+                field_formats: [],
+            )),
+            (3): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                        ],
+                    ),
+                    name: "vga_clk",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "vga_clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (16): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "pixel_addr_gen",
+                        ],
+                    ),
+                    name: "next",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "next",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (22): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "control_unit",
+                        ],
+                    ),
+                    name: "next_state_1",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "next_state_1",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (18): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "pixel_addr_gen",
+                        ],
+                    ),
+                    name: "pixel_base",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pixel_base [18:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Unsigned"),
+                field_formats: [],
+            )),
+            (4): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                        ],
+                    ),
+                    name: "status",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "vga_driver.status [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Binary"),
+                field_formats: [],
+            )),
+            (1): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                        ],
+                    ),
+                    name: "controls",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "controls [12:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Binary"),
+                field_formats: [],
+            )),
+            (15): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "pixel_addr_gen",
+                        ],
+                    ),
+                    name: "in_frame",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "…pixel_addr_gen.in_frame",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (11): Divider((
+                color: None,
+                background_color: Some("Pink"),
+                name: Some("PIXEL ADDR GEN"),
+            )),
+            (13): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "pixel_addr_gen",
+                        ],
+                    ),
+                    name: "clk",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (2): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                        ],
+                    ),
+                    name: "vga_reset_n",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "vga_reset_n",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (9): Divider((
+                color: None,
+                background_color: Some("Pink"),
+                name: Some("VGA TIMING"),
+            )),
+            (10): Divider((
+                color: None,
+                background_color: Some("Pink"),
+                name: Some("STAT AND CTL"),
+            )),
+            (6): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                        ],
+                    ),
+                    name: "vga_hsync",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "vga_hsync",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (7): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "timing",
+                        ],
+                    ),
+                    name: "in_frame",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "…timing.in_frame",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (8): Marker((
+                color: None,
+                background_color: None,
+                name: None,
+                idx: 0,
+            )),
+            (5): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                        ],
+                    ),
+                    name: "vga_vsync",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "vga_vsync",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (17): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "pixel_addr_gen",
+                        ],
+                    ),
+                    name: "pixel_addr",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pixel_addr [18:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Unsigned"),
+                field_formats: [],
+            )),
+        },
+        display_item_ref_counter: 22,
+        viewports: [
+            (
+                curr_left: (0.40914204316952385),
+                curr_right: (0.42476704316952385),
+                target_left: (0.0),
+                target_right: (1.0),
+                move_start_left: (0.0),
+                move_start_right: (1.0),
+                move_duration: None,
+                move_strategy: Instant,
+            ),
+        ],
+        cursor: Some((1, [
+            27207616,
+        ])),
+        markers: {
+            0: (1, [
+                1590003,
+            ]),
+        },
+        focused_item: Some((20)),
+        focused_transaction: (None, None),
+        selected_items: [],
+        default_variable_name_type: Unique,
+        scroll_offset: 0.0,
+        display_variable_indices: true,
+        graphics: {},
+    )),
+    drag_started: false,
+    drag_source_idx: None,
+    drag_target_idx: Some((8)),
+    previous_waves: None,
+    count: None,
+    blacklisted_translators: [],
+    show_about: false,
+    show_keys: false,
+    show_gestures: false,
+    show_quick_start: false,
+    show_license: false,
+    show_performance: false,
+    show_logs: false,
+    show_cursor_window: false,
+    wanted_timeunit: PicoSeconds,
+    time_string_format: None,
+    show_url_entry: false,
+    variable_name_filter_focused: false,
+    variable_name_filter_type: Fuzzy,
+    variable_name_filter_case_insensitive: true,
+    rename_target: None,
+    sidepanel_width: Some(300.0),
+    ui_zoom_factor: Some(1.25),
+)
