@@ -27,13 +27,17 @@ module control_unit (
     end
 
     always_comb begin
+        next_state_1 = curr_state_1;
+        
         controls = 'd0; // FIXME: remove
         controls.next = 0;
         controls.vga_fetch = 0;
-        next_state_1 = curr_state_1;
+        controls.vga_re = 0;
 
         case (curr_state_1)
             INFRAME: begin
+                controls.vga_re = 1;
+
                 if (statuses.in_frame) begin
                     next_state_1 = INFRAME;
                 end else begin

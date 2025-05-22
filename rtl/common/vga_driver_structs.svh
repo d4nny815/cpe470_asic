@@ -51,6 +51,7 @@ typedef struct packed {
     // timing 
     logic next;
     logic vga_fetch;
+    logic vga_re;
 
     // w/r reqs
     logic wr_ld; 
