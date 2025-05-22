@@ -22,5 +22,4 @@ MODULE := $(COCOTB_TEST_MODULES)
 # Turn on waveforms
 WAVES := 1
 
-# Call CocoTB's makefile
 include $(shell cocotb-config --makefiles)/Makefile.sim

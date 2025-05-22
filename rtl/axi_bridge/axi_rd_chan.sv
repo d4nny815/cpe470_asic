@@ -87,22 +87,15 @@ module axi_rd_chan (
     // * =======================================================================
 
     logic araddr_we;
-    logic arvalid_ready, rvalid;
-    logic arready_r, rvalid_r, rlast_r, rready_r;
-    resp_t rresp_r;
 
-    assign s_axi_arready = arready_r;
-    assign s_axi_rvalid  = rvalid_r;
-    assign s_axi_rresp   = rresp_r;
-    assign s_axi_rlast   = rlast_r;
-    assign s_axi_rdata   = rvalid_r ? rdata_r : 32'hdeadbeef;
+    assign s_axi_rdata = s_axi_rvalid ? rdata_r : 32'hdeadbeef;
 
     always_comb begin
         NS = PS;
-        arready_r = 0;
-        rvalid_r  = 0;
-        rresp_r   = OKAY;
-        rlast_r   = 0;
+        s_axi_arready = 0;
+        s_axi_rvalid  = 0;
+        s_axi_rresp   = OKAY;
+        s_axi_rlast   = 0;
 
         rd_valid = 0;
         araddr_we = 0;
@@ -110,7 +103,7 @@ module axi_rd_chan (
 
         case (PS)
             READY: begin
-                arready_r = 1;
+                s_axi_arready = 1;
                 if (s_axi_arvalid) begin
                     araddr_we = 1;
                     NS = READ_ADDR;
@@ -119,8 +112,7 @@ module axi_rd_chan (
 
             READ_ADDR: begin
                 rd_valid = 1;
-                if (rd_ready_read) 
-                    NS = WAIT_MEM;
+                NS = WAIT_MEM;
             end
 
             WAIT_MEM: begin
@@ -130,9 +122,9 @@ module axi_rd_chan (
             end
 
             SEND_RESP: begin
-                rvalid_r = 1;
-                rresp_r  = OKAY;
-                rlast_r  = 1;
+                s_axi_rvalid = 1;
+                s_axi_rresp  = OKAY;
+                s_axi_rlast  = 1;
 
                 if (s_axi_rready)
                     NS = READY;

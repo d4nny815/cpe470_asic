@@ -7,11 +7,15 @@ from cocotbext.axi import AxiLiteBus, AxiLiteMaster
 from cocotb.result   import SimTimeoutError
 
 FRAME_SIZE = 640 * 480
-AXI_BASE_ADDR = 0x11000000
 FB_ADDR_OFFSET = 0
 CSR_ADDR_OFFSET = FRAME_SIZE
+AXI_BASE_ADDR = 0x11000000
 AXI_FB_ADDR = AXI_BASE_ADDR + FB_ADDR_OFFSET
 AXI_CSR_ADDR = AXI_BASE_ADDR + CSR_ADDR_OFFSET
+
+FB_ADDR = FB_ADDR_OFFSET
+CR_ADDR = CSR_ADDR_OFFSET
+SR_ADDR = CR_ADDR + 1
 
 class TB:
     def __init__(self, dut):
@@ -33,7 +37,7 @@ class TB:
         self.dut.axi_reset_n.value = 0
         self.dut.vga_reset_n.value = 0
 
-        for _ in range(5):
+        for _ in range(2):
             await RisingEdge(self.dut.axi_clk)
             await RisingEdge(self.dut.vga_clk)
 
@@ -67,6 +71,21 @@ class TB:
             )
             raise
 
+    async def axi_read(self, addr, tmo_ns=1000) -> int:
+        DATA_BYTES = 4
+        try:
+            rd = await with_timeout(
+                self.axi_master.read(addr, DATA_BYTES),
+                tmo_ns, "ns",
+            )
+        except SimTimeoutError as e:
+            self.dut._log.error(str(e))
+            raise
+
+        word = int.from_bytes(rd.data, "little")
+        return word
+
+
 @cocotb.test()
 async def test_fb_write_req(dut):
     tb = TB(dut)
@@ -74,26 +93,47 @@ async def test_fb_write_req(dut):
 
     await tb.axi_write(AXI_FB_ADDR, 0xa5)
 
-    while not dut.status.axi_comms.wr_req:
-        await RisingEdge(self.dut.vga_clk)
+    while dut.bridge.wr_fifo_empty.value:
+        await RisingEdge(dut.vga_clk)
 
-    assert wr_addr == AXI_FB_ADDR, "DIDNT WRITE to framebuffer"
-
+    assert int(dut.wr_addr.value) == FB_ADDR, "DIDNT WRITE to framebuffer"
+    assert int(dut.wr_data.value) == 0xa5, "DIDNT WRITE correct value"
 
 @cocotb.test()
 async def test_csr_write_req(dut):
     tb = TB(dut)
     await tb.cycle_reset()
 
-    await tb.axi_write(AXI_CSR_ADDR, 0xa5)
+    await tb.axi_write(AXI_CSR_ADDR, 0x5a)
+
+    while dut.bridge.wr_fifo_empty.value:
+        await RisingEdge(dut.vga_clk)
+
+    assert int(dut.wr_addr.value) == CR_ADDR, "DIDNT WRITE to control register"
+    assert int(dut.wr_data.value) == 0x5a, "DIDNT WRITE correct value"
 
 @cocotb.test()
 async def test_fill_write_req(dut):
-    pass
+    tb = TB(dut)
+    await tb.cycle_reset()
 
+    DEPTH = 16
+    for _ in range(DEPTH):
+        await tb.axi_write(AXI_FB_ADDR, 0xff)
+
+
+    assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
+
+# TODO: read requests
 # @cocotb.test()
-# async def test_csr_write_req(dut):
-#     pass
+# async def test_fb_read_req(dut):
+#     tb = TB(dut)
+#     await tb.cycle_reset()
+
+#     await tb.axi_read(AXI_FB_ADDR)
+
+#     for _ in range(3):
+#         await RisingEdge(dut.vga_clk)
 
 
 # @cocotb.test()

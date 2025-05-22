@@ -73,6 +73,8 @@ module vga_driver (
     // * Control Unit
     // * ======================================================================
     assign controls.wr_re = 0;
+    assign controls.rd_re = 0;
+    assign controls.rd_we = 1;
 
     // * ======================================================================
     // * AXI Bridge
@@ -127,6 +129,12 @@ module vga_driver (
     // * ======================================================================
     // * DAC
     // * ======================================================================
+
+    `ifdef ICARUS
+        logic wr_req;
+        $display("IN SIM");
+        assign wr_req = status.axi_comms.wr_req;
+    `endif
 
 
 endmodule

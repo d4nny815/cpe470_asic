@@ -181,8 +181,8 @@ module axi_bridge (
 
                 // rd requests
                 // rd addr
-                rda_ready_read  = !rda_fifo_full;
-                rda_fifo_we     = axi_rd_recieved && rd_fifo_valid_packet && !rda_fifo_full;
+                // rda_ready_read  = !rda_fifo_full;
+                rda_fifo_we     = axi_rd_recieved && rd_fifo_valid_packet;
                 rda_fifo_re     = rd_re && !rda_fifo_empty;
                 rd_full         = rda_fifo_full;
                 rd_req          = !rda_fifo_empty;
@@ -206,7 +206,6 @@ module axi_bridge (
     logic [DATA_BITS-1:0] rd_data_small;
 
     // * WRITE REQUESTS 
-    // TODO: fix, hangs for sim time
     axi_wr_chan wr_chan (
         .reset_n            (axi_reset_n),
         .axi_clk            (axi_clk),
@@ -268,13 +267,12 @@ module axi_bridge (
     // * READ REQUESTS 
 
     // read addr
-    // TODO: add axi rd channel module
     axi_rd_chan rd_chan (
         .reset_n        (axi_reset_n),
         .axi_clk        (axi_clk),
         .rd_we          (axi_rd_we), 
         .rd_data        (),
-        .rd_ready_read  (rd_ready_read),
+        .rd_ready_read  (0),
         .rd_addr        (rd_addr_axi),
         .rd_valid       (axi_rd_recieved),
         .waiting        (axi_rd_waiting),
