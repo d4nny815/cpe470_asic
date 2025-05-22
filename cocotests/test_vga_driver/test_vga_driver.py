@@ -2,6 +2,7 @@ import random
 import cocotb
 from cocotb.clock     import Clock
 from cocotb.triggers  import RisingEdge, FallingEdge, with_timeout
+from cocotb.handle  import Force
 from cocotbext.axi import AxiLiteBus, AxiLiteMaster
 from cocotb.result   import SimTimeoutError
 
@@ -11,9 +12,6 @@ FB_ADDR_OFFSET = 0
 CSR_ADDR_OFFSET = FRAME_SIZE
 AXI_FB_ADDR = AXI_BASE_ADDR + FB_ADDR_OFFSET
 AXI_CSR_ADDR = AXI_BASE_ADDR + CSR_ADDR_OFFSET
-FB_ADDR = FB_ADDR_OFFSET
-CR_ADDR = CSR_ADDR_OFFSET
-SR_ADDR = CR_ADDR + 1
 
 class TB:
     def __init__(self, dut):
@@ -31,10 +29,10 @@ class TB:
                 reset_active_level=False
         )
 
-
     async def cycle_reset(self):
         self.dut.axi_reset_n.value = 0
         self.dut.vga_reset_n.value = 0
+
         for _ in range(5):
             await RisingEdge(self.dut.axi_clk)
             await RisingEdge(self.dut.vga_clk)
@@ -67,23 +65,35 @@ class TB:
                 f"BVALID={int(dut.s_axi_bvalid.value)} "
                 f"BREADY={int(dut.s_axi_bready.value)}"
             )
-            raise            # fail the test
-
-
+            raise
 
 @cocotb.test()
-async def test_main(dut):
+async def test_fb_write_req(dut):
     tb = TB(dut)
     await tb.cycle_reset()
 
-    for _ in range(2):
-        await RisingEdge(dut.vga_clk)
+    await tb.axi_write(AXI_FB_ADDR, 0xa5)
 
-    addr = AXI_FB_ADDR
-    await tb.axi_write(addr, 0xa5)
+    while not dut.status.axi_comms.wr_req:
+        await RisingEdge(self.dut.vga_clk)
 
-    for _ in range(10):
-        await RisingEdge(dut.vga_clk)
+    assert wr_addr == AXI_FB_ADDR, "DIDNT WRITE to framebuffer"
+
+
+@cocotb.test()
+async def test_csr_write_req(dut):
+    tb = TB(dut)
+    await tb.cycle_reset()
+
+    await tb.axi_write(AXI_CSR_ADDR, 0xa5)
+
+@cocotb.test()
+async def test_fill_write_req(dut):
+    pass
+
+# @cocotb.test()
+# async def test_csr_write_req(dut):
+#     pass
 
 
 # @cocotb.test()

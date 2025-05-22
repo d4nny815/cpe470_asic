@@ -23,6 +23,9 @@
         displayed_items_order: [
             (8),
             (5),
+            (48),
+            (49),
+            (50),
             (1),
             (2),
             (9),
@@ -48,10 +51,20 @@
             (27),
             (3),
             (23),
-            (32),
+            (36),
+            (46),
+            (40),
+            (39),
+            (37),
+            (38),
+            (45),
+            (42),
+            (41),
+            (44),
+            (47),
         ],
         displayed_items: {
-            (21): Variable((
+            (18): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -60,144 +73,11 @@
                             "wr_chan",
                         ],
                     ),
-                    name: "s_axi_wstrb",
+                    name: "s_axi_wdata",
                 ),
                 color: None,
                 background_color: None,
-                display_name: "s_axi_wstrb [3:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (9): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "s_axi_awaddr",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "s_axi_awaddr [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (2): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "PS",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "PS [1:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (24): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "wr_addr",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "wr_addr [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (20): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "s_axi_wready",
-                ),
-                color: Some("Yellow"),
-                background_color: None,
-                display_name: "s_axi_wready",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (25): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "wr_addr_we",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "wr_addr_we",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (1): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "NS",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "NS [1:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (8): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "reset_n",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "reset_n",
+                display_name: "s_axi_wdata [31:0]",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -222,220 +102,6 @@
                 format: None,
                 field_formats: [],
             )),
-            (29): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "wr_valid",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "wr_valid",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (23): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "wdata_r",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "wdata_r [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (26): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "wr_data",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "wr_data [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (27): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "wr_data_we",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "wr_data_we",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (16): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "s_axi_bresp",
-                ),
-                color: Some("Yellow"),
-                background_color: None,
-                display_name: "s_axi_bresp [1:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (28): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "wr_ready_resp",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "wr_ready_resp",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (11): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "s_axi_awlen",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "s_axi_awlen [7:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (12): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "s_axi_awready",
-                ),
-                color: Some("Yellow"),
-                background_color: None,
-                display_name: "s_axi_awready",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (17): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "s_axi_bvalid",
-                ),
-                color: Some("Yellow"),
-                background_color: None,
-                display_name: "s_axi_bvalid",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (13): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "s_axi_awsize",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "s_axi_awsize [2:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (10): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "s_axi_awburst",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "s_axi_awburst [1:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (31): Divider((
-                color: None,
-                background_color: Some("Red"),
-                name: None,
-            )),
             (22): Variable((
                 variable_ref: (
                     path: (
@@ -455,7 +121,7 @@
                 format: None,
                 field_formats: [],
             )),
-            (3): Variable((
+            (2): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -464,17 +130,17 @@
                             "wr_chan",
                         ],
                     ),
-                    name: "awaddr_r",
+                    name: "PS",
                 ),
                 color: None,
                 background_color: None,
-                display_name: "awaddr_r [31:0]",
+                display_name: "PS [1:0]",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
                 field_formats: [],
             )),
-            (32): Variable((
+            (46): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -482,30 +148,11 @@
                             "bridge",
                         ],
                     ),
-                    name: "wr_fifo_full",
+                    name: "axi_wr_recieved",
                 ),
                 color: None,
                 background_color: None,
-                display_name: "wr_fifo_full",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-            )),
-            (5): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "vga_driver",
-                            "bridge",
-                            "wr_chan",
-                        ],
-                    ),
-                    name: "axi_clk",
-                ),
-                color: None,
-                background_color: None,
-                display_name: "axi_clk",
+                display_name: "axi_wr_recieved",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -530,6 +177,203 @@
                 format: None,
                 field_formats: [],
             )),
+            (27): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "wr_data_we",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_data_we",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (5): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "axi_clk",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "axi_clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (39): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_fifo_we",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_fifo_we",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (26): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "wr_data",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_data [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (20): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_wready",
+                ),
+                color: Some("Yellow"),
+                background_color: None,
+                display_name: "s_axi_wready",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (37): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_fifo_data_i",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_fifo_data_i [27:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (45): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_fifo_re",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_fifo_re",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (40): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_fifo_valid_packet",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_fifo_valid_packet",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (48): Marker((
+                color: None,
+                background_color: None,
+                name: None,
+                idx: 0,
+            )),
+            (44): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_fifo_empty",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_fifo_empty",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (50): Marker((
+                color: None,
+                background_color: None,
+                name: None,
+                idx: 2,
+            )),
+            (8): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "reset_n",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "reset_n",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
             (14): Variable((
                 variable_ref: (
                     path: (
@@ -549,7 +393,7 @@
                 format: None,
                 field_formats: [],
             )),
-            (18): Variable((
+            (3): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -558,22 +402,376 @@
                             "wr_chan",
                         ],
                     ),
-                    name: "s_axi_wdata",
+                    name: "awaddr_r",
                 ),
                 color: None,
                 background_color: None,
-                display_name: "s_axi_wdata [31:0]",
+                display_name: "awaddr_r [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (12): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_awready",
+                ),
+                color: Some("Yellow"),
+                background_color: None,
+                display_name: "s_axi_awready",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (47): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_re",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_re",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (17): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_bvalid",
+                ),
+                color: Some("Yellow"),
+                background_color: None,
+                display_name: "s_axi_bvalid",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (25): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "wr_addr_we",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_addr_we",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (9): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_awaddr",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "s_axi_awaddr [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (10): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_awburst",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "s_axi_awburst [1:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (36): Divider((
+                color: None,
+                background_color: Some("Red"),
+                name: None,
+            )),
+            (1): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "NS",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "NS [1:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (49): Marker((
+                color: None,
+                background_color: None,
+                name: None,
+                idx: 1,
+            )),
+            (21): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_wstrb",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "s_axi_wstrb [3:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (41): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_fifo_full",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_fifo_full",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (31): Divider((
+                color: None,
+                background_color: Some("Red"),
+                name: None,
+            )),
+            (38): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_fifo_data_o",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_fifo_data_o [27:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (11): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_awlen",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "s_axi_awlen [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (28): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "wr_ready_resp",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_ready_resp",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (24): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "wr_addr",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_addr [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (42): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                        ],
+                    ),
+                    name: "wr_req",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_req",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (13): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_awsize",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "s_axi_awsize [2:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (23): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "wdata_r",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wdata_r [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (16): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "s_axi_bresp",
+                ),
+                color: Some("Yellow"),
+                background_color: None,
+                display_name: "s_axi_bresp [1:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+            )),
+            (29): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "vga_driver",
+                            "bridge",
+                            "wr_chan",
+                        ],
+                    ),
+                    name: "wr_valid",
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_valid",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
                 field_formats: [],
             )),
         },
-        display_item_ref_counter: 32,
+        display_item_ref_counter: 50,
         viewports: [
             (
-                curr_left: (0.6000000000000009),
-                curr_right: (1.0999999999999996),
+                curr_left: (0.29600000634789425),
+                curr_right: (0.7960000063478943),
                 target_left: (0.0),
                 target_right: (1.0),
                 move_start_left: (0.0),
@@ -583,10 +781,20 @@
             ),
         ],
         cursor: Some((1, [
-            541655,
+            480367,
         ])),
-        markers: {},
-        focused_item: None,
+        markers: {
+            0: (1, [
+                160000,
+            ]),
+            1: (1, [
+                390132,
+            ]),
+            2: (1, [
+                481029,
+            ]),
+        },
+        focused_item: Some((4)),
         focused_transaction: (None, None),
         selected_items: [],
         default_variable_name_type: Unique,
@@ -594,9 +802,9 @@
         display_variable_indices: true,
         graphics: {},
     )),
-    drag_started: true,
+    drag_started: false,
     drag_source_idx: None,
-    drag_target_idx: None,
+    drag_target_idx: Some((2)),
     previous_waves: None,
     count: None,
     blacklisted_translators: [],

@@ -22,7 +22,5 @@ MODULE := $(COCOTB_TEST_MODULES)
 # Turn on waveforms
 WAVES := 1
 
-export COCOTB_MAX_SIM_TIME = 300ns
-
 # Call CocoTB's makefile
 include $(shell cocotb-config --makefiles)/Makefile.sim

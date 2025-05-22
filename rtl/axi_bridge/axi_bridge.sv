@@ -174,7 +174,6 @@ module axi_bridge (
                 init_done = 1;
 
                 // wr requests
-                // wr_ready_resp   = ~wr_fifo_full;
                 wr_fifo_we      = axi_wr_recieved && wr_fifo_valid_packet && !wr_fifo_full;
                 wr_fifo_re      = wr_re && !wr_fifo_empty;
                 wr_full         = wr_fifo_full;
