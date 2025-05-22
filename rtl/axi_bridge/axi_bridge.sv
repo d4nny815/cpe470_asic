@@ -174,7 +174,7 @@ module axi_bridge (
                 init_done = 1;
 
                 // wr requests
-                wr_ready_resp   = !wr_fifo_full;
+                // wr_ready_resp   = ~wr_fifo_full;
                 wr_fifo_we      = axi_wr_recieved && wr_fifo_valid_packet && !wr_fifo_full;
                 wr_fifo_re      = wr_re && !wr_fifo_empty;
                 wr_full         = wr_fifo_full;
@@ -211,7 +211,7 @@ module axi_bridge (
     axi_wr_chan wr_chan (
         .reset_n            (axi_reset_n),
         .axi_clk            (axi_clk),
-        .wr_ready_resp      (wr_ready_resp),
+        .wr_ready_resp      (~wr_fifo_full),
         .wr_addr            (wr_addr_axi),
         .wr_data            (wr_data_axi),
         .wr_valid           (axi_wr_recieved),

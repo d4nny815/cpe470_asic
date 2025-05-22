@@ -37,7 +37,7 @@ module vga_driver (
     input logic [2:0]                 s_axi_arsize,
     input logic [1:0]                 s_axi_arburst,
     input logic                       s_axi_arvalid,
-    output logic                       s_axi_arready,
+    output logic                      s_axi_arready,
 
     // * AXI-4 SUB : READ DATA CHANNEL
     output logic [AXI_DATA_BITS-1:0]   s_axi_rdata,

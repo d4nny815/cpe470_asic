@@ -78,28 +78,21 @@ module axi_wr_chan (
     // * CONTROL PATH
     // * =======================================================================
 
-    logic awready_r, wready_r, bvalid_r;
-    resp_t bresp_r;
     logic wr_addr_we, wr_data_we;
 
-    assign s_axi_awready = awready_r;
-    assign s_axi_wready  = wready_r;
-    assign s_axi_bvalid  = bvalid_r;
-    assign s_axi_bresp   = bresp_r;
-
     always_comb begin
-        awready_r = 0;
-        wready_r  = 0;
-        bvalid_r  = 0;
-        bresp_r   = OKAY;
+        s_axi_awready = 0;
+        s_axi_wready  = 0;
+        s_axi_bvalid  = 0;
+        s_axi_bresp   = OKAY;
         wr_valid = 1'b0;
         wr_addr_we = 1'b0;
         wr_data_we = 1'b0;
 
         case (PS)
             READY: begin
-                awready_r = 1;
-                wready_r = 1;
+                s_axi_awready = 1;
+                s_axi_wready = 1;
                 if (s_axi_awvalid && s_axi_wvalid) begin 
                     wr_addr_we = 1'b1;
                     wr_data_we = 1'b1;
@@ -120,11 +113,13 @@ module axi_wr_chan (
             end
 
             WAIT_RESP: begin
-                bvalid_r = 1'b1;
-                bresp_r  = OKAY;
+                s_axi_bvalid = 1'b1;
+                s_axi_bresp  = OKAY;
 
-                if (s_axi_bready) NS = READY;
-                else NS = WAIT_RESP;
+                if (s_axi_bready) 
+                    NS = READY;
+                else 
+                    NS = WAIT_RESP;
             end
 
             default: NS = READY;
