@@ -35,7 +35,8 @@
 `timescale              1ns/1ps
 `default_nettype        none
 
-
+/* verilator lint_off WIDTHEXPAND */
+/* verilator lint_off WIDTHTRUNC */
 module EF_PSRAM_CTRL (
     input   wire            clk,
     input   wire            rst_n,
@@ -204,4 +205,6 @@ module EF_PSRAM_CTRL (
                             douten_spi;
 
 endmodule
+/* verilator lint_on WIDTHTRUNC */
+/* verilator lint_on WIDTHEXPAND */
 `endif
