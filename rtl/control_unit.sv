@@ -2,9 +2,7 @@
 `define CONTROL_UNIT
 `timescale 1ns / 1ps
 
-`include "common/vga_driver_structs.sv"
-
-import vga_driver_structs::*;
+`include "vga_driver_structs.svh"
 
 module control_unit (
     input logic clk,

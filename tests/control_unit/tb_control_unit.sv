@@ -1,10 +1,9 @@
+`ifndef TB_CONTROL_UNIT
+`define TB_CONTROL_UNIT
 `timescale 1ns / 1ps
-
-`include "displayConsts.sv"
-`include "vga_driver_structs.sv"
+`include "displayConsts.svh"
+`include "vga_driver_structs.svh"
 `include "control_unit.sv"
-
-import vga_driver_structs::*;
 
 module tb_control_unit();
     // Clock and reset signals
@@ -447,3 +446,4 @@ module tb_control_unit();
     endtask
     
 endmodule
+`endif

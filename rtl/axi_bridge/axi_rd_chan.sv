@@ -1,18 +1,15 @@
 `ifndef AXI_RD_CHAN
 `define AXI_RD_CHAN
-`include "axi4_itf.sv"
-`include "vga_driver_structs.sv"
 
-import axi4_itf::*;
-import vga_driver_structs::*;
-import displayConsts::*;
+`include "axi4_itf.svh"
+`include "vga_driver_structs.svh"
 
 /**
  * AXI4 Full Read Channel Slave Interface
  *
  * Coordinates the AXI4 full read channel by handling both the read address (AR)
  * and read data (R) handshakes. When `rd_valid` is asserted, the address on
- * `rd_chan_i` is valid. The slave asserts `rd_ready_read` (ARREADY) to accept
+ * `s_if` is valid. The slave asserts `rd_ready_read` (ARREADY) to accept
  * that address. Once data is available, the slave drives `rd_data` and asserts
  * `rd_we` (RVALID). The `waiting` flag remains high while a read request is
  * pending data.
@@ -22,23 +19,39 @@ import displayConsts::*;
  * Inputs:
  *   reset_n         : Active-low synchronous reset.
  *   axi_clk         : AXI clock.
- *   rd_chan_i       : Packed read channel input struct
+ *   s_if       : Packed read channel input struct
  *   rd_we           : Read-data valid from slave
  *   rd_data         : Read data from slave
  *   rd_ready_read   : Slave ready to accept read addr
  *
  * Outputs:
- *   rd_chan_o       : Packed read channel output (forwarded or registered).
+ *   s_if       : Packed read channel output (forwarded or registered).
  *   rd_addr         : Read address
  *   rd_valid        : Assert when `rd_addr` is valid
  *   waiting         : High while awaiting read-data from slave.
  */
 
 module axi_rd_chan (
+    // * axi
     input logic reset_n,
     input logic axi_clk,
-    input rd_channel_input_t rd_chan_i,
-    output rd_channel_output_t  rd_chan_o,
+
+    //  READ ADDRESS CHANNEL
+    input logic [AXI_ADDR_BITS-1:0]   s_axi_araddr,
+    input logic [7:0]                 s_axi_arlen,
+    input logic [2:0]                 s_axi_arsize,
+    input logic [1:0]                 s_axi_arburst,
+    input logic                       s_axi_arvalid,
+    output logic                      s_axi_arready,
+
+    //  READ DATA CHANNEL
+    output logic [AXI_DATA_BITS-1:0]   s_axi_rdata,
+    output logic [1:0]                 s_axi_rresp,
+    output logic                       s_axi_rlast,
+    output logic                       s_axi_rvalid,
+    input logic                        s_axi_rready,
+
+    // * design
     input logic rd_we, 
     input logic [AXI_DATA_BITS-1:0] rd_data,
     input logic rd_ready_read,
@@ -74,22 +87,15 @@ module axi_rd_chan (
     // * =======================================================================
 
     logic araddr_we;
-    logic arvalid_ready, rvalid;
-    logic arready_r, rvalid_r, rlast_r, rready_r;
-    RESP_t rresp_r;
 
-    assign rd_chan_o.arready = arready_r;
-    assign rd_chan_o.rvalid  = rvalid_r;
-    assign rd_chan_o.rresp   = rresp_r;
-    assign rd_chan_o.rlast   = rlast_r;
-    assign rd_chan_o.rdata   = rvalid_r ? rdata_r : 32'hdeadbeef;
+    assign s_axi_rdata = s_axi_rvalid ? rdata_r : 32'hdeadbeef;
 
     always_comb begin
         NS = PS;
-        arready_r = 0;
-        rvalid_r  = 0;
-        rresp_r   = OKAY;
-        rlast_r   = 0;
+        s_axi_arready = 0;
+        s_axi_rvalid  = 0;
+        s_axi_rresp   = OKAY;
+        s_axi_rlast   = 0;
 
         rd_valid = 0;
         araddr_we = 0;
@@ -97,8 +103,8 @@ module axi_rd_chan (
 
         case (PS)
             READY: begin
-                arready_r = 1;
-                if (rd_chan_i.arvalid) begin
+                s_axi_arready = 1;
+                if (s_axi_arvalid) begin
                     araddr_we = 1;
                     NS = READ_ADDR;
                 end
@@ -106,8 +112,7 @@ module axi_rd_chan (
 
             READ_ADDR: begin
                 rd_valid = 1;
-                if (rd_ready_read) 
-                    NS = WAIT_MEM;
+                NS = WAIT_MEM;
             end
 
             WAIT_MEM: begin
@@ -117,11 +122,11 @@ module axi_rd_chan (
             end
 
             SEND_RESP: begin
-                rvalid_r = 1;
-                rresp_r  = OKAY;
-                rlast_r  = 1;
+                s_axi_rvalid = 1;
+                s_axi_rresp  = OKAY;
+                s_axi_rlast  = 1;
 
-                if (rd_chan_i.rready)
+                if (s_axi_rready)
                     NS = READY;
             end
 
@@ -139,7 +144,7 @@ module axi_rd_chan (
             rdata_r <= 'd0;
         end else begin
             if (araddr_we)
-                araddr_r <= rd_chan_i.araddr;
+                araddr_r <= s_axi_araddr;
             
             if (rd_we && PS == WAIT_MEM)
                 rdata_r <= rd_data ;

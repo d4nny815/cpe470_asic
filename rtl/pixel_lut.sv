@@ -1,7 +1,5 @@
 // TODO: camille
-`include "common/displayConsts.sv"
-
-import displayConsts::*;
+`include "common/displayConsts.svh"
 
 module pixel_lut (
     input logic [COLOR_LUT_BITS-1:0] index,

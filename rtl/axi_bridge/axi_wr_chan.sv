@@ -1,12 +1,8 @@
 `ifndef AXI_WR_CHAN
 `define AXI_WR_CHAN
 
-`include "axi4_itf.sv"
-`include "vga_driver_structs.sv"
-
-import axi4_itf::*;
-import vga_driver_structs::*;
-import displayConsts::*;
+`include "axi4_itf.svh"
+`include "vga_driver_structs.svh"
 
 /**
  * AXI4 Full Write Channel Slave Interface
@@ -33,11 +29,31 @@ import displayConsts::*;
  */
 
 module axi_wr_chan (
+    // * axi 
     input logic reset_n,
     input logic axi_clk,
-    input wr_channel_input_t wr_chan_i,
+    // WRITE ADDRESS CHANNEL
+    input logic [AXI_ADDR_BITS-1:0]    s_axi_awaddr,
+    input logic [7:0]                  s_axi_awlen,
+    input logic [2:0]                  s_axi_awsize,
+    input logic [1:0]                  s_axi_awburst,
+    input logic                        s_axi_awvalid,
+    output logic                       s_axi_awready,
+
+    // WRITE DATA CHANNEL
+    input logic [AXI_DATA_BITS-1:0]    s_axi_wdata,
+    input logic [AXI_DATA_BITS/8-1:0]  s_axi_wstrb,
+    input logic                        s_axi_wlast,
+    input logic                        s_axi_wvalid,
+    output logic                       s_axi_wready,
+
+    // WRITE RESPONSE CHANNEL
+    output logic [1:0]                 s_axi_bresp,
+    output logic                       s_axi_bvalid,
+    input logic                        s_axi_bready,
+    
+    // * design
     input logic wr_ready_resp,
-    output wr_channel_output_t  wr_chan_o,
     output logic [AXI_ADDR_BITS-1:0] wr_addr,
     output logic [AXI_DATA_BITS-1:0] wr_data,
     output logic wr_valid
@@ -62,29 +78,22 @@ module axi_wr_chan (
     // * CONTROL PATH
     // * =======================================================================
 
-    logic awready_r, wready_r, bvalid_r;
-    RESP_t bresp_r;
     logic wr_addr_we, wr_data_we;
 
-    assign wr_chan_o.awready = awready_r;
-    assign wr_chan_o.wready  = wready_r;
-    assign wr_chan_o.bvalid  = bvalid_r;
-    assign wr_chan_o.bresp   = bresp_r;
-
     always_comb begin
-        awready_r = 0;
-        wready_r  = 0;
-        bvalid_r  = 0;
-        bresp_r   = OKAY;
+        s_axi_awready = 0;
+        s_axi_wready  = 0;
+        s_axi_bvalid  = 0;
+        s_axi_bresp   = OKAY;
         wr_valid = 1'b0;
         wr_addr_we = 1'b0;
         wr_data_we = 1'b0;
 
         case (PS)
             READY: begin
-                awready_r = 1;
-                wready_r = 1;
-                if (wr_chan_i.awvalid && wr_chan_i.wvalid) begin 
+                s_axi_awready = 1;
+                s_axi_wready = 1;
+                if (s_axi_awvalid && s_axi_wvalid) begin 
                     wr_addr_we = 1'b1;
                     wr_data_we = 1'b1;
                     NS = VALID;
@@ -104,11 +113,13 @@ module axi_wr_chan (
             end
 
             WAIT_RESP: begin
-                bvalid_r = 1'b1;
-                bresp_r  = OKAY;
+                s_axi_bvalid = 1'b1;
+                s_axi_bresp  = OKAY;
 
-                if (wr_chan_i.bready) NS = READY;
-                else NS = WAIT_RESP;
+                if (s_axi_bready) 
+                    NS = READY;
+                else 
+                    NS = WAIT_RESP;
             end
 
             default: NS = READY;
@@ -126,10 +137,10 @@ module axi_wr_chan (
             wdata_r  <= 'hdeadbeef;
         end else begin
                 if (wr_addr_we)
-                    awaddr_r <= wr_chan_i.awaddr;
+                    awaddr_r <= s_axi_awaddr;
 
                 if (wr_data_we)
-                    wdata_r <= wr_chan_i.wdata;
+                    wdata_r <= s_axi_wdata;
         end
     end
 

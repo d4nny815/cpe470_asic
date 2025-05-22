@@ -1,6 +1,8 @@
+`ifndef TB_PIXEL_ADDR_GEN
+`define TB_PIXEL_ADDR_GEN
 `timescale 1ns/1ps
-`include "common/displayConsts.sv"
-`include "common/vgaTimes.sv"
+`include "displayConsts.svh"
+`include "vgaTimes.svh"
 `include "pixel_addr_gen.sv"
 
 module tb_pixel_addr_gen();
@@ -159,3 +161,4 @@ module tb_pixel_addr_gen();
     //              $time, h_cnt, v_cnt, in_frame, next, pixel_addr);
     // end
 endmodule
+`endif

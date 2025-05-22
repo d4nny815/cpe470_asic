@@ -1,12 +1,11 @@
 `ifndef TB_VGA_TIMING
 `define TB_VGA_TIMING
-`include "vgaTimes.sv"
-`include "vgaTiming.sv"
+
+`include "vgaTimes.svh"
+`include "vga_timing.sv"
 
 module tb_vgaTiming();
     localparam CLK_PERIOD = 10;
-
-    import vgaTimes::*;
 
     `ifdef USE_POWER_PINS
         wire VPWR;
@@ -20,7 +19,7 @@ module tb_vgaTiming();
     bit [V_CNT_BITS - 1 : 0] v_cnt;
     bit v_sync, h_sync, in_frame;
 
-    vgaTiming DUT (.*);
+    vga_timing DUT (.*);
 
     // Tasks
     task reset_dut();
@@ -36,12 +35,12 @@ module tb_vgaTiming();
     task automatic check_syncs();
     int errors = 0;
 
-    for (int v = 0; v < vgaTimes::V_WHOLELINE; v++) begin
-        for (int h = 0; h < vgaTimes::H_WHOLELINE; h++) begin
+    for (int v = 0; v < V_WHOLELINE; v++) begin
+        for (int h = 0; h < H_WHOLELINE; h++) begin
             @(posedge clk);
 
             // in_frame check
-            if ((DUT.h_cntr < vgaTimes::H_VISIBLE_AREA) && (DUT.v_cntr < vgaTimes::V_VISIBLE_AREA)) begin
+            if ((DUT.h_cntr < H_VISIBLE_AREA) && (DUT.v_cntr < V_VISIBLE_AREA)) begin
                 if (!in_frame) begin
                     $error("[in_frame] Expected 1 at h=%0d v=%0d", DUT.h_cntr, DUT.v_cntr);
                     errors++;
@@ -54,8 +53,8 @@ module tb_vgaTiming();
             end
 
             // h_sync active-low check
-            if ((DUT.h_cntr >= (vgaTimes::H_VISIBLE_AREA + vgaTimes::H_FRONTPORCH)) &&
-                (DUT.h_cntr <  (vgaTimes::H_VISIBLE_AREA + vgaTimes::H_FRONTPORCH + vgaTimes::H_SYNC_PULSE))) begin
+            if ((DUT.h_cntr >= (H_VISIBLE_AREA + H_FRONTPORCH)) &&
+                (DUT.h_cntr <  (H_VISIBLE_AREA + H_FRONTPORCH + H_SYNC_PULSE))) begin
                 if (h_sync) begin
                     $error("[h_sync] Expected 0 (active-low) at h=%0d v=%0d", DUT.h_cntr, DUT.v_cntr);
                     errors++;
@@ -68,8 +67,8 @@ module tb_vgaTiming();
             end
 
             // v_sync active-low check
-            if ((DUT.v_cntr >= (vgaTimes::V_VISIBLE_AREA + vgaTimes::V_FRONTPORCH)) &&
-                (DUT.v_cntr <  (vgaTimes::V_VISIBLE_AREA + vgaTimes::V_FRONTPORCH + vgaTimes::V_SYNC_PULSE))) begin
+            if ((DUT.v_cntr >= (V_VISIBLE_AREA + V_FRONTPORCH)) &&
+                (DUT.v_cntr <  (V_VISIBLE_AREA + V_FRONTPORCH + V_SYNC_PULSE))) begin
                 if (v_sync) begin
                     $error("[v_sync] Expected 0 (active-low) at h=%0d v=%0d", h_cnt, DUT.v_cntr);
                     errors++;
@@ -83,8 +82,6 @@ module tb_vgaTiming();
         end
     end
     endtask
-
-
 
     always begin
         #(CLK_PERIOD/2) 
@@ -103,8 +100,6 @@ module tb_vgaTiming();
         reset_dut();
 
         check_syncs();
-
-        #(1000 * CLK_PERIOD)
 
         $display("[TESTBENCH] PASSED All tests");
         $finish();
