@@ -1,16 +1,13 @@
 `ifndef AXI_BRIDGE
 `define AXI_BRIDGE
 
-`include "axi4_itf.sv"
-`include "vga_driver_structs.sv"
-`include "displayConsts.sv"
+`include "axi4_itf.svh"
+`include "vga_driver_structs.svh"
+`include "displayConsts.svh"
 `include "axi_wr_chan.sv"
 // `include "axi_rd_chan.sv"
 `include "ASYNC_FIFO.sv"
 
-import axi4_itf::*;
-import vga_driver_structs::*;
-import displayConsts::*;
 
 /**
  * AXI–VGA Subsystem Bridge
@@ -63,10 +60,7 @@ module axi_bridge (
     // axi channels
     input logic axi_reset_n,
     input logic axi_clk,
-    input wr_channel_input_t wr_chan_i,
-    input rd_channel_input_t rd_chan_i,
-    output wr_channel_output_t  wr_chan_o,
-    output rd_channel_output_t  rd_chan_o,
+    axi4_itf.sub s_if,
     
     // design channels
     input logic         vga_reset_n,
@@ -184,9 +178,8 @@ module axi_bridge (
     axi_wr_chan wr_chan (
         .reset_n            (axi_reset_n),
         .axi_clk            (axi_clk),
-        .wr_chan_i          (wr_chan_i),
+        .s_if               (s_if),
         .wr_ready_resp      (wr_ready_resp),
-        .wr_chan_o          (wr_chan_o),
         .wr_addr            (wr_addr_axi),
         .wr_data            (wr_data_axi),
         .wr_valid           (axi_wr_recieved)
@@ -247,8 +240,7 @@ module axi_bridge (
     axi_rd_chan rd_chan (
         .reset_n        (axi_reset_n),
         .axi_clk        (axi_clk),
-        .rd_chan_i      (rd_chan_i),
-        .rd_chan_o      (rd_chan_o),
+        .s_if           (s_if),
         .rd_we          (axi_rd_we), 
         .rd_data        (),
         .rd_ready_read  (rd_ready_read),

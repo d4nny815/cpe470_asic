@@ -1,12 +1,8 @@
 `ifndef AXI_WR_CHAN
 `define AXI_WR_CHAN
 
-`include "axi4_itf.sv"
-`include "vga_driver_structs.sv"
-
-import axi4_itf::*;
-import vga_driver_structs::*;
-import displayConsts::*;
+`include "axi4_itf.svh"
+`include "vga_driver_structs.svh"
 
 /**
  * AXI4 Full Write Channel Slave Interface
@@ -35,9 +31,8 @@ import displayConsts::*;
 module axi_wr_chan (
     input logic reset_n,
     input logic axi_clk,
-    input wr_channel_input_t wr_chan_i,
     input logic wr_ready_resp,
-    output wr_channel_output_t  wr_chan_o,
+    axi4_itf.sub s_if,
     output logic [AXI_ADDR_BITS-1:0] wr_addr,
     output logic [AXI_DATA_BITS-1:0] wr_data,
     output logic wr_valid
@@ -63,13 +58,13 @@ module axi_wr_chan (
     // * =======================================================================
 
     logic awready_r, wready_r, bvalid_r;
-    RESP_t bresp_r;
+    resp_t bresp_r;
     logic wr_addr_we, wr_data_we;
 
-    assign wr_chan_o.awready = awready_r;
-    assign wr_chan_o.wready  = wready_r;
-    assign wr_chan_o.bvalid  = bvalid_r;
-    assign wr_chan_o.bresp   = bresp_r;
+    assign s_if.awready = awready_r;
+    assign s_if.wready  = wready_r;
+    assign s_if.bvalid  = bvalid_r;
+    assign s_if.bresp   = bresp_r;
 
     always_comb begin
         awready_r = 0;
@@ -84,7 +79,7 @@ module axi_wr_chan (
             READY: begin
                 awready_r = 1;
                 wready_r = 1;
-                if (wr_chan_i.awvalid && wr_chan_i.wvalid) begin 
+                if (s_if.awvalid && s_if.wvalid) begin 
                     wr_addr_we = 1'b1;
                     wr_data_we = 1'b1;
                     NS = VALID;
@@ -107,7 +102,7 @@ module axi_wr_chan (
                 bvalid_r = 1'b1;
                 bresp_r  = OKAY;
 
-                if (wr_chan_i.bready) NS = READY;
+                if (s_if.bready) NS = READY;
                 else NS = WAIT_RESP;
             end
 
@@ -126,10 +121,10 @@ module axi_wr_chan (
             wdata_r  <= 'hdeadbeef;
         end else begin
                 if (wr_addr_we)
-                    awaddr_r <= wr_chan_i.awaddr;
+                    awaddr_r <= s_if.awaddr;
 
                 if (wr_data_we)
-                    wdata_r <= wr_chan_i.wdata;
+                    wdata_r <= s_if.wdata;
         end
     end
 

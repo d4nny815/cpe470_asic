@@ -1,19 +1,13 @@
 INC_DIR := ./include
 
-
-# ALL_RTL := $(shell find rtl -type f \( -name '*.sv' -o -name '*.v' \))
-# EXCLUDE_RTL := $(shell find rtl/common -type f \( -name '*.sv' -o -name '*.v' \))
-# RTL_SRCS := $(filter-out $(EXCLUDE_RTL), $(ALL_RTL))
 RTL_SRCS 	:= $(shell find rtl -name '*.sv' -or -name '*.v')
 TB_SRCS 	:= $(shell find tests -name '*.sv' -or -name '*.v')
-IP_SRCS 	:= $(shell find ip -name '*.sv' -or -name '*.v')
 
 INCLUDE_DIRS := $(sort $(dir $(shell find . -name '*.svh')))
 RTL_DIRS	 := $(sort $(dir $(RTL_SRCS)))
-IP_DIRS			:= $(sort $(dir $(IP_SRCS)))
 TB_DIRS			:= $(sort $(dir $(TB_SRCS)))
-# Include both Include and RTL directories for linting
-ALL_INC_DIRS := $(INCLUDE_DIRS) $(RTL_DIRS) $(IP_DIRS) $(TB_DIRS)
+
+ALL_INC_DIRS := $(INCLUDE_DIRS) $(RTL_DIRS) $(TB_DIRS)
 LINT_INCLUDES := $(foreach dir, $(ALL_INC_DIRS), -I$(realpath $(dir))) -I$(PDKPATH) 
 
 TEST_DIR = ./tests

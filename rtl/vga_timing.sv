@@ -1,11 +1,10 @@
 `ifndef VGA_TIMING
 `define VGA_TIMING
-`include "common/vgaTimes.sv"
-`include "common/displayConsts.sv"
 
-import displayConsts::*;
+`include "vgaTimes.svh"
+`include "displayConsts.svh"
 
-module vgaTiming (
+module vga_timing (
     input wire clk,
     input wire reset_n,
     output reg [H_CNT_BITS - 1 : 0] h_cnt,
@@ -14,8 +13,6 @@ module vgaTiming (
     output reg v_sync,
     output reg in_frame
     );
-
-    import vgaTimes::*;
 
     reg v_en;
     reg [H_BITS : 0] h_cntr;

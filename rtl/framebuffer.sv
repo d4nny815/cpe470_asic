@@ -1,7 +1,5 @@
 // TODO: danny
-`include "displayConsts.sv"
-
-import displayConsts::*;
+`include "displayConsts.svh"
 
 module framebuffer (
     input logic [PIXEL_ADDR_BITS-1 : 0] vga_addr,

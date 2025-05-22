@@ -121,7 +121,7 @@ module tb_axi_bridge();
         wr_chan_i.wlast   = 1;
         
         wr_chan_i.awvalid = 1;
-        // wr_chan_i.wvalid  = 1; // ! this causes it to hang
+        wr_chan_i.wvalid  = 1; // ! this causes it to hang
 
         $display("here1");
         // `WAIT(wr_chan_o.awready, axi_clk);

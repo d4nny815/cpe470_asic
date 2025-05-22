@@ -1,18 +1,15 @@
 `ifndef AXI_RD_CHAN
 `define AXI_RD_CHAN
-`include "axi4_itf.sv"
-`include "vga_driver_structs.sv"
 
-import axi4_itf::*;
-import vga_driver_structs::*;
-import displayConsts::*;
+`include "axi4_itf.svh"
+`include "vga_driver_structs.svh"
 
 /**
  * AXI4 Full Read Channel Slave Interface
  *
  * Coordinates the AXI4 full read channel by handling both the read address (AR)
  * and read data (R) handshakes. When `rd_valid` is asserted, the address on
- * `rd_chan_i` is valid. The slave asserts `rd_ready_read` (ARREADY) to accept
+ * `s_if` is valid. The slave asserts `rd_ready_read` (ARREADY) to accept
  * that address. Once data is available, the slave drives `rd_data` and asserts
  * `rd_we` (RVALID). The `waiting` flag remains high while a read request is
  * pending data.
@@ -22,13 +19,13 @@ import displayConsts::*;
  * Inputs:
  *   reset_n         : Active-low synchronous reset.
  *   axi_clk         : AXI clock.
- *   rd_chan_i       : Packed read channel input struct
+ *   s_if       : Packed read channel input struct
  *   rd_we           : Read-data valid from slave
  *   rd_data         : Read data from slave
  *   rd_ready_read   : Slave ready to accept read addr
  *
  * Outputs:
- *   rd_chan_o       : Packed read channel output (forwarded or registered).
+ *   s_if       : Packed read channel output (forwarded or registered).
  *   rd_addr         : Read address
  *   rd_valid        : Assert when `rd_addr` is valid
  *   waiting         : High while awaiting read-data from slave.
@@ -37,8 +34,7 @@ import displayConsts::*;
 module axi_rd_chan (
     input logic reset_n,
     input logic axi_clk,
-    input rd_channel_input_t rd_chan_i,
-    output rd_channel_output_t  rd_chan_o,
+    axi4_itf.sub s_if,
     input logic rd_we, 
     input logic [AXI_DATA_BITS-1:0] rd_data,
     input logic rd_ready_read,
@@ -76,13 +72,13 @@ module axi_rd_chan (
     logic araddr_we;
     logic arvalid_ready, rvalid;
     logic arready_r, rvalid_r, rlast_r, rready_r;
-    RESP_t rresp_r;
+    resp_t rresp_r;
 
-    assign rd_chan_o.arready = arready_r;
-    assign rd_chan_o.rvalid  = rvalid_r;
-    assign rd_chan_o.rresp   = rresp_r;
-    assign rd_chan_o.rlast   = rlast_r;
-    assign rd_chan_o.rdata   = rvalid_r ? rdata_r : 32'hdeadbeef;
+    assign s_if.arready = arready_r;
+    assign s_if.rvalid  = rvalid_r;
+    assign s_if.rresp   = rresp_r;
+    assign s_if.rlast   = rlast_r;
+    assign s_if.rdata   = rvalid_r ? rdata_r : 32'hdeadbeef;
 
     always_comb begin
         NS = PS;
@@ -98,7 +94,7 @@ module axi_rd_chan (
         case (PS)
             READY: begin
                 arready_r = 1;
-                if (rd_chan_i.arvalid) begin
+                if (s_if.arvalid) begin
                     araddr_we = 1;
                     NS = READ_ADDR;
                 end
@@ -121,7 +117,7 @@ module axi_rd_chan (
                 rresp_r  = OKAY;
                 rlast_r  = 1;
 
-                if (rd_chan_i.rready)
+                if (s_if.rready)
                     NS = READY;
             end
 
@@ -139,7 +135,7 @@ module axi_rd_chan (
             rdata_r <= 'd0;
         end else begin
             if (araddr_we)
-                araddr_r <= rd_chan_i.araddr;
+                araddr_r <= s_if.araddr;
             
             if (rd_we && PS == WAIT_MEM)
                 rdata_r <= rd_data ;
