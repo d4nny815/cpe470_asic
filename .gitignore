@@ -2,3 +2,4 @@ tmp/*
 sim_build/
 results.xml
 .venv/
+a.out

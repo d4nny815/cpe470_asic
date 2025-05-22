@@ -1,5 +1,5 @@
 TOPLEVEL_LANG ?= verilog	
-SIM ?= verilator	
+SIM ?= icarus	
 
 ROOT_DIR      := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
 RTL_DIR       := $(ROOT_DIR)/rtl

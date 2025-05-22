@@ -3,7 +3,9 @@
 // * ===========================================================================
 
 `include "axi4_itf.svh"
+`include "vga_driver_structs.svh"
 `include "vga_timing.sv"
+`include "axi_bridge.sv"
 
 module vga_driver (
     input logic axi_clk,
@@ -55,12 +57,37 @@ module vga_driver (
     );
 
     // * ======================================================================
+    // * Internal Signals
+    // * ======================================================================
+    logic [PIXEL_ADDR_BITS-1:0] wr_addr, rd_addr;
+    logic [DATA_BITS-1:0] wr_data, rd_data;
+
+    // Control Signals
+    controls_t controls;
+
+    // Status Signals
+    logic bridge_init_done;
+    statuses_t status;
+    
+    // * ======================================================================
     // * Control Unit
     // * ======================================================================
 
     // * ======================================================================
     // * AXI Bridge
     // * ======================================================================
+    axi_bridge bridge (
+        .wr_re       (controls.wr_re),
+        .rd_re       (controls.rd_re),
+        .rd_we       (controls.rd_we),
+        .wr_addr     (wr_addr),
+        .wr_data     (wr_data), 
+        .rd_addr     (rd_addr),
+        .rd_data     (rd_data),
+        .status      (status.axi_comms),
+        .init_done   (bridge_init_done),
+        .*
+    );
 
     // * ======================================================================
     // * CSR

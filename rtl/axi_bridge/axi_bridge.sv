@@ -96,11 +96,11 @@ module axi_bridge (
     input logic                        s_axi_rready,
     
     // * design channels
-    input logic         vga_reset_n,
-    input logic         vga_clk,
-    input logic         wr_re,
-    input logic         rd_re,
-    input logic         rd_we,
+    input logic                         vga_reset_n,
+    input logic                         vga_clk,
+    input logic                         wr_re,
+    input logic                         rd_re,
+    input logic                         rd_we,
     input logic [DATA_BITS-1:0]         rd_data,
     output logic [PIXEL_ADDR_BITS-1:0]  wr_addr,
     output logic [DATA_BITS-1:0]        wr_data, 
