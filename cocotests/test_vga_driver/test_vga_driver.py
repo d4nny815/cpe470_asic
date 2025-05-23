@@ -164,8 +164,6 @@ async def test_next_pixel(dut):
             await FallingEdge(dut.vga_clk)
 
 
-
-
 @cocotb.test()
 async def test_vga_sync_activity(dut):
     if os.getenv("VERBOSE_CTB") != "1":
