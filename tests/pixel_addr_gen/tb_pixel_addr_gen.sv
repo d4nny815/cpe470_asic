@@ -1,17 +1,11 @@
 `ifndef TB_PIXEL_ADDR_GEN
 `define TB_PIXEL_ADDR_GEN
 `timescale 1ns/1ps
-<<<<<<< HEAD
-`include "displayConsts.svh"
-`include "vgaTimes.svh"
-`include "pixel_addr_gen.sv"
-=======
 `include "common/displayConsts.sv"
 `include "common/vgaTimes.sv"
 `ifndef tb_pixel_addr_gen
 `define tb_pixel_addr_gen
 
->>>>>>> pixel_LUT
 
 module tb_pixel_addr_gen();
 
