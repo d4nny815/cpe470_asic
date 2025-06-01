@@ -83,7 +83,7 @@ module framebuffer (
     input logic fb_w_r,
     input logic fb_en,
     output logic fb_valid,
-    output logic [COLOR_LUT_BITS-1:0] fb_data_o,
+    output logic [COLOR_LUT_BITS-1:0] fb_data_o
     );
 
     // * =======================================================================
