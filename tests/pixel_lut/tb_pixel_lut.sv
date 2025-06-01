@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 `include "common/displayConsts.sv"
+`ifndef tb_pixel_lut
+`define tb_pixel_lut
 
 import displayConsts::*;
 
@@ -309,3 +311,4 @@ module tb_pixel_lut();
     end
 
 endmodule
+`endif
