@@ -2,6 +2,7 @@
 `define FRAMEBUFFER
 
 `include "displayConsts.svh"
+`include "line_cache.sv"
 
 /**
  * Framebuffer
@@ -65,7 +66,8 @@ module framebuffer (
     input logic reset_n,
 
     // vga signals
-    input logic [PIXEL_ADDR_BITS-1:0] vga_addr,
+    input logic [VGA_ADDR_BITS-1:0] vga_addr,
+    input logic [PIXEL_ADDR_BITS-1:0] fb_vga_addr,
     input logic vga_fetch_next,
     input logic vga_re,
     output logic [COLOR_LUT_BITS-1:0] lut_index,
@@ -90,6 +92,7 @@ module framebuffer (
     // * Internal signals
     // * =======================================================================
 
+    logic [H_CNT_BITS-1:0] prefetch_addr;
 
     // * =======================================================================
     // * CONTROL PATH
@@ -99,7 +102,25 @@ module framebuffer (
     // * =======================================================================
     // * DATA PATH
     // * =======================================================================
+    
+    // address decoder
+    // always_ff @(posedge clk) begin
+        // prefetch_addr = vga_fetch_next ? 'd0 : (vga_addr % H_VISIBLE_AREA) + 1;
+    // end
 
+    always_comb begin
+        prefetch_addr = !vga_re ? 'd0 : vga_addr[H_CNT_BITS-1:0] + 'd1;
+    end
+
+    line_cache line (
+        .clk_write  ('d0),
+        .we         ('d0),
+        .wr_addr    ('d0),
+        .wr_data    ('d0),
+        .clk_read   (clk),
+        .rd_addr    (prefetch_addr),
+        .rd_data    (lut_index)
+    );
 
 endmodule
 

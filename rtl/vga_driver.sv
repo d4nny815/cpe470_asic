@@ -68,7 +68,8 @@ module vga_driver (
     logic [DATA_BITS-1:0] wr_data, rd_data;
 
     // VGA Signals
-    logic [PIXEL_ADDR_BITS-1:0] pixel_addr;
+    logic [VGA_ADDR_BITS-1:0] pixel_addr;
+    logic [PIXEL_ADDR_BITS-1:0] fb_pixel_addr;
     logic [V_CNT_BITS-1:0] v_cnt;
     logic [H_CNT_BITS-1:0] h_cnt;
     logic [COLOR_LUT_BITS-1:0] color_ind;
@@ -133,33 +134,40 @@ module vga_driver (
     // * ======================================================================
     
     pixel_addr_gen pixel_addr_gen (
-        .clk        (vga_clk),
-        .rst_n      (vga_reset_n),
-        .h_cnt      (h_cnt),
-        .v_cnt      (v_cnt),
-        .next       (controls.next), 
-        .pixel_addr (pixel_addr),
-        .in_frame   (status.in_frame)
+        .clk            (vga_clk),
+        .rst_n          (vga_reset_n),
+        .h_cnt          (h_cnt),
+        .v_cnt          (v_cnt),
+        .next           (controls.next), 
+        .pixel_addr     (pixel_addr),
+        .fb_pixel_addr  (fb_pixel_addr),
+        .in_frame       (status.in_frame)
     );
 
     // * ======================================================================
     // * Framebuffer
     // * ======================================================================
 
-    // framebuffer framebuffer(
-    //     .clk            (vga_clk),
-    //     .reset_n        (vga_reset_n),
-    //     .vga_addr       (pixel_addr),
-    //     .vga_fetch_next (controls.vga_fetch),
-    //     .vga_re         (controls.vga_re),
-    //     .fb_addr        (0),
-    //     .fb_data_i      (0),
-    //     .fb_w_r         (0),
-    //     .fb_en          (0),
-    //     .lut_index      (color_ind),
-    //     .fb_valid       (),
-    //     .fb_data_o      ()
-    // );
+    framebuffer framebuffer(
+        .clk                (vga_clk),
+        .reset_n            (vga_reset_n),
+        .vga_addr           (pixel_addr),
+        .fb_vga_addr        (fb_pixel_addr),
+        .vga_fetch_next     (controls.next),
+        .vga_re             (controls.vga_re),
+        .lut_index          (color_ind),
+        .pc_sck             (),
+        .ps_ce_n            (),
+        .ps_din             (),
+        .ps_dout            (),
+        .ps_douten          (),
+        .fb_addr            (),
+        .fb_data_i          (),
+        .fb_w_r             (),
+        .fb_en              (),
+        .fb_valid           (),
+        .fb_data_o          ()
+    );
 
     // * ======================================================================
     // * Pixel Color LUT
