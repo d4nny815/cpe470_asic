@@ -13,6 +13,7 @@ VERILOG_INCLUDE_DIRS := \
         $(RTL_DIR)/common \
 		$(RTL_DIR)/axi_bridge \
         $(RTL_DIR)/ip/async_fifo \
+        $(RTL_DIR)/ip/EF_SRAM_CTRL \
         $(RTL_DIR)/framebuffer
 
 COCOTB_TOPLEVEL     := vga_driver

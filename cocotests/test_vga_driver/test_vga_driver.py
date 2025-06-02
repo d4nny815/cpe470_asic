@@ -22,8 +22,9 @@ class TB:
     def __init__(self, dut):
         self.dut = dut
 
-        cocotb.start_soon(Clock(dut.axi_clk, 10, units="ns").start())
+        cocotb.start_soon(Clock(dut.axi_clk, 7, units="ns").start())
         cocotb.start_soon(Clock(dut.vga_clk, 40, units="ns").start())
+        cocotb.start_soon(Clock(dut.CLK_100MHz, 5, units="ns").start())
 
         bus = AxiLiteBus.from_prefix(dut, "s_axi")
 
@@ -37,6 +38,7 @@ class TB:
     async def cycle_reset(self):
         self.dut.axi_reset_n.value = 0
         self.dut.vga_reset_n.value = 0
+        self.dut.ps_din.value      = 0
 
         for _ in range(2):
             await RisingEdge(self.dut.axi_clk)

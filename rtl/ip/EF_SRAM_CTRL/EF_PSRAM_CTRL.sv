@@ -32,8 +32,8 @@
     utilizing SPI, QSPI and QPI modes
 */
 
-`timescale              1ns/1ps
-`default_nettype        none
+// `timescale              1ns/1ps
+// `default_nettype        none
 
 /* verilator lint_off WIDTHEXPAND */
 /* verilator lint_off WIDTHTRUNC */

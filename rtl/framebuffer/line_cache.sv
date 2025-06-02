@@ -7,7 +7,7 @@ module line_cache (
     input logic clk_write,
     input logic we,
     input logic [H_CNT_BITS-1:0] wr_addr,
-    input logic [COLOR_LUT_BITS-1:0] wr_data,
+    input logic [(4*COLOR_LUT_BITS)-1:0] wr_data,
 
     input logic clk_read,
     input logic [H_CNT_BITS-1:0] rd_addr,
@@ -24,7 +24,8 @@ module line_cache (
 
     always_ff @(posedge clk_write) begin
         if (we)
-            mem[wr_addr] <= wr_data;
+            {mem[wr_addr+3], mem[wr_addr+2], 
+                mem[wr_addr+1], mem[wr_addr]} <= wr_data;
     end
 
     always_ff @(posedge clk_read) begin

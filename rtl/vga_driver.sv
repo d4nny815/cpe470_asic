@@ -49,7 +49,15 @@ module vga_driver (
     output logic                       s_axi_rvalid,
     input logic                        s_axi_rready,
 
+    // * QSPI interface to external PSRAM
+    output logic pc_sck,
+    output logic ps_ce_n,
+    input logic [3:0] ps_din,
+    output logic [3:0] ps_dout,
+    output logic [3:0] ps_douten,
+
     // * VGA OUTPUTS (RGB 8-8-8 + sync)
+    input logic         CLK_100MHz,
     input logic         vga_clk,
     input logic         vga_reset_n,
     output logic [7:0]  vga_red,
@@ -80,7 +88,7 @@ module vga_driver (
     // Status Signals
     logic bridge_init_done;
     statuses_t status;
-    
+
     // * ======================================================================
     // * Control Unit
     // * ======================================================================
@@ -150,23 +158,20 @@ module vga_driver (
 
     framebuffer framebuffer(
         .clk                (vga_clk),
+        .CLK_100MHz         (CLK_100MHz),
         .reset_n            (vga_reset_n),
         .vga_addr           (pixel_addr),
         .fb_vga_addr        (fb_pixel_addr),
         .vga_fetch_next     (controls.next),
         .vga_re             (controls.vga_re),
         .lut_index          (color_ind),
-        .pc_sck             (),
-        .ps_ce_n            (),
-        .ps_din             (),
-        .ps_dout            (),
-        .ps_douten          (),
         .fb_addr            (),
         .fb_data_i          (),
         .fb_w_r             (),
         .fb_en              (),
         .fb_valid           (),
-        .fb_data_o          ()
+        .fb_data_o          (),
+        .*
     );
 
     // * ======================================================================
