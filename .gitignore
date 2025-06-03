@@ -5,3 +5,4 @@ results.xml
 a.out
 runs/
 macros
+*.ron
