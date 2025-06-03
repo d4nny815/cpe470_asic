@@ -64,7 +64,7 @@
 
 module framebuffer (
     input logic clk,
-    input logic CLK_100MHz,
+    input logic CLK_200MHz,
     input logic reset_n,
 
     // vga signals
@@ -90,7 +90,7 @@ module framebuffer (
     output logic [COLOR_LUT_BITS-1:0] fb_data_o
     );
 
-    localparam WORDS_PER_LINE = H_VISIBLE_AREA/4;
+    localparam WORDS_PER_LINE = H_VISIBLE_AREA/4-1;
 
     // * =======================================================================
     // * Internal signals
@@ -104,7 +104,7 @@ module framebuffer (
     logic [31:0] ps_wdata, ps_rdata;
     logic [2:0] ps_size;
 
-    logic [7:0]  word_cnt;
+    logic [$clog2(WORDS_PER_LINE)-1:0]  word_cnt;
     logic [23:0] cur_addr;
 
     // * =======================================================================
@@ -172,7 +172,7 @@ module framebuffer (
 
             DMA_STORE: begin
                 lc_we = 1;
-                if (word_cnt == WORDS_PER_LINE-1) begin
+                if (word_cnt == WORDS_PER_LINE[6:0]) begin
                     ps_dma_addr_we = 1;
                     NS = IDLE;
                 end
@@ -209,7 +209,7 @@ module framebuffer (
             ps_addr <= '0;
         end
         else if (ps_host_addr_we) begin
-            ps_addr <= {5'b0, fb_addr};
+            ps_addr <= {7'b0, fb_addr};
         end
 
         else if (dma_issue) begin
@@ -232,7 +232,7 @@ module framebuffer (
     end
 
     line_cache line (
-        .clk_write  (CLK_100MHz),
+        .clk_write  (CLK_200MHz),
         .we         (lc_we),
         .wr_addr    (lc_waddr),
         .wr_data    (ps_rdata),
@@ -245,7 +245,7 @@ module framebuffer (
     EF_PSRAM_CTRL psram_i (
         /* control handshake */
         .rst_n      (reset_n),
-        .clk        (CLK_100MHz),
+        .clk        (CLK_200MHz),
         .addr       (ps_addr),
         .data_i     (ps_wdata),
         .data_o     (ps_rdata),

@@ -57,7 +57,7 @@ module vga_driver (
     output logic [3:0] ps_douten,
 
     // * VGA OUTPUTS (RGB 8-8-8 + sync)
-    input logic         CLK_100MHz,
+    input logic         CLK_200MHz,
     input logic         vga_clk,
     input logic         vga_reset_n,
     output logic [7:0]  vga_red,
@@ -159,7 +159,7 @@ module vga_driver (
 
     framebuffer framebuffer(
         .clk                (vga_clk),
-        .CLK_100MHz         (CLK_100MHz),
+        .CLK_200MHz         (CLK_200MHz),
         .reset_n            (vga_reset_n),
         .vga_addr           (pixel_addr),
         .fb_vga_addr        (fb_pixel_addr),

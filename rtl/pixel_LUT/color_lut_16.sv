@@ -1,12 +1,13 @@
-`timescale 1ns / 1ps
-`include "common/displayConsts.sv"
+`ifndef COLOR_LUT_16
+`define COLOR_LUT_16
 
-import displayConsts::*;
+`timescale 1ns / 1ps
+`include "displayConsts.svh"
 
 module color_lut_16 (
     input  logic [3:0] index,                         // 4-bit index for 16 colors
     output logic [COLOR_BITS-1:0] color               // 18-bit RGB color output
-);
+    );
 
     always_comb begin
     case (index)
@@ -28,7 +29,7 @@ module color_lut_16 (
         4'hF: color = 18'h3ffff;
         default: color = 18'h00000;
     endcase
-end
-
-
+    end
 endmodule
+
+`endif

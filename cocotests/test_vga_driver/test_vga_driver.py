@@ -28,7 +28,7 @@ class TB:
 
         cocotb.start_soon(Clock(dut.axi_clk, 7, units="ns").start())
         cocotb.start_soon(Clock(dut.vga_clk, 40, units="ns").start())
-        cocotb.start_soon(Clock(dut.CLK_100MHz, 5, units="ns").start())
+        cocotb.start_soon(Clock(dut.CLK_200MHz, 5, units="ns").start())
 
         bus = AxiLiteBus.from_prefix(dut, "s_axi")
 
