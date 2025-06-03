@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
-`include "common/displayConsts.sv"
+`include "displayConsts.svh"
 
-import displayConsts::*;
+
 
 module color_lut_16 (
     input  logic [3:0] index,                         // 4-bit index for 16 colors

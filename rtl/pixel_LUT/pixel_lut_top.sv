@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
-`include "common/displayConsts.sv"
+`include "displayConsts.svh"
 
-import displayConsts::*;
 
 module pixel_lut_top (
     input logic [COLOR_LUT_BITS-1:0] index,
