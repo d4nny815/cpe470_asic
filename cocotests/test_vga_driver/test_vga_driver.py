@@ -90,6 +90,63 @@ class TB:
         return word
 
 
+# * ============================================================================
+# * Main Tests
+# * ============================================================================
+
+@cocotb.test()
+async def test_next_pixel(dut):
+    verbose =  os.getenv("VERBOSE_CTB") == "1"
+        
+    tb = TB(dut)
+    await tb.cycle_reset()
+
+    change_din = False
+
+    for y in range(VCNT_LINE):
+        
+        change_din = True
+        
+        if (y == 3 and not verbose):
+            print("Verbose off")
+            return
+        
+        for x in range(HCNT_LINE):
+
+            if bool(dut.timing.in_frame.value):
+                v_addr = ((y // 2) & HEIGHT)
+                h_addr = (((x + 2) // 2) & WIDTH)
+                exp_addr = v_addr << 8 | h_addr
+                dut_addr = int(dut.pixel_addr.value)
+                
+                # assert dut_addr == exp_addr, (
+                    # f"Mismatch @ v={y}  h={x} y={y // 2}  x={x // 2}\n"
+                    # f"v {v_addr} h {h_addr} exp {exp_addr}, got {dut_addr}\n"
+                # )
+
+            elif change_din: 
+                tb.dut.ps_din.value = y & 0xf
+                change_din = False
+
+            await FallingEdge(dut.vga_clk)
+
+    exp_addr = 0
+
+    for y in range(2):
+        for x in range(HCNT_LINE):
+            in_frame = bool(dut.timing.in_frame.value)
+
+            if in_frame:
+                exp_addr += 1
+                dut_addr = int(dut.pixel_addr.value)
+                # assert dut_addr == exp_addr, (
+                #     f"Mismatch @ line {y} col {x}: "
+                #     f"exp {exp_addr}, got {dut_addr}"
+                # )
+
+            await FallingEdge(dut.vga_clk)
+
+
 @cocotb.test()
 async def test_fb_write_req(dut):
     tb = TB(dut)
@@ -139,55 +196,3 @@ async def test_fill_write_req(dut):
 #         await RisingEdge(dut.vga_clk)
 
 # TODO: fix the expected address 
-@cocotb.test()
-async def test_next_pixel(dut):
-    verbose =  os.getenv("VERBOSE_CTB") == "1"
-        
-    tb = TB(dut)
-    await tb.cycle_reset()
-
-    first_time = True
-    change_din = False
-
-    for y in range(VCNT_LINE):
-        
-        change_din = True
-        
-        if (y == 3 and not verbose):
-            print("Verbose off")
-            return
-        
-        for x in range(HCNT_LINE):
-
-            if bool(dut.timing.in_frame.value):
-                v_addr = ((y // 2) & HEIGHT)
-                h_addr = (((x + 2) // 2) & WIDTH)
-                exp_addr = v_addr << 8 | h_addr
-                dut_addr = int(dut.pixel_addr.value)
-                
-                # assert dut_addr == exp_addr, (
-                    # f"Mismatch @ v={y}  h={x} y={y // 2}  x={x // 2}\n"
-                    # f"v {v_addr} h {h_addr} exp {exp_addr}, got {dut_addr}\n"
-                # )
-
-            elif change_din: 
-                tb.dut.ps_din.value = y & 0xf
-                change_din = False
-
-            await FallingEdge(dut.vga_clk)
-
-    exp_addr = 0
-
-    for y in range(2):
-        for x in range(HCNT_LINE):
-            in_frame = bool(dut.timing.in_frame.value)
-
-            if in_frame:
-                exp_addr += 1
-                dut_addr = int(dut.pixel_addr.value)
-                # assert dut_addr == exp_addr, (
-                #     f"Mismatch @ line {y} col {x}: "
-                #     f"exp {exp_addr}, got {dut_addr}"
-                # )
-
-            await FallingEdge(dut.vga_clk)
