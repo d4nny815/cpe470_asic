@@ -125,8 +125,7 @@ async def test_fill_write_req(dut):
     for _ in range(DEPTH):
         await tb.axi_write(AXI_FB_ADDR, 0xff)
 
-
-#     assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
+    assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
 
 # TODO: read requests
 # @cocotb.test()
@@ -139,14 +138,11 @@ async def test_fill_write_req(dut):
 #     for _ in range(3):
 #         await RisingEdge(dut.vga_clk)
 
+# TODO: fix the expected address 
 @cocotb.test()
 async def test_next_pixel(dut):
     verbose =  os.getenv("VERBOSE_CTB") == "1"
         
-    # if verbose
-        # dut._log.info("Skipping test_next_pixel (set VERBOSE_CTB=1 to run)")
-        # return
-    
     tb = TB(dut)
     await tb.cycle_reset()
 
