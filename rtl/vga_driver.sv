@@ -113,7 +113,7 @@ module vga_driver (
         .rd_data     (rd_data),
         .status      (status.axi_comms),
         .init_done   (bridge_init_done),
-        .*
+        .* // axi signals
     );
 
     // * ======================================================================
@@ -129,13 +129,14 @@ module vga_driver (
     // * ======================================================================
 
     vga_timing timing (
-    .clk      (vga_clk),
-    .reset_n  (vga_reset_n),
-    .h_cnt    (h_cnt),
-    .h_sync   (vga_hsync),
-    .v_cnt    (v_cnt),
-    .v_sync   (vga_vsync),
-    .in_frame (status.in_frame));
+        .clk      (vga_clk),
+        .reset_n  (vga_reset_n),
+        .h_cnt    (h_cnt),
+        .h_sync   (vga_hsync),
+        .v_cnt    (v_cnt),
+        .v_sync   (vga_vsync),
+        .in_frame (status.in_frame)
+    );
 
     // * ======================================================================
     // * Pixel Addr Gen
@@ -171,7 +172,7 @@ module vga_driver (
         .fb_en              (),
         .fb_valid           (),
         .fb_data_o          (),
-        .*
+        .* // qspi signals
     );
 
     // * ======================================================================
