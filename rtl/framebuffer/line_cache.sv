@@ -28,8 +28,11 @@ module line_cache (
                 mem[wr_addr+1], mem[wr_addr]} <= wr_data;
     end
 
+    logic read = 0;
+
     always_ff @(posedge clk_read) begin
-        rd_data <= mem[rd_addr];
+        read <= ~read;
+        if (read) rd_data <= mem[rd_addr];
     end
 
 endmodule

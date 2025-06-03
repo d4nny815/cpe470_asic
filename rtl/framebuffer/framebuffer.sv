@@ -172,8 +172,10 @@ module framebuffer (
 
             DMA_STORE: begin
                 lc_we = 1;
-                if (word_cnt == WORDS_PER_LINE-1)
+                if (word_cnt == WORDS_PER_LINE-1) begin
+                    ps_dma_addr_we = 1;
                     NS = IDLE;
+                end
                 else
                     NS = DMA_ISSUE;
             end
@@ -211,8 +213,11 @@ module framebuffer (
         end
 
         else if (dma_issue) begin
-            word_cnt <= word_cnt + 1;
             ps_addr <= ps_addr + 4;
+        end
+
+        if (lc_we) begin
+            word_cnt <= word_cnt + 1;
         end
     end
 
@@ -227,7 +232,7 @@ module framebuffer (
     end
 
     line_cache line (
-        .clk_write  (clk), // TODO: split clocks
+        .clk_write  (CLK_100MHz),
         .we         (lc_we),
         .wr_addr    (lc_waddr),
         .wr_data    (ps_rdata),
@@ -248,8 +253,8 @@ module framebuffer (
         .start      (ps_start),
         .done       (ps_done),
 
-        .wait_states(4'd6), // 8 dummy cycles
-        .cmd        (ps_wr ? 8'h38 : 8'h6B), // 0x6B = Fast-Quad-Read // TODO: make enum
+        .wait_states(4'd6),
+        .cmd        (ps_wr ? 8'h38 : 8'hEB), // 0xEB = Fast-Quad-Read
         .rd_wr      (ps_wr),
         .qspi       (1'b1),
         .qpi        (1'b0),
