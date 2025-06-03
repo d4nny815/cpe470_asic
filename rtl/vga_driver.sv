@@ -49,7 +49,15 @@ module vga_driver (
     output logic                       s_axi_rvalid,
     input logic                        s_axi_rready,
 
+    // * QSPI interface to external PSRAM
+    output logic pc_sck,
+    output logic ps_ce_n,
+    input logic [3:0] ps_din,
+    output logic [3:0] ps_dout,
+    output logic [3:0] ps_douten,
+
     // * VGA OUTPUTS (RGB 8-8-8 + sync)
+    input logic         CLK_200MHz,
     input logic         vga_clk,
     input logic         vga_reset_n,
     output logic [7:0]  vga_red,
@@ -68,7 +76,8 @@ module vga_driver (
     logic [DATA_BITS-1:0] wr_data, rd_data;
 
     // VGA Signals
-    logic [PIXEL_ADDR_BITS-1:0] pixel_addr;
+    logic [VGA_ADDR_BITS-1:0] pixel_addr;
+    logic [PIXEL_ADDR_BITS-1:0] fb_pixel_addr;
     logic [V_CNT_BITS-1:0] v_cnt;
     logic [H_CNT_BITS-1:0] h_cnt;
     logic [COLOR_LUT_BITS-1:0] color_ind;
@@ -79,7 +88,7 @@ module vga_driver (
     // Status Signals
     logic bridge_init_done;
     statuses_t status;
-    
+
     // * ======================================================================
     // * Control Unit
     // * ======================================================================
@@ -104,62 +113,89 @@ module vga_driver (
         .rd_data     (rd_data),
         .status      (status.axi_comms),
         .init_done   (bridge_init_done),
-        .*
+        .* // axi signals
     );
 
     // * ======================================================================
     // * CSR
     // * ======================================================================
 
+    logic [PIXEL_ADDR_BITS-1:0] reg_wr_addr, reg_rd_addr;
+    logic [DATA_BITS-1:0] reg_wr_data, reg_rd_data;
+
+    always_ff @(posedge vga_clk) begin
+        if (controls.cr_ld) begin
+            
+        end 
+    end
+
+
     // * ======================================================================
     // * Request Registers
     // * ======================================================================
+
+    always_ff @(posedge vga_clk) begin
+        if (controls.wr_ld) begin
+           reg_wr_addr <= wr_addr;
+           reg_wr_data <= wr_data;  
+        end
+
+        if (controls.rd_ld) begin
+            reg_rd_addr <= rd_addr;
+            reg_rd_data <= rd_data;  
+        end
+    end
 
     // * ======================================================================
     // * VGA Timing
     // * ======================================================================
 
     vga_timing timing (
-    .clk      (vga_clk),
-    .reset_n  (vga_reset_n),
-    .h_cnt    (h_cnt),
-    .h_sync   (vga_hsync),
-    .v_cnt    (v_cnt),
-    .v_sync   (vga_vsync),
-    .in_frame (status.in_frame));
+        .clk      (vga_clk),
+        .reset_n  (vga_reset_n),
+        .h_cnt    (h_cnt),
+        .h_sync   (vga_hsync),
+        .v_cnt    (v_cnt),
+        .v_sync   (vga_vsync),
+        .in_frame (status.in_frame)
+    );
 
     // * ======================================================================
     // * Pixel Addr Gen
     // * ======================================================================
     
     pixel_addr_gen pixel_addr_gen (
-        .clk        (vga_clk),
-        .rst_n      (vga_reset_n),
-        .h_cnt      (h_cnt),
-        .v_cnt      (v_cnt),
-        .next       (controls.next), 
-        .pixel_addr (pixel_addr),
-        .in_frame   (status.in_frame)
+        .clk            (vga_clk),
+        .rst_n          (vga_reset_n),
+        .h_cnt          (h_cnt),
+        .v_cnt          (v_cnt),
+        .next           (controls.next), 
+        .pixel_addr     (pixel_addr),
+        .fb_pixel_addr  (fb_pixel_addr),
+        .in_frame       (status.in_frame)
     );
 
     // * ======================================================================
     // * Framebuffer
     // * ======================================================================
 
-    // framebuffer framebuffer(
-    //     .clk            (vga_clk),
-    //     .reset_n        (vga_reset_n),
-    //     .vga_addr       (pixel_addr),
-    //     .vga_fetch_next (controls.vga_fetch),
-    //     .vga_re         (controls.vga_re),
-    //     .fb_addr        (0),
-    //     .fb_data_i      (0),
-    //     .fb_w_r         (0),
-    //     .fb_en          (0),
-    //     .lut_index      (color_ind),
-    //     .fb_valid       (),
-    //     .fb_data_o      ()
-    // );
+    framebuffer framebuffer(
+        .clk                (vga_clk),
+        .CLK_200MHz         (CLK_200MHz),
+        .reset_n            (vga_reset_n),
+        .vga_addr           (pixel_addr),
+        .fb_vga_addr        (fb_pixel_addr),
+        .vga_fetch_next     (controls.next),
+        .vga_re             (controls.vga_re),
+        .lut_index          (color_ind),
+        .fb_addr            (),
+        .fb_data_i          (),
+        .fb_w_r             (),
+        .fb_en              (),
+        .fb_valid           (),
+        .fb_data_o          (),
+        .* // qspi signals
+    );
 
     // * ======================================================================
     // * Pixel Color LUT

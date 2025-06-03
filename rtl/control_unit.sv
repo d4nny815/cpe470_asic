@@ -52,6 +52,7 @@ module control_unit (
                     next_state_1 = OUTFRAME; 
                 end else begin
                     next_state_1 = INFRAME;
+                    controls.vga_re = 1;
                     controls.vga_fetch = 0;
                 end
             end

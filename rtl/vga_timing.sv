@@ -41,16 +41,16 @@ module vga_timing (
         end
     end
 
-    assign h_cnt = h_cntr[H_CNT_BITS - 1 : 0];
-    assign v_cnt = v_cntr[V_CNT_BITS - 1 : 0];
+    assign h_cnt = h_cntr[H_CNT_BITS: 1];
+    assign v_cnt = v_cntr[V_CNT_BITS: 1];
 
     always_comb begin
-        h_sync = !(h_cntr >= H_VISIBLE_AREA + H_FRONTPORCH && 
-                    h_cntr < H_VISIBLE_AREA + H_FRONTPORCH + H_SYNC_PULSE);
-        v_sync = !(v_cntr >= V_VISIBLE_AREA + V_FRONTPORCH && 
-                    v_cntr < V_VISIBLE_AREA + V_FRONTPORCH + V_SYNC_PULSE);
+        h_sync = !(h_cntr >= _H_VISIBLE_AREA + H_FRONTPORCH && 
+                    h_cntr < _H_VISIBLE_AREA + H_FRONTPORCH + H_SYNC_PULSE);
+        v_sync = !(v_cntr >= _V_VISIBLE_AREA + V_FRONTPORCH && 
+                    v_cntr < _V_VISIBLE_AREA + V_FRONTPORCH + V_SYNC_PULSE);
         
-        in_frame = h_cntr < H_VISIBLE_AREA && v_cntr < V_VISIBLE_AREA;
+        in_frame = h_cntr < _H_VISIBLE_AREA && v_cntr < _V_VISIBLE_AREA;
         
         v_en = h_cntr == H_WHOLELINE - 1;
     end

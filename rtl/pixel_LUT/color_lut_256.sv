@@ -1,3 +1,6 @@
+`ifndef COLOR_LUT_256
+`define COLOR_LUT_256
+
 `timescale 1ns / 1ps
 `include "displayConsts.svh"
 
@@ -83,3 +86,5 @@ module color_lut_256 (
     end
 
 endmodule
+
+`endif

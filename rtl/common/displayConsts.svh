@@ -11,5 +11,6 @@ localparam H_CNT_BITS = $clog2(H_VISIBLE_AREA);
 localparam V_CNT_BITS = $clog2(V_VISIBLE_AREA);
 
 localparam FRAME_SIZE = H_VISIBLE_AREA * V_VISIBLE_AREA; 
+localparam VGA_ADDR_BITS = H_CNT_BITS + V_CNT_BITS;
 localparam PIXEL_ADDR_BITS = $clog2(FRAME_SIZE);
 `endif

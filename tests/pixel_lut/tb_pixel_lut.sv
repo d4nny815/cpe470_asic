@@ -1,8 +1,7 @@
-`timescale 1ns / 1ps
-`include "displayConsts.svh"
 `ifndef tb_pixel_lut
 `define tb_pixel_lut
-
+`timescale 1ns / 1ps
+`include "displayConsts.svh"
 
 module tb_pixel_lut();
 
