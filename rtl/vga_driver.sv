@@ -120,9 +120,31 @@ module vga_driver (
     // * CSR
     // * ======================================================================
 
+    logic [PIXEL_ADDR_BITS-1:0] reg_wr_addr, reg_rd_addr;
+    logic [DATA_BITS-1:0] reg_wr_data, reg_rd_data;
+
+    always_ff @(posedge vga_clk) begin
+        if (controls.cr_ld) begin
+            
+        end 
+    end
+
+
     // * ======================================================================
     // * Request Registers
     // * ======================================================================
+
+    always_ff @(posedge vga_clk) begin
+        if (controls.wr_ld) begin
+           reg_wr_addr <= wr_addr;
+           reg_wr_data <= wr_data;  
+        end
+
+        if (controls.rd_ld) begin
+            reg_rd_addr <= rd_addr;
+            reg_rd_data <= rd_data;  
+        end
+    end
 
     // * ======================================================================
     // * VGA Timing
