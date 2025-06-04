@@ -229,11 +229,7 @@ module axi_bridge (
 
     assign wr_addr_sliced = wr_addr_axi[PIXEL_ADDR_BITS-1:0];
     
-    
-    // assign wr_data_sliced = wr_data_axi[COLOR_LUT_BITS-1:0];
-
     always_comb begin
-    
         case(wr_addr_sliced[1:0])
             2'b00: wr_data_sliced = wr_data_axi[COLOR_LUT_BITS-1:0];
             2'b01: wr_data_sliced = wr_data_axi[2*COLOR_LUT_BITS-1:8];

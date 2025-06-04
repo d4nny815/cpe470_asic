@@ -117,6 +117,7 @@ module framebuffer (
 
     typedef enum logic [2:0] {
         IDLE, 
+        DMA_LOAD,
         DMA_ISSUE, 
         DMA_WAIT, 
         DMA_STORE,
@@ -125,8 +126,6 @@ module framebuffer (
         HOST_DONE
     } state_t;
     state_t  PS, NS;
-    
-    
 
     always_ff @(posedge clk) begin
         if (!reset_n) begin
@@ -151,15 +150,20 @@ module framebuffer (
 
         case (PS)
             IDLE: begin
-                if (fb_en) begin
+                if (vga_fetch_next) begin
+                    NS = DMA_LOAD;
+                end
+                else if (fb_en) begin
                     ps_host_addr_we = 1;
                     NS = HOST_ISSUE;
                 end
-                else if (vga_fetch_next) begin
-                    ps_dma_addr_we = 1;
-                    NS = DMA_ISSUE;
-                end
             end
+
+            DMA_LOAD: begin
+                ps_dma_addr_we = 1;
+                NS = DMA_ISSUE;
+            end
+
 
             DMA_ISSUE: begin
                 dma_issue = 1;
@@ -272,7 +276,6 @@ module framebuffer (
     );
 
     assign fb_data_o = fb_valid ? ps_rdata[7:0] : 8'hff;
-
 endmodule
 
 `endif

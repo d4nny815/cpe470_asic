@@ -16,31 +16,39 @@ module control_unit (
     } state_t;
 
     state_t curr_state_1, next_state_1;
+    logic fetch_next, next_toggle;
+
 
     always_ff @(posedge clk) begin
         if (!statuses.RST_N) begin
             curr_state_1 <= INFRAME;
+            fetch_next   <= 0;
         end else begin
             curr_state_1 <= next_state_1;
         end
-    end
 
+        if (next_toggle)
+            fetch_next   <= ~fetch_next;
+    end
+    
     always_comb begin
         next_state_1 = curr_state_1;
         
         controls.next = 0;
         controls.vga_fetch = 0;
         controls.vga_re = 0;
+        next_toggle = 0;
 
         case (curr_state_1)
             INFRAME: begin
                 controls.vga_re = 1;
 
                 if (statuses.in_frame) begin
+                    next_toggle = 1;
                     next_state_1 = INFRAME;
                 end else begin
                     next_state_1 = OUTFRAME;
-                    controls.next = 1;
+                    controls.next = fetch_next;
                 end
              end
 

@@ -94,57 +94,98 @@ class TB:
 # * Main Tests
 # * ============================================================================
 
-# @cocotb.test()
-# async def test_next_pixel(dut):
-#     verbose =  os.getenv("VERBOSE_CTB") == "1"
+@cocotb.test()
+async def test_prefetch_line(dut):
+    verbose =  os.getenv("VERBOSE_CTB") == "1"
         
-#     tb = TB(dut)
-#     await tb.cycle_reset()
+    tb = TB(dut)
+    await tb.cycle_reset()
 
-#     change_din = False
-
-#     for y in range(VCNT_LINE):
-#         change_din = True
+    for y in range(HEIGHT):
+        # 1st line
+        while bool(dut.timing.in_frame.value):
+            await RisingEdge(dut.vga_clk)
         
-#         if (y == 3 and not verbose):
-#             print("Verbose off")
-#             return
-        
-#         for x in range(HCNT_LINE):
+        while not bool(dut.timing.in_frame.value):
+            await RisingEdge(dut.vga_clk)
 
-#             if bool(dut.timing.in_frame.value):
-#                 v_addr = ((y // 2) & HEIGHT)
-#                 h_addr = (((x + 2) // 2) & WIDTH)
-#                 exp_addr = v_addr << 8 | h_addr
-#                 dut_addr = int(dut.pixel_addr.value)
+        # 2nd line
+        for _ in range(WIDTH * 2):
+            await RisingEdge(dut.vga_clk)
+
+        assert bool(dut.framebuffer.vga_fetch_next.value), "NO WORKY"
+        assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME"
+
+        # starts prefetch start next mapped lines
+        for x in range(WIDTH // 4):
+            while not bool(dut.framebuffer.ps_start.value):
+                await RisingEdge(dut.vga_clk)
+
+            # assert main addr
+            exp_addr = ((y + 1) * WIDTH + (x * 4)) % (FRAME_SIZE)
+            dut_addr = int(dut.framebuffer.ps_addr.value)
+            assert exp_addr == dut_addr, "[] NO WORKY ADDR"
+
+            while not bool(dut.framebuffer.ps_done.value):
+                await RisingEdge(dut.vga_clk)
+
+            # assert line addr
+            exp_addr = x * 4
+            dut_addr = int(dut.framebuffer.lc_waddr.value)
+            assert exp_addr == dut_addr, "[] NO WORKY LC ADDR"
+
+            if bool(dut.timing.in_frame.value):
+                exp_addr = (y + 1) * WIDTH + (x * 4)
+                cur_dut_addr = int(dut.framebuffer.fb_vga_addr.value)
+                assert cur_dut_addr < exp_addr, "[] PREFETCH TOO SLOW"
+
+        if y == 3 and not verbose:
+            return
+
+@cocotb.test()
+async def test_correct_addr(dut):
+    verbose =  os.getenv("VERBOSE_CTB") == "1"
+        
+    tb = TB(dut)
+    await tb.cycle_reset()
+
+    first_time = True
+
+    for y in range(HEIGHT):
+        # 1st line
+        for x in range(WIDTH * 2):
+            # exp_y =
+
+            exp_addr = y << 9 | (x // 2)
+            if first_time:
+                first_time = False
+                continue
                 
-#                 # assert dut_addr == exp_addr, (
-#                     # f"Mismatch @ v={y}  h={x} y={y // 2}  x={x // 2}\n"
-#                     # f"v {v_addr} h {h_addr} exp {exp_addr}, got {dut_addr}\n"
-#                 # )
+            dut_addr = int(dut.pixel_addr_gen.pixel_addr.value)
+            assert exp_addr == dut_addr, f"dut addr is {dut_addr:x} exp is {exp_addr:x}"
+            await FallingEdge(dut.vga_clk)
+        
 
-#             elif change_din: 
-#                 tb.dut.ps_din.value = y & 0xf
-#                 change_din = False
+        for _ in range(HCNT_LINE - WIDTH * 2):
+            assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME"
+            await FallingEdge(dut.vga_clk)
 
-#             await FallingEdge(dut.vga_clk)
 
-#     exp_addr = 0
+        # 2nd line
+        for x in range(WIDTH * 2):
+            await FallingEdge(dut.vga_clk)
 
-#     for y in range(2):
-#         for x in range(HCNT_LINE):
-#             in_frame = bool(dut.timing.in_frame.value)
+        for _ in range(HCNT_LINE - WIDTH * 2):
+            assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME 2"
+            await FallingEdge(dut.vga_clk)
 
-#             if in_frame:
-#                 exp_addr += 1
-#                 dut_addr = int(dut.pixel_addr.value)
-#                 # assert dut_addr == exp_addr, (
-#                 #     f"Mismatch @ line {y} col {x}: "
-#                 #     f"exp {exp_addr}, got {dut_addr}"
-#                 # )
-
-#             await FallingEdge(dut.vga_clk)
-
+        if y == 3 and not verbose:
+            return
+        
+    for y in range(VCNT_LINE - HEIGHT * 2):
+        for _ in range(HCNT_LINE):
+            assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME 2"
+            await FallingEdge(dut.vga_clk)
 
 @cocotb.test()
 async def test_fb_write_req(dut):
@@ -225,25 +266,18 @@ async def test_fill_write_req(dut):
     while not bool(dut.framebuffer.fb_valid.value):
         await RisingEdge(dut.vga_clk)
 
-# # TODO: read requests
-# @cocotb.test()
-# async def test_fb_read_req(dut):
-#     tb = TB(dut)
-#     await tb.cycle_reset()
+@cocotb.test()
+async def test_fb_read_req(dut):
+    tb = TB(dut)
+    await tb.cycle_reset()
 
-#     await tb.axi_read(AXI_FB_ADDR + 4)
+    await tb.axi_read(AXI_FB_ADDR + 4)
 
-#     # while not bool(dut.bridge.rd_req.value):
-#         # await RisingEdge(dut.vga_clk)
+    while bool(dut.bridge.rd_req.value):
+        await RisingEdge(dut.vga_clk)
 
-#     while bool(dut.bridge.rd_req.value):
-#         await RisingEdge(dut.vga_clk)
-
-#     # while not bool(dut.framebuffer.fb_valid.value):
-#         # await RisingEdge(dut.vga_clk)
-
-#     for _ in range(10):
-#         await RisingEdge(dut.vga_clk)
+    for _ in range(10):
+        await RisingEdge(dut.vga_clk)
 
 '''
 TODO: 
@@ -253,13 +287,6 @@ tests to run
         cr addr
         sr addr
 
-    write
-        fb addr
-        cr addr
-        sr addr
-
-    correct 2x2 gets mapped to 1 pixel
-    correct qspi qin to fb
     correct lut values to DAC
     
     maybe image from vga values
