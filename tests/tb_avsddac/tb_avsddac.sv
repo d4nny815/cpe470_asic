@@ -1,6 +1,5 @@
 `ifndef TB_AVSDDAC
 `define TB_AVSDDAC
-`timescale 1ns / 1ps
 
 module tb_avsddac;
     logic EN;
