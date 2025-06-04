@@ -9,7 +9,7 @@ module color_lut_256 (
     output logic [17:0] color                 // 18-bit color
 );
 
-    function automatic logic [5:0] scale_color(input int level);
+    function automatic logic [5:0] scale_color(input logic [31:0] level);
         case (level)
             0: return 6'd0;
             1: return 6'd13;
@@ -21,9 +21,8 @@ module color_lut_256 (
         endcase
     endfunction
 
-    // Declare all variables outside of always_comb to avoid latch inference
     logic [5:0] r, g, b;
-    int i, r_level, g_level, b_level, gray_level;
+    logic [31:0] i, r_level, g_level, b_level, gray_level;
     logic [7:0] gray8;
     logic [5:0] gray6;
     
@@ -63,7 +62,7 @@ module color_lut_256 (
         end else if (index < 8'd232) begin
             // 6x6x6 RGB cube
             // Fix for WIDTHEXPAND: Explicitly cast to 32-bit
-            i = int'(index) - 16;
+            i = 32'(index) - 16;
             r_level = i / 36;
             g_level = (i / 6) % 6;
             b_level = i % 6;
