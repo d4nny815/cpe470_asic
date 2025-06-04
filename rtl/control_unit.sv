@@ -68,8 +68,9 @@ module control_unit (
         WRITE_WAIT = 4'd2,
         WR_FB_WAIT = 4'd3,
 
-        READ_WAIT = 4'd6,
-        RD_FB_WAIT = 4'd7
+        READ_WAIT = 4'd4,
+        RD_FB_WAIT = 4'd5,
+        RD_CSR_WAIT = 4'd6
     } state_t2;
 
     state_t2 curr_state_2, next_state_2;
@@ -95,7 +96,7 @@ module control_unit (
         controls.rd_re = 1'b0;
         controls.rd_we = 1'b0;
         controls.rd_data_sel = 2'b00;
-        controls.addr_sel = 2'b00;
+        controls.addr_sel = 1'b0;
 
         next_state_2 = curr_state_2;
 
@@ -118,10 +119,12 @@ module control_unit (
                 end
                 else if (statuses.axi_comms.rd_req && statuses.axi_comms.rd_fb_csr == FB) begin
                     controls.rd_re = 1;
+                    controls.rd_ld = 1;
                     next_state_2 = READ_WAIT;
                 end 
                 else if (statuses.axi_comms.rd_req && statuses.axi_comms.rd_fb_csr == CSR) begin
                     controls.rd_re = 1;
+                    next_state_2 = RD_CSR_WAIT;
                 end 
             end
 
@@ -137,39 +140,27 @@ module control_unit (
                     next_state_2 = IDLE;
             end
 
-            // READ_WAIT: begin
-            //     if (!statuses.axi_comms.rd_full) begin
-            //         controls.rd_ld = 1;
-            //         if (statuses.axi_comms.rd_fb_csr == FB) begin
-            //             next_state_2 = RD_FB_WAIT;
-            //         end else begin
-            //             if (cr) begin // if CR high, read from Control Register
-            //                 controls.rd_data_sel = 2'b10;
-            //                 controls.rd_we = 1;
-            //                 next_state_2 = IDLE;
-            //             end else begin // else read from status register
-            //                 controls.rd_data_sel = 2'b11;
-            //                 controls.rd_we = 1;
-            //                 next_state_2 = IDLE;
-            //             end
-            //         end
-            //     end else begin
-            //         next_state_2 = READ_WAIT;
-            //     end
-            // end
+            READ_WAIT: begin
+                controls.addr_sel = 1;
+                controls.fb_w_r = 0;
+                controls.fb_en  = 1;
+                next_state_2 = RD_FB_WAIT;
+                controls.rd_data_sel = 2'b10;
+            end
 
-            // RD_FB_WAIT: begin
-            //     addr_sel = 1'b1;
-            //     if (fb_valid) begin
-            //         controls.fb_w_r = 0;
-            //         controls.fb_en = 1;
-            //         controls.rd_we = 1;
-            //         controls.rd_data_sel = 2'b01;
-            //         next_state_2 = IDLE;
-            //     end else begin
-            //         next_state_2 = RD_FB_WAIT;
-            //     end
-            // end
+            RD_FB_WAIT: begin
+                if (statuses.fb_valid) begin
+                    controls.rd_data_sel = 0;
+                    controls.rd_we = 1;
+                    next_state_2 = IDLE;
+                end
+            end
+
+            RD_CSR_WAIT: begin
+                controls.rd_data_sel = 1; // FIXME: cr and sr diff
+
+                next_state_2 = IDLE;
+            end
                    
         default: next_state_2 = RESET;
 

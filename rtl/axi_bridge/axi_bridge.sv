@@ -188,9 +188,9 @@ module axi_bridge (
                 rd_req          = !rda_fifo_empty;
 
                 // rd data
-                axi_rd_we       = axi_rd_waiting && !rdd_fifo_empty;
                 rdd_fifo_we     = rd_we && !rdd_fifo_full;
-                rdd_fifo_re     = rd_re && !rdd_fifo_empty; // ? whats this cond
+                rdd_fifo_re     = axi_rd_waiting && !rdd_fifo_empty;
+                // axi_rd_we       = axi_rd_waiting && !rdd_fifo_empty;
             end
             default : NS = INIT;
         endcase
@@ -270,9 +270,9 @@ module axi_bridge (
     axi_rd_chan rd_chan (
         .reset_n        (axi_reset_n),
         .axi_clk        (axi_clk),
-        .rd_we          (axi_rd_we), 
-        .rd_data        (),
-        .rd_ready_read  (0),
+        .rd_we          (axi_rd_waiting && ~rdd_fifo_empty),
+        .rd_data        ({24'b0, rd_data_small}),
+        .rd_ready_read  (~rdd_fifo_full),
         .rd_addr        (rd_addr_axi),
         .rd_valid       (axi_rd_recieved),
         .waiting        (axi_rd_waiting),
@@ -336,8 +336,7 @@ module axi_bridge (
 
     assign status.rd_req    = rd_req;
     assign status.rd_full   = rda_fifo_full;
-    // assign status.rd_fb_csr = rda_fifo_data_o.fb_csr;
-    assign status.rd_fb_csr = CSR;
+    assign status.rd_fb_csr = rda_fifo_data_o.fb_csr;
     assign rd_addr          = rda_fifo_data_o.addr;
 
 endmodule

@@ -82,6 +82,14 @@ module vga_driver (
     logic [H_CNT_BITS-1:0] h_cnt;
     logic [COLOR_LUT_BITS-1:0] color_ind;
 
+    // FrameBuffer Signals
+    logic [COLOR_LUT_BITS-1:0] fb_pixel_o;
+
+    // CSR
+    logic [7:0] reg_cr, reg_sr;
+    logic [PIXEL_ADDR_BITS-1:0] reg_wr_addr, reg_rd_addr;
+    logic [DATA_BITS-1:0] reg_wr_data, reg_rd_data;
+
     // Control Signals
     controls_t controls;
 
@@ -103,6 +111,16 @@ module vga_driver (
     // * ======================================================================
     // * AXI Bridge
     // * ======================================================================
+    
+    // rd data mux
+    always_comb begin
+        case (controls.rd_data_sel)
+            0: rd_data = fb_pixel_o;
+            1: rd_data = reg_cr;
+        default: rd_data = 8'b1000_0001; 
+        endcase
+    end
+    
     axi_bridge bridge (
         .wr_re       (controls.wr_re),
         .rd_re       (controls.rd_re),
@@ -122,9 +140,11 @@ module vga_driver (
     // * CSR
     // * ======================================================================
 
-    logic [7:0] reg_cr, reg_sr;
-    logic [PIXEL_ADDR_BITS-1:0] reg_wr_addr, reg_rd_addr;
-    logic [DATA_BITS-1:0] reg_wr_data, reg_rd_data;
+    
+
+    // always_comb begin
+        // 
+    // end
 
     always_ff @(posedge vga_clk) begin
         if (controls.cr_ld) begin
@@ -145,7 +165,7 @@ module vga_driver (
 
         if (controls.rd_ld) begin
             reg_rd_addr <= rd_addr;
-            reg_rd_data <= rd_data;  
+            // reg_rd_data <= rd_data;  
         end
     end
 
@@ -196,7 +216,7 @@ module vga_driver (
         .fb_w_r             (controls.fb_w_r),
         .fb_en              (controls.fb_en),
         .fb_valid           (status.fb_valid),
-        .fb_data_o          (),
+        .fb_data_o          (fb_pixel_o),
         .* // qspi signals
     );
 

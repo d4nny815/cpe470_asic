@@ -88,7 +88,6 @@ module axi_rd_chan (
 
     logic araddr_we;
 
-    assign s_axi_rdata = s_axi_rvalid ? rdata_r : 32'hdeadbeef;
 
     always_comb begin
         NS = PS;
@@ -112,7 +111,8 @@ module axi_rd_chan (
 
             READ_ADDR: begin
                 rd_valid = 1;
-                NS = WAIT_MEM;
+                if (rd_ready_read)
+                    NS = WAIT_MEM;
             end
 
             WAIT_MEM: begin
@@ -134,6 +134,8 @@ module axi_rd_chan (
         endcase
     end
 
+    assign s_axi_rdata = s_axi_rvalid ? rdata_r : 32'hdeadbeef;
+
     // * ==========================================================================
     // * DATA PATH
     // * ==========================================================================
@@ -147,7 +149,7 @@ module axi_rd_chan (
                 araddr_r <= s_axi_araddr;
             
             if (rd_we && PS == WAIT_MEM)
-                rdata_r <= rd_data ;
+                rdata_r <= rd_data;
         end
     end
 

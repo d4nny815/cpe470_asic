@@ -86,8 +86,9 @@ class TB:
             self.dut._log.error(str(e))
             raise
 
-        word = int.from_bytes(rd.data, "little")
-        return word
+        # word = int.from_bytes(rd.data, "little")
+        # return word
+        return 0
 
 
 # * ============================================================================
@@ -192,9 +193,9 @@ async def test_fill_write_req(dut):
     tb = TB(dut)
     await tb.cycle_reset()
 
-    DEPTH = 20
+    DEPTH = 18
     for i in range(DEPTH):
-        await tb.axi_write(AXI_FB_ADDR + (i * 4), 19 - i)
+        await tb.axi_write(AXI_FB_ADDR + (i * 4), i)
 
     assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
 
@@ -205,14 +206,12 @@ async def test_fill_write_req(dut):
         await RisingEdge(dut.vga_clk)
 
 # TODO: read requests
-# @cocotb.test()
-# async def test_fb_read_req(dut):
-#     tb = TB(dut)
-#     await tb.cycle_reset()
+@cocotb.test()
+async def test_fb_read_req(dut):
+    tb = TB(dut)
+    await tb.cycle_reset()
 
-#     await tb.axi_read(AXI_FB_ADDR)
+    await tb.axi_read(AXI_FB_ADDR + 4)
 
-#     for _ in range(3):
-#         await RisingEdge(dut.vga_clk)
-
-# TODO: fix the expected address 
+    for _ in range(10):
+        await RisingEdge(dut.vga_clk)
