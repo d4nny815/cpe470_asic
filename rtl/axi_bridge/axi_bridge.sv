@@ -228,9 +228,19 @@ module axi_bridge (
     logic [COLOR_LUT_BITS-1:0] wr_data_sliced;
 
     assign wr_addr_sliced = wr_addr_axi[PIXEL_ADDR_BITS-1:0];
-    assign wr_data_sliced = wr_data_axi[COLOR_LUT_BITS-1:0];
+    
+    
+    // assign wr_data_sliced = wr_data_axi[COLOR_LUT_BITS-1:0];
 
     always_comb begin
+    
+        case(wr_addr_sliced[1:0])
+            2'b00: wr_data_sliced = wr_data_axi[COLOR_LUT_BITS-1:0];
+            2'b01: wr_data_sliced = wr_data_axi[2*COLOR_LUT_BITS-1:8];
+            2'b10: wr_data_sliced = wr_data_axi[3*COLOR_LUT_BITS-1:16];
+            2'b11: wr_data_sliced = wr_data_axi[4*COLOR_LUT_BITS-1:24];
+        endcase
+    
         wr_fifo_data_i.addr = wr_addr_sliced;
         wr_fifo_data_i.data = wr_data_sliced;
         if (wr_addr_sliced < CSR_ADDR_OFFSET)
