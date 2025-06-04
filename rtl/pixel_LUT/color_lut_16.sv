@@ -1,7 +1,5 @@
 `ifndef COLOR_LUT_16
 `define COLOR_LUT_16
-
-`timescale 1ns / 1ps
 `include "displayConsts.svh"
 
 module color_lut_16 (

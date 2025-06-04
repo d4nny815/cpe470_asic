@@ -60,12 +60,15 @@ module vga_driver (
     input logic         CLK_200MHz,
     input logic         vga_clk,
     input logic         vga_reset_n,
-    output logic [7:0]  vga_red,
-    output logic [7:0]  vga_green,
-    output logic [7:0]  vga_blue,
+    output logic [15:0] vga_red,
+    output logic [15:0] vga_green,
+    output logic [15:0] vga_blue,
     output logic        vga_hsync,
     output logic        vga_vsync
     );
+
+    // Pixel LUT Signals
+    logic [COLOR_BITS - 1 : 0] color;
 
     // * ======================================================================
     // * Internal Signals
@@ -221,9 +224,38 @@ module vga_driver (
     // * ======================================================================
     // * Pixel Color LUT
     // * ======================================================================
-
+    pixel_lut_top pixel_lut(
+        .index(color_ind),
+        .mode(),
+        .blackout(),
+        .color(color) 
+    );
+    
     // * ======================================================================
     // * DAC
     // * ======================================================================
+    avsddac red_dac(
+        .VREFH(VREFH),
+        .VREFL(VREFL),
+        .D(color[17:12]), // top 6 bits
+        .EN(1),
+        .OUT(vga_red)
+    );
+
+    avsddac green_dac(
+        .VREFH(VREFH),
+        .VREFL(VREFL),
+        .D(color[11:6]), // middle 6 bits
+        .EN(1),
+        .OUT(vga_green)
+    );
+
+    avsddac blue_dac(
+        .VREFH(VREFH),
+        .VREFL(VREFL),
+        .D(color[5:0]), // bottom 6 bits
+        .EN(1),
+        .OUT(vga_blue)
+    );  
 
 endmodule
