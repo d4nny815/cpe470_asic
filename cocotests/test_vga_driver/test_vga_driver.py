@@ -187,16 +187,22 @@ async def test_csr_write_req(dut):
     while bool(dut.bridge.wr_req.value):
         await RisingEdge(dut.vga_clk)
 
-# @cocotb.test()
-# async def test_fill_write_req(dut):
-#     tb = TB(dut)
-#     await tb.cycle_reset()
+@cocotb.test()
+async def test_fill_write_req(dut):
+    tb = TB(dut)
+    await tb.cycle_reset()
 
-#     DEPTH = 16
-#     for _ in range(DEPTH):
-#         await tb.axi_write(AXI_FB_ADDR, 0xff)
+    DEPTH = 20
+    for i in range(DEPTH):
+        await tb.axi_write(AXI_FB_ADDR + (i * 4), 19 - i)
 
-#     assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
+    assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
+
+    while bool(dut.bridge.wr_req.value):
+        await RisingEdge(dut.vga_clk)
+
+    while not bool(dut.framebuffer.fb_valid.value):
+        await RisingEdge(dut.vga_clk)
 
 # TODO: read requests
 # @cocotb.test()
