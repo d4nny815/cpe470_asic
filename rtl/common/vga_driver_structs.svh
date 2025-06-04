@@ -42,6 +42,7 @@ typedef struct packed {
     logic in_frame;
 
     // w/r reqs
+    logic fb_valid;
     axi_comms_status_t axi_comms;
 } statuses_t;
 
@@ -63,5 +64,6 @@ typedef struct packed {
     logic rd_re;
     logic rd_we;
     logic [1:0] rd_data_sel;
+    logic addr_sel;
 } controls_t;
 `endif 

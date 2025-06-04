@@ -93,7 +93,7 @@ module vga_driver (
     // * Control Unit
     // * ======================================================================
     
-    assign status.RST_N = 1;
+    assign status.RST_N = vga_reset_n && axi_reset_n;
     control_unit control_unit(
         .clk        (vga_clk),
         .statuses   (status),
@@ -113,6 +113,8 @@ module vga_driver (
         .rd_data     (rd_data),
         .status      (status.axi_comms),
         .init_done   (bridge_init_done),
+        .axi_reset_n (controls.reset_n),
+        .vga_reset_n (controls.reset_n),
         .* // axi signals
     );
 
@@ -120,12 +122,13 @@ module vga_driver (
     // * CSR
     // * ======================================================================
 
+    logic [7:0] reg_cr, reg_sr;
     logic [PIXEL_ADDR_BITS-1:0] reg_wr_addr, reg_rd_addr;
     logic [DATA_BITS-1:0] reg_wr_data, reg_rd_data;
 
     always_ff @(posedge vga_clk) begin
         if (controls.cr_ld) begin
-            
+            reg_cr <= wr_data[7:0];
         end 
     end
 
@@ -152,7 +155,7 @@ module vga_driver (
 
     vga_timing timing (
         .clk      (vga_clk),
-        .reset_n  (vga_reset_n),
+        .reset_n  (controls.reset_n),
         .h_cnt    (h_cnt),
         .h_sync   (vga_hsync),
         .v_cnt    (v_cnt),
@@ -166,7 +169,7 @@ module vga_driver (
     
     pixel_addr_gen pixel_addr_gen (
         .clk            (vga_clk),
-        .rst_n          (vga_reset_n),
+        .rst_n          (controls.reset_n),
         .h_cnt          (h_cnt),
         .v_cnt          (v_cnt),
         .next           (controls.next), 
@@ -182,17 +185,17 @@ module vga_driver (
     framebuffer framebuffer(
         .clk                (vga_clk),
         .CLK_200MHz         (CLK_200MHz),
-        .reset_n            (vga_reset_n),
+        .reset_n            (controls.reset_n),
         .vga_addr           (pixel_addr),
         .fb_vga_addr        (fb_pixel_addr),
         .vga_fetch_next     (controls.next),
         .vga_re             (controls.vga_re),
         .lut_index          (color_ind),
-        .fb_addr            (),
-        .fb_data_i          (),
-        .fb_w_r             (),
-        .fb_en              (),
-        .fb_valid           (),
+        .fb_addr            (controls.addr_sel ? reg_rd_addr : reg_wr_addr),
+        .fb_data_i          (reg_wr_data),
+        .fb_w_r             (controls.fb_w_r),
+        .fb_en              (controls.fb_en),
+        .fb_valid           (status.fb_valid),
         .fb_data_o          (),
         .* // qspi signals
     );

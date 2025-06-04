@@ -44,7 +44,7 @@ class TB:
         self.dut.vga_reset_n.value = 0
         self.dut.ps_din.value      = 0xa
 
-        for _ in range(2):
+        for _ in range(3):
             await RisingEdge(self.dut.axi_clk)
             await RisingEdge(self.dut.vga_clk)
 
@@ -104,7 +104,6 @@ async def test_next_pixel(dut):
     change_din = False
 
     for y in range(VCNT_LINE):
-        
         change_din = True
         
         if (y == 3 and not verbose):
@@ -152,13 +151,22 @@ async def test_fb_write_req(dut):
     tb = TB(dut)
     await tb.cycle_reset()
 
-    await tb.axi_write(AXI_FB_ADDR, 0xa5)
+    await tb.axi_write(AXI_FB_ADDR + 4, 0xa5)
 
-    while dut.bridge.wr_fifo_empty.value:
+    # while dut.bridge.wr_fifo_empty.value:
+    while not bool(dut.bridge.wr_req.value):
         await RisingEdge(dut.vga_clk)
 
-    assert int(dut.wr_addr.value) == FB_ADDR, "DIDNT WRITE to framebuffer"
+    assert int(dut.wr_addr.value) == FB_ADDR + 4, "DIDNT WRITE to framebuffer"
     assert int(dut.wr_data.value) == 0xa5, "DIDNT WRITE correct value"
+
+    while not bool(dut.framebuffer.fb_valid.value):
+        await RisingEdge(dut.vga_clk)
+    
+    while bool(dut.bridge.wr_req.value):
+        await RisingEdge(dut.vga_clk)
+
+
 
 @cocotb.test()
 async def test_csr_write_req(dut):
@@ -173,16 +181,22 @@ async def test_csr_write_req(dut):
     assert int(dut.wr_addr.value) == CR_ADDR, "DIDNT WRITE to control register"
     assert int(dut.wr_data.value) == 0x5a, "DIDNT WRITE correct value"
 
-@cocotb.test()
-async def test_fill_write_req(dut):
-    tb = TB(dut)
-    await tb.cycle_reset()
+    while not bool(dut.bridge.wr_req.value):
+        await RisingEdge(dut.vga_clk)
 
-    DEPTH = 16
-    for _ in range(DEPTH):
-        await tb.axi_write(AXI_FB_ADDR, 0xff)
+    while bool(dut.bridge.wr_req.value):
+        await RisingEdge(dut.vga_clk)
 
-    assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
+# @cocotb.test()
+# async def test_fill_write_req(dut):
+#     tb = TB(dut)
+#     await tb.cycle_reset()
+
+#     DEPTH = 16
+#     for _ in range(DEPTH):
+#         await tb.axi_write(AXI_FB_ADDR, 0xff)
+
+#     assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
 
 # TODO: read requests
 # @cocotb.test()

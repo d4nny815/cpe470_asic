@@ -246,16 +246,16 @@ module axi_bridge (
         .DSIZE($bits(wr_fifo_packet_t)),
         .ASIZE(WRITE_REQ_FIFO_BITS)
         ) wr_fifo (
-        .rrst_n     (vga_reset_n),         // Read increment, read clock, read reset
+        .rrst_n     (vga_reset_n),          // Read increment, read clock, read reset
         .rclk       (vga_clk), 
         .rinc       (wr_fifo_re), 
-        .wdata      (wr_fifo_data_i),      // Input data - data to be written
-        .wrst_n     (axi_reset_n),         // Write increment, write clock, write reset
+        .wdata      (wr_fifo_data_i),       // Input data - data to be written
+        .wrst_n     (axi_reset_n),          // Write increment, write clock, write reset
         .wclk       (axi_clk), 
         .winc       (wr_fifo_we), 
-        .rdata      (wr_fifo_data_o),      // Output data - data to be read
-        .rempty     (wr_fifo_empty),       // Read empty signal
-        .wfull      (wr_fifo_full)       // Write full signal
+        .rdata      (wr_fifo_data_o),       // Output data - data to be read
+        .rempty     (wr_fifo_empty),        // Read empty signal
+        .wfull      (wr_fifo_full)          // Write full signal
     );
 
     assign status.wr_req     = wr_req;

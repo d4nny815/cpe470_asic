@@ -121,13 +121,14 @@ module framebuffer (
         DMA_WAIT, 
         DMA_STORE,
         HOST_ISSUE, 
-        HOST_WAIT 
+        HOST_WAIT,
+        HOST_DONE
     } state_t;
     state_t  PS, NS;
     
     
 
-    always_ff @(posedge clk or negedge reset_n) begin
+    always_ff @(posedge clk) begin
         if (!reset_n) begin
             PS <= IDLE;
         end else begin
@@ -188,10 +189,13 @@ module framebuffer (
             end
 
             HOST_WAIT: begin
-                if (ps_done) begin
-                    fb_valid = 1;
-                    NS = IDLE;
-                end
+                if (ps_done) 
+                    NS = HOST_DONE;
+            end
+
+            HOST_DONE: begin
+                fb_valid = 1;
+                NS = IDLE;
             end
 
             default NS = IDLE;
@@ -206,7 +210,7 @@ module framebuffer (
     always_ff @(posedge clk) begin
         if (ps_dma_addr_we) begin
             word_cnt <= '0;
-            ps_addr <= '0;
+            ps_addr <= {7'b0, fb_vga_addr};
         end
         else if (ps_host_addr_we) begin
             ps_addr <= {7'b0, fb_addr};
