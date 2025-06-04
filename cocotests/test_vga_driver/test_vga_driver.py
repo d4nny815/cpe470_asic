@@ -55,7 +55,7 @@ class TB:
             await FallingEdge(self.dut.vga_clk)
 
     async def axi_write(self, addr, val, tmo_ns=1000):
-        DATA_BYTES = 4
+        DATA_BYTES = 1
         payload    = val.to_bytes(DATA_BYTES, "little")
         
         try:
@@ -76,7 +76,7 @@ class TB:
             raise
 
     async def axi_read(self, addr, tmo_ns=1000) -> int:
-        DATA_BYTES = 4
+        DATA_BYTES = 1
         try:
             rd = await with_timeout(
                 self.axi_master.read(addr, DATA_BYTES),
@@ -94,56 +94,56 @@ class TB:
 # * Main Tests
 # * ============================================================================
 
-@cocotb.test()
-async def test_next_pixel(dut):
-    verbose =  os.getenv("VERBOSE_CTB") == "1"
+# @cocotb.test()
+# async def test_next_pixel(dut):
+#     verbose =  os.getenv("VERBOSE_CTB") == "1"
         
-    tb = TB(dut)
-    await tb.cycle_reset()
+#     tb = TB(dut)
+#     await tb.cycle_reset()
 
-    change_din = False
+#     change_din = False
 
-    for y in range(VCNT_LINE):
-        change_din = True
+#     for y in range(VCNT_LINE):
+#         change_din = True
         
-        if (y == 3 and not verbose):
-            print("Verbose off")
-            return
+#         if (y == 3 and not verbose):
+#             print("Verbose off")
+#             return
         
-        for x in range(HCNT_LINE):
+#         for x in range(HCNT_LINE):
 
-            if bool(dut.timing.in_frame.value):
-                v_addr = ((y // 2) & HEIGHT)
-                h_addr = (((x + 2) // 2) & WIDTH)
-                exp_addr = v_addr << 8 | h_addr
-                dut_addr = int(dut.pixel_addr.value)
+#             if bool(dut.timing.in_frame.value):
+#                 v_addr = ((y // 2) & HEIGHT)
+#                 h_addr = (((x + 2) // 2) & WIDTH)
+#                 exp_addr = v_addr << 8 | h_addr
+#                 dut_addr = int(dut.pixel_addr.value)
                 
-                # assert dut_addr == exp_addr, (
-                    # f"Mismatch @ v={y}  h={x} y={y // 2}  x={x // 2}\n"
-                    # f"v {v_addr} h {h_addr} exp {exp_addr}, got {dut_addr}\n"
-                # )
+#                 # assert dut_addr == exp_addr, (
+#                     # f"Mismatch @ v={y}  h={x} y={y // 2}  x={x // 2}\n"
+#                     # f"v {v_addr} h {h_addr} exp {exp_addr}, got {dut_addr}\n"
+#                 # )
 
-            elif change_din: 
-                tb.dut.ps_din.value = y & 0xf
-                change_din = False
+#             elif change_din: 
+#                 tb.dut.ps_din.value = y & 0xf
+#                 change_din = False
 
-            await FallingEdge(dut.vga_clk)
+#             await FallingEdge(dut.vga_clk)
 
-    exp_addr = 0
+#     exp_addr = 0
 
-    for y in range(2):
-        for x in range(HCNT_LINE):
-            in_frame = bool(dut.timing.in_frame.value)
+#     for y in range(2):
+#         for x in range(HCNT_LINE):
+#             in_frame = bool(dut.timing.in_frame.value)
 
-            if in_frame:
-                exp_addr += 1
-                dut_addr = int(dut.pixel_addr.value)
-                # assert dut_addr == exp_addr, (
-                #     f"Mismatch @ line {y} col {x}: "
-                #     f"exp {exp_addr}, got {dut_addr}"
-                # )
+#             if in_frame:
+#                 exp_addr += 1
+#                 dut_addr = int(dut.pixel_addr.value)
+#                 # assert dut_addr == exp_addr, (
+#                 #     f"Mismatch @ line {y} col {x}: "
+#                 #     f"exp {exp_addr}, got {dut_addr}"
+#                 # )
 
-            await FallingEdge(dut.vga_clk)
+#             await FallingEdge(dut.vga_clk)
 
 
 @cocotb.test()
@@ -151,21 +151,27 @@ async def test_fb_write_req(dut):
     tb = TB(dut)
     await tb.cycle_reset()
 
-    await tb.axi_write(AXI_FB_ADDR + 4, 0xa5)
 
-    # while dut.bridge.wr_fifo_empty.value:
+    FB_OFFSET   = 4
+    GOLDEN_VAL  = 0xa5
+    await tb.axi_write(AXI_FB_ADDR + FB_OFFSET, GOLDEN_VAL)
+
+    # wait for a write request
     while not bool(dut.bridge.wr_req.value):
         await RisingEdge(dut.vga_clk)
 
-    assert int(dut.wr_addr.value) == FB_ADDR + 4, "DIDNT WRITE to framebuffer"
-    assert int(dut.wr_data.value) == 0xa5, "DIDNT WRITE correct value"
+    assert int(dut.wr_addr.value) == FB_ADDR + FB_OFFSET, "[FB_WRITE_REQ] DIDNT WRITE to framebuffer"
+    assert int(dut.wr_data.value) == GOLDEN_VAL, "[FB_WRITE_REQ] DIDNT WRITE correct value"
 
+    # ensure handling req
+    await RisingEdge(dut.vga_clk)
+    assert not bool(dut.bridge.wr_req.value), "[FB_WRITE_REQ] There is still a write request"
+    assert int(dut.reg_wr_addr.value == FB_ADDR + FB_OFFSET), "[FB_WRITE_REQ] DIDNT Write Correct CR Value" 
+    assert int(dut.reg_wr_data.value == GOLDEN_VAL), "[FB_WRITE_REQ] DIDNT Write Correct CR Value" 
+
+    # wait for request to finish
     while not bool(dut.framebuffer.fb_valid.value):
         await RisingEdge(dut.vga_clk)
-    
-    while bool(dut.bridge.wr_req.value):
-        await RisingEdge(dut.vga_clk)
-
 
 
 @cocotb.test()
@@ -173,19 +179,32 @@ async def test_csr_write_req(dut):
     tb = TB(dut)
     await tb.cycle_reset()
 
-    await tb.axi_write(AXI_CSR_ADDR, 0x5a)
+    # can write to cr
+    GOLDEN_VAL = 0x5a
+    await tb.axi_write(AXI_CSR_ADDR, GOLDEN_VAL)
 
-    while dut.bridge.wr_fifo_empty.value:
-        await RisingEdge(dut.vga_clk)
-
-    assert int(dut.wr_addr.value) == CR_ADDR, "DIDNT WRITE to control register"
-    assert int(dut.wr_data.value) == 0x5a, "DIDNT WRITE correct value"
-
+    # wait for a write request
     while not bool(dut.bridge.wr_req.value):
         await RisingEdge(dut.vga_clk)
 
-    while bool(dut.bridge.wr_req.value):
+    assert int(dut.wr_addr.value) == CR_ADDR, "[CSR_WRITE_REQ] DIDNT WRITE to control register"
+    assert int(dut.wr_data.value) == GOLDEN_VAL, "[CSR_WRITE_REQ] DIDNT WRITE correct value"
+
+    await RisingEdge(dut.vga_clk)
+    assert int(dut.reg_cr.value == GOLDEN_VAL), "[CSR_WRITE_REQ] DIDNT Write Correct CR Value" 
+
+    # no other outstanding requests
+    assert not bool(dut.bridge.wr_req.value), "[CSR_WRITE_REQ] There is still a write request"
+
+    # cant write to sr
+    BAD_VAL = 0x5a
+    await tb.axi_write(AXI_CSR_ADDR+1, BAD_VAL)
+
+    # wait for a write request
+    for _ in range(10):
+        assert not bool(dut.bridge.wr_req.value), "[CSR_WRITE_REQ] Trying to write to SR"
         await RisingEdge(dut.vga_clk)
+
 
 @cocotb.test()
 async def test_fill_write_req(dut):
@@ -194,23 +213,54 @@ async def test_fill_write_req(dut):
 
     DEPTH = 18
     for i in range(DEPTH):
-        await tb.axi_write(AXI_FB_ADDR + (i * 4), i)
+        await tb.axi_write(AXI_FB_ADDR + i, i)
 
-    assert dut.bridge.wr_full.value == 1, "FIFO Shoudl be full"
+    assert bool(dut.bridge.wr_full.value), "[FB_FILL_WRITE_REQ] FIFO Shoudl be full"
 
+    # continue til no more requests
     while bool(dut.bridge.wr_req.value):
         await RisingEdge(dut.vga_clk)
 
+    # finish last outstanding request
     while not bool(dut.framebuffer.fb_valid.value):
         await RisingEdge(dut.vga_clk)
 
-# TODO: read requests
-@cocotb.test()
-async def test_fb_read_req(dut):
-    tb = TB(dut)
-    await tb.cycle_reset()
+# # TODO: read requests
+# @cocotb.test()
+# async def test_fb_read_req(dut):
+#     tb = TB(dut)
+#     await tb.cycle_reset()
 
-    await tb.axi_read(AXI_FB_ADDR + 4)
+#     await tb.axi_read(AXI_FB_ADDR + 4)
 
-    for _ in range(10):
-        await RisingEdge(dut.vga_clk)
+#     # while not bool(dut.bridge.rd_req.value):
+#         # await RisingEdge(dut.vga_clk)
+
+#     while bool(dut.bridge.rd_req.value):
+#         await RisingEdge(dut.vga_clk)
+
+#     # while not bool(dut.framebuffer.fb_valid.value):
+#         # await RisingEdge(dut.vga_clk)
+
+#     for _ in range(10):
+#         await RisingEdge(dut.vga_clk)
+
+'''
+TODO: 
+tests to run
+    read
+        fb addr
+        cr addr
+        sr addr
+
+    write
+        fb addr
+        cr addr
+        sr addr
+
+    correct 2x2 gets mapped to 1 pixel
+    correct qspi qin to fb
+    correct lut values to DAC
+    
+    maybe image from vga values
+'''

@@ -143,11 +143,9 @@ module vga_driver (
     // * CSR
     // * ======================================================================
 
-    
-
-    // always_comb begin
-        // 
-    // end
+    always_comb begin
+        reg_sr = 8'b0;
+    end
 
     always_ff @(posedge vga_clk) begin
         if (controls.cr_ld) begin
