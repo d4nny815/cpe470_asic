@@ -86,9 +86,8 @@ class TB:
             self.dut._log.error(str(e))
             raise
 
-        # word = int.from_bytes(rd.data, "little")
-        # return word
-        return 0
+        word = int.from_bytes(rd.data, "little")
+        return word
 
 
 # * ============================================================================
