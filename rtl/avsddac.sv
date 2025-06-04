@@ -1,12 +1,14 @@
 `ifndef AVSDDAC
 `define AVSDDAC
-`timescale 1ns / 1ps
+
+localparam VREFH = 16'd3300;
+localparam VREFL = 16'd0;
 
 module avsddac( 
   input logic [15:0] VREFH,
   input logic [15:0] VREFL,  
   input logic [5:0] D,
-  input logic EN,    
+  input logic EN,
   output logic [15:0] OUT
   );
 
