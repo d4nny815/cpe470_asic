@@ -188,6 +188,85 @@ async def test_correct_addr(dut):
             await FallingEdge(dut.vga_clk)
 
 @cocotb.test()
+async def test_correct_lut(dut):
+    verbose =  os.getenv("VERBOSE_CTB") == "1"
+        
+    tb = TB(dut)
+    await tb.cycle_reset()
+
+    first_time = True
+
+    # expected_indices = [i & 0xff for i in range(WIDTH)]
+    # expected_indices[0] = 1
+
+    # for x in range(WIDTH * 2):
+    #     exp_line_addr = x // 2
+    #     if first_time:
+    #         first_time = False
+    #         continue
+
+    #     exp_ind = expected_indices[exp_line_addr]
+    #     dut_ind = int(dut.framebuffer.lut_index.value)
+    #     assert exp_ind == dut_ind, f"dut addr is {dut_ind:x} exp is {exp_ind:x}"
+    #     await FallingEdge(dut.vga_clk)
+    
+
+    # for _ in range(HCNT_LINE - WIDTH * 2):
+    #     assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME"
+    #     await FallingEdge(dut.vga_clk)
+
+    # expected_indices[0] = 0
+
+    # # 2nd line
+    # for x in range(WIDTH * 2):
+    #     exp_line_addr = x // 2
+    #     exp_ind = expected_indices[exp_line_addr]
+    #     dut_ind = int(dut.framebuffer.lut_index.value)
+    #     assert exp_ind == dut_ind, f"dut addr is {dut_ind:x} exp is {exp_ind:x}"
+    #     await FallingEdge(dut.vga_clk)
+
+    # # this is where din matter
+    # dut.ps_din.value = 1
+
+    # for _ in range(HCNT_LINE - WIDTH * 2):
+    #     assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME 2"
+    #     await FallingEdge(dut.vga_clk)
+
+    # TODO change din
+
+    for y in range(HEIGHT):
+
+        # 1st line
+        for x in range(WIDTH):
+            if first_time:
+                first_time = False
+                continue
+
+            exp_ind = int(dut.ps_din.value) << 4 | int(dut.ps_din.value) 
+            dut_ind = int(dut.framebuffer.lut_index.value)
+            assert exp_ind == dut_ind, f"dut addr is 0x{dut_ind:x} exp is 0x{exp_ind:x}"
+            await FallingEdge(dut.vga_clk)
+            await FallingEdge(dut.vga_clk)
+        
+
+        for _ in range(HCNT_LINE - WIDTH * 2):
+            await FallingEdge(dut.vga_clk)
+            assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME"
+
+        dut.ps_din.value = (y + 1) & 0xf
+
+        # 2nd line
+        for x in range(WIDTH * 2):
+            await FallingEdge(dut.vga_clk)
+
+        for _ in range(HCNT_LINE - WIDTH * 2):
+            await FallingEdge(dut.vga_clk)
+            assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME 2"
+
+        if y == 10 and not verbose:
+            return
+        
+@cocotb.test()
 async def test_fb_write_req(dut):
     tb = TB(dut)
     await tb.cycle_reset()
