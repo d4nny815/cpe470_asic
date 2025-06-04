@@ -9,6 +9,7 @@
 `include "control_unit.sv"
 `include "pixel_addr_gen.sv"
 `include "framebuffer.sv"
+`include "pixel_lut_top.sv"
 
 module vga_driver (
     input logic axi_clk,
@@ -234,28 +235,28 @@ module vga_driver (
     // * ======================================================================
     // * DAC
     // * ======================================================================
-    avsddac red_dac(
-        .VREFH(VREFH),
-        .VREFL(VREFL),
-        .D(color[17:12]), // top 6 bits
-        .EN(1),
-        .OUT(vga_red)
-    );
+    // avsddac red_dac(
+    //     .VREFH(VREFH),
+    //     .VREFL(VREFL),
+    //     .D(color[17:12]), // top 6 bits
+    //     .EN(1),
+    //     .OUT(vga_red)
+    // );
 
-    avsddac green_dac(
-        .VREFH(VREFH),
-        .VREFL(VREFL),
-        .D(color[11:6]), // middle 6 bits
-        .EN(1),
-        .OUT(vga_green)
-    );
+    // avsddac green_dac(
+    //     .VREFH(VREFH),
+    //     .VREFL(VREFL),
+    //     .D(color[11:6]), // middle 6 bits
+    //     .EN(1),
+    //     .OUT(vga_green)
+    // );
 
-    avsddac blue_dac(
-        .VREFH(VREFH),
-        .VREFL(VREFL),
-        .D(color[5:0]), // bottom 6 bits
-        .EN(1),
-        .OUT(vga_blue)
-    );  
+    // avsddac blue_dac(
+    //     .VREFH(VREFH),
+    //     .VREFL(VREFL),
+    //     .D(color[5:0]), // bottom 6 bits
+    //     .EN(1),
+    //     .OUT(vga_blue)
+    // );  
 
 endmodule

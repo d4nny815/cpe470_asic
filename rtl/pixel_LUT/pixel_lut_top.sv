@@ -1,6 +1,9 @@
 `ifndef PIXEL_LUT
 `define PIXEL_LUT
+
 `include "displayConsts.svh"
+`include "color_lut_16.sv"
+`include "color_lut_256.sv"
 
 module pixel_lut_top (
     input logic [COLOR_LUT_BITS-1:0] index,

@@ -1,0 +1,422 @@
+rm -f results.xml
+"make" -f Makefile results.xml
+make[1]: Entering directory '/home/asic/workspace/pcie_vga_asic/cocotests/test_vga_driver'
+rm -f results.xml
+MODULE=test_vga_driver TESTCASE= TOPLEVEL=vga_driver TOPLEVEL_LANG=verilog	 \
+         /foss/tools/bin/vvp -M /usr/local/lib/python3.12/dist-packages/cocotb/libs -m libcocotbvpi_icarus   sim_build/sim.vvp -fst 
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:108  in set_program_name_in_venv        Using Python virtual environment interpreter at /home/asic/workspace/pcie_vga_asic/.venv/bin/python
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:101  in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)
+     0.00ns INFO     cocotb                             Running tests with cocotb v1.9.2 from /usr/local/lib/python3.12/dist-packages/cocotb
+     0.00ns INFO     cocotb                             Seeding Python random module with 1749068667
+     0.00ns INFO     cocotb.regression                  Found test test_vga_driver.test_prefetch_line
+     0.00ns INFO     cocotb.regression                  Found test test_vga_driver.test_correct_addr
+     0.00ns INFO     cocotb.regression                  Found test test_vga_driver.test_fb_write_req
+     0.00ns INFO     cocotb.regression                  Found test test_vga_driver.test_csr_write_req
+     0.00ns INFO     cocotb.regression                  Found test test_vga_driver.test_fill_write_req
+     0.00ns INFO     cocotb.regression                  Found test test_vga_driver.test_fb_read_req
+     0.00ns INFO     cocotb.regression                  running test_prefetch_line (1/6)
+     0.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (write)
+     0.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+     0.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+     0.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+     0.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+     0.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+     0.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+     0.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+     0.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+     0.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+     0.00ns INFO     cocotb.vga_driver.s_axi              awaddr width: 32 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              awprot: not present
+     0.00ns INFO     cocotb.vga_driver.s_axi              awready width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              awvalid width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              wdata width: 32 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              wready width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              wstrb width: 4 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              wvalid width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              bready width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              bresp width: 2 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              bvalid width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+     0.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (read)
+     0.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+     0.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+     0.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+     0.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+     0.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+     0.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+     0.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+     0.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+     0.00ns INFO     cocotb.vga_driver.s_axi              araddr width: 32 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              arprot: not present
+     0.00ns INFO     cocotb.vga_driver.s_axi              arready width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              arvalid width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              rdata width: 32 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              rready width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              rresp width: 2 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi              rvalid width: 1 bits
+     0.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376160.00ns INFO     cocotb.regression                  test_prefetch_line passed
+15376160.00ns INFO     cocotb.regression                  running test_correct_addr (2/6)
+15376160.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (write)
+15376160.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+15376160.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+15376160.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+15376160.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+15376160.00ns INFO     cocotb.vga_driver.s_axi              awaddr width: 32 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              awprot: not present
+15376160.00ns INFO     cocotb.vga_driver.s_axi              awready width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              awvalid width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              wdata width: 32 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              wready width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              wstrb width: 4 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              wvalid width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              bready width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              bresp width: 2 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              bvalid width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (read)
+15376160.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+15376160.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+15376160.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+15376160.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+15376160.00ns INFO     cocotb.vga_driver.s_axi              araddr width: 32 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              arprot: not present
+15376160.00ns INFO     cocotb.vga_driver.s_axi              arready width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              arvalid width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              rdata width: 32 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              rready width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              rresp width: 2 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi              rvalid width: 1 bits
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+15376160.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+15376280.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376280.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376280.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376280.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376280.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376280.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+15376280.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176340.00ns INFO     cocotb.regression                  test_correct_addr passed
+32176340.00ns INFO     cocotb.regression                  running test_fb_write_req (3/6)
+32176340.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (write)
+32176340.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+32176340.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+32176340.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+32176340.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+32176340.00ns INFO     cocotb.vga_driver.s_axi              awaddr width: 32 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              awprot: not present
+32176340.00ns INFO     cocotb.vga_driver.s_axi              awready width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              awvalid width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              wdata width: 32 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              wready width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              wstrb width: 4 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              wvalid width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              bready width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              bresp width: 2 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              bvalid width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (read)
+32176340.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+32176340.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+32176340.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+32176340.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+32176340.00ns INFO     cocotb.vga_driver.s_axi              araddr width: 32 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              arprot: not present
+32176340.00ns INFO     cocotb.vga_driver.s_axi              arready width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              arvalid width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              rdata width: 32 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              rready width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              rresp width: 2 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi              rvalid width: 1 bits
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176340.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176420.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176420.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176420.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176420.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176420.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176420.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176420.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176520.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000004 prot: 2 data: a5
+32176543.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000004 prot: 2 resp: 0 length: 1
+32176980.00ns INFO     cocotb.regression                  test_fb_write_req passed
+32176980.00ns INFO     cocotb.regression                  running test_csr_write_req (4/6)
+32176980.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (write)
+32176980.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+32176980.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+32176980.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+32176980.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+32176980.00ns INFO     cocotb.vga_driver.s_axi              awaddr width: 32 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              awprot: not present
+32176980.00ns INFO     cocotb.vga_driver.s_axi              awready width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              awvalid width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              wdata width: 32 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              wready width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              wstrb width: 4 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              wvalid width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              bready width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              bresp width: 2 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              bvalid width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (read)
+32176980.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+32176980.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+32176980.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+32176980.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+32176980.00ns INFO     cocotb.vga_driver.s_axi              araddr width: 32 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              arprot: not present
+32176980.00ns INFO     cocotb.vga_driver.s_axi              arready width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              arvalid width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              rdata width: 32 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              rready width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              rresp width: 2 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi              rvalid width: 1 bits
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32176980.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32177100.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177100.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177100.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177100.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177100.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177100.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177100.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177200.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11012c00 prot: 2 data: 5a
+32177225.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11012c00 prot: 2 resp: 0 length: 1
+32177380.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11012c01 prot: 2 data: 5a
+32177407.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11012c01 prot: 2 resp: 0 length: 1
+32177780.00ns INFO     cocotb.regression                  test_csr_write_req passed
+32177780.00ns INFO     cocotb.regression                  running test_fill_write_req (5/6)
+32177780.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (write)
+32177780.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+32177780.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+32177780.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+32177780.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+32177780.00ns INFO     cocotb.vga_driver.s_axi              awaddr width: 32 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              awprot: not present
+32177780.00ns INFO     cocotb.vga_driver.s_axi              awready width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              awvalid width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              wdata width: 32 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              wready width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              wstrb width: 4 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              wvalid width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              bready width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              bresp width: 2 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              bvalid width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (read)
+32177780.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+32177780.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+32177780.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+32177780.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+32177780.00ns INFO     cocotb.vga_driver.s_axi              araddr width: 32 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              arprot: not present
+32177780.00ns INFO     cocotb.vga_driver.s_axi              arready width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              arvalid width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              rdata width: 32 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              rready width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              rresp width: 2 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi              rvalid width: 1 bits
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32177780.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32177900.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177900.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177900.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177900.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177900.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177900.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32177900.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32178000.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000000 prot: 2 data: 00
+32178025.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000000 prot: 2 resp: 0 length: 1
+32178025.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000001 prot: 2 data: 01
+32178053.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000001 prot: 2 resp: 0 length: 1
+32178053.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000002 prot: 2 data: 02
+32178081.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000002 prot: 2 resp: 0 length: 1
+32178081.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000003 prot: 2 data: 03
+32178109.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000003 prot: 2 resp: 0 length: 1
+32178109.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000004 prot: 2 data: 04
+32178137.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000004 prot: 2 resp: 0 length: 1
+32178137.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000005 prot: 2 data: 05
+32178165.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000005 prot: 2 resp: 0 length: 1
+32178165.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000006 prot: 2 data: 06
+32178193.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000006 prot: 2 resp: 0 length: 1
+32178193.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000007 prot: 2 data: 07
+32178221.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000007 prot: 2 resp: 0 length: 1
+32178221.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000008 prot: 2 data: 08
+32178249.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000008 prot: 2 resp: 0 length: 1
+32178249.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000009 prot: 2 data: 09
+32178277.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000009 prot: 2 resp: 0 length: 1
+32178277.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x1100000a prot: 2 data: 0a
+32178305.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x1100000a prot: 2 resp: 0 length: 1
+32178305.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x1100000b prot: 2 data: 0b
+32178333.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x1100000b prot: 2 resp: 0 length: 1
+32178333.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x1100000c prot: 2 data: 0c
+32178361.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x1100000c prot: 2 resp: 0 length: 1
+32178361.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x1100000d prot: 2 data: 0d
+32178389.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x1100000d prot: 2 resp: 0 length: 1
+32178389.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x1100000e prot: 2 data: 0e
+32178417.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x1100000e prot: 2 resp: 0 length: 1
+32178417.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x1100000f prot: 2 data: 0f
+32178445.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x1100000f prot: 2 resp: 0 length: 1
+32178445.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000010 prot: 2 data: 10
+32178473.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000010 prot: 2 resp: 0 length: 1
+32178473.00ns INFO     cocotb.vga_driver.s_axi            Write start addr: 0x11000011 prot: 2 data: 11
+32178529.00ns INFO     cocotb.vga_driver.s_axi            Write complete addr: 0x11000011 prot: 2 resp: 0 length: 1
+32184580.00ns INFO     cocotb.regression                  test_fill_write_req passed
+32184580.00ns INFO     cocotb.regression                  running test_fb_read_req (6/6)
+32184580.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (write)
+32184580.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+32184580.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+32184580.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+32184580.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+32184580.00ns INFO     cocotb.vga_driver.s_axi              awaddr width: 32 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              awprot: not present
+32184580.00ns INFO     cocotb.vga_driver.s_axi              awready width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              awvalid width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              wdata width: 32 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              wready width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              wstrb width: 4 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              wvalid width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              bready width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              bresp width: 2 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              bvalid width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master (read)
+32184580.00ns INFO     cocotb.vga_driver.s_axi            cocotbext-axi version 0.1.24
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Copyright (c) 2020 Alex Forencich
+32184580.00ns INFO     cocotb.vga_driver.s_axi            https://github.com/alexforencich/cocotbext-axi
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master configuration:
+32184580.00ns INFO     cocotb.vga_driver.s_axi              Address width: 32 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              Byte size: 8 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              Data width: 32 bits (4 bytes)
+32184580.00ns INFO     cocotb.vga_driver.s_axi            AXI lite master signals:
+32184580.00ns INFO     cocotb.vga_driver.s_axi              araddr width: 32 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              arprot: not present
+32184580.00ns INFO     cocotb.vga_driver.s_axi              arready width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              arvalid width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              rdata width: 32 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              rready width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              rresp width: 2 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi              rvalid width: 1 bits
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32184580.00ns INFO     cocotb.vga_driver.s_axi            Reset asserted
+32184700.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184700.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184700.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184700.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184700.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184700.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184700.00ns INFO     cocotb.vga_driver.s_axi            Reset de-asserted
+32184800.00ns INFO     cocotb.vga_driver.s_axi            Read start addr: 0x11000004 prot: 2 length: 1
+32185294.00ns INFO     cocotb.vga_driver.s_axi            Read complete addr: 0x11000004 prot: 2 resp: 0 data: aa
+32185660.01ns INFO     cocotb.regression                  test_fb_read_req passed
+32185660.01ns INFO     cocotb.regression                  *********************************************************************************************
+                                                          ** TEST                                 STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                          *********************************************************************************************
+                                                          ** test_vga_driver.test_prefetch_line    PASS    15376160.00         187.54      81987.74  **
+                                                          ** test_vga_driver.test_correct_addr     PASS    16800180.00         202.03      83156.23  **
+                                                          ** test_vga_driver.test_fb_write_req     PASS         640.00           0.01      59224.68  **
+                                                          ** test_vga_driver.test_csr_write_req    PASS         800.00           0.01      63120.97  **
+                                                          ** test_vga_driver.test_fill_write_req   PASS        6800.00           0.09      73317.77  **
+                                                          ** test_vga_driver.test_fb_read_req      PASS        1080.00           0.02      69675.03  **
+                                                          *********************************************************************************************
+                                                          ** TESTS=6 PASS=6 FAIL=0 SKIP=0                  32185660.01         389.79      82570.79  **
+                                                          *********************************************************************************************
+                                                          
+FST info: dumpfile sim_build/vga_driver.fst opened for output.
+make[1]: Leaving directory '/home/asic/workspace/pcie_vga_asic/cocotests/test_vga_driver'
