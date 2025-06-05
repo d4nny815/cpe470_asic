@@ -10,6 +10,7 @@
 `include "pixel_addr_gen.sv"
 `include "framebuffer.sv"
 `include "pixel_lut_top.sv"
+`include "avsddac.sv"
 
 module vga_driver (
     input logic axi_clk,
@@ -149,7 +150,10 @@ module vga_driver (
     end
 
     always_ff @(posedge vga_clk) begin
-        if (controls.cr_ld) begin
+        if (!controls.reset_n) begin
+            reg_cr <= 'd0;
+        end
+        else if (controls.cr_ld) begin
             reg_cr <= wr_data[7:0];
         end 
     end
@@ -167,7 +171,6 @@ module vga_driver (
 
         if (controls.rd_ld) begin
             reg_rd_addr <= rd_addr;
-            // reg_rd_data <= rd_data;  
         end
     end
 
@@ -226,37 +229,37 @@ module vga_driver (
     // * Pixel Color LUT
     // * ======================================================================
     pixel_lut_top pixel_lut(
-        .index(color_ind),
-        .mode(),
-        .blackout(),
-        .color(color) 
+        .index      (color_ind),
+        .mode       (reg_cr[VGA_MODE_BIT]),
+        .blackout   (reg_cr[BLK_OUT_BIT]),
+        .color      (color) 
     );
     
     // * ======================================================================
     // * DAC
     // * ======================================================================
-    // avsddac red_dac(
-    //     .VREFH(VREFH),
-    //     .VREFL(VREFL),
-    //     .D(color[17:12]), // top 6 bits
-    //     .EN(1),
-    //     .OUT(vga_red)
-    // );
+    avsddac red_dac(
+        .VREFH  (VREFH),
+        .VREFL  (VREFL),
+        .D      (color[17:12]), // top 6 bits
+        .EN     (1'b1),
+        .OUT    (vga_red)
+    );
 
-    // avsddac green_dac(
-    //     .VREFH(VREFH),
-    //     .VREFL(VREFL),
-    //     .D(color[11:6]), // middle 6 bits
-    //     .EN(1),
-    //     .OUT(vga_green)
-    // );
+    avsddac green_dac(
+        .VREFH  (VREFH),
+        .VREFL  (VREFL),
+        .D      (color[11:6]), // middle 6 bits
+        .EN     (1'b1),
+        .OUT    (vga_green)
+    );
 
-    // avsddac blue_dac(
-    //     .VREFH(VREFH),
-    //     .VREFL(VREFL),
-    //     .D(color[5:0]), // bottom 6 bits
-    //     .EN(1),
-    //     .OUT(vga_blue)
-    // );  
+    avsddac blue_dac(
+        .VREFH  (VREFH),
+        .VREFL  (VREFL),
+        .D      (color[5:0]), // bottom 6 bits
+        .EN     (1'b1),
+        .OUT    (vga_blue)
+    );  
 
 endmodule

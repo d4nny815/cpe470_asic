@@ -166,7 +166,7 @@ module control_unit (
 
             RD_CSR_WAIT: begin
                 controls.rd_data_sel = 1; // FIXME: cr and sr diff
-
+                controls.rd_we = 1;
                 next_state_2 = IDLE;
             end
                    

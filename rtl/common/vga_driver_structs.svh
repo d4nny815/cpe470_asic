@@ -5,19 +5,22 @@
 
 localparam DATA_BITS = COLOR_LUT_BITS;
 
-localparam AXI_BASE_ADDR = 32'h11000000;
-localparam FB_ADDR_OFFSET = 0;
-localparam CSR_ADDR_OFFSET = FRAME_SIZE;
-localparam AXI_FB_ADDR = AXI_BASE_ADDR + FB_ADDR_OFFSET;
-localparam AXI_CSR_ADDR = AXI_BASE_ADDR + CSR_ADDR_OFFSET;
-localparam FB_ADDR = FB_ADDR_OFFSET;
-localparam CR_ADDR = CSR_ADDR_OFFSET;
-localparam SR_ADDR = CR_ADDR + 1;
+localparam AXI_BASE_ADDR    = 32'h11000000;
+localparam FB_ADDR_OFFSET   = 0;
+localparam CSR_ADDR_OFFSET  = FRAME_SIZE;
+localparam AXI_FB_ADDR      = AXI_BASE_ADDR + FB_ADDR_OFFSET;
+localparam AXI_CSR_ADDR     = AXI_BASE_ADDR + CSR_ADDR_OFFSET;
+localparam FB_ADDR          = FB_ADDR_OFFSET;
+localparam CR_ADDR          = CSR_ADDR_OFFSET;
+localparam SR_ADDR          = CR_ADDR + 1;
 
-localparam WRITE_REQ_FIFO_BITS = 4;
-localparam WRITE_REQ_FIFO_SIZE = 1 << WRITE_REQ_FIFO_BITS;
-localparam READ_REQ_FIFO_BITS = 4;
-localparam READ_REQ_FIFO_SIZE = 1 << READ_REQ_FIFO_BITS;
+localparam WRITE_REQ_FIFO_BITS  = 4;
+localparam WRITE_REQ_FIFO_SIZE  = 1 << WRITE_REQ_FIFO_BITS;
+localparam READ_REQ_FIFO_BITS   = 4;
+localparam READ_REQ_FIFO_SIZE   = 1 << READ_REQ_FIFO_BITS;
+
+localparam BLK_OUT_BIT      = 0;
+localparam VGA_MODE_BIT     = 1;
 
 typedef enum logic { 
     FB = 1'b0,

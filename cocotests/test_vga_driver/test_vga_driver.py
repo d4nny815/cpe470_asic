@@ -263,7 +263,7 @@ async def test_correct_lut(dut):
             await FallingEdge(dut.vga_clk)
             assert not bool(dut.timing.in_frame.value), "NO WORKY INFRAME 2"
 
-        if y == 10 and not verbose:
+        if y == 3 and not verbose:
             return
         
 @cocotb.test()
@@ -357,6 +357,30 @@ async def test_fb_read_req(dut):
 
     for _ in range(10):
         await RisingEdge(dut.vga_clk)
+
+    assert not bool(dut.bridge.rd_req.value), "[] brolken"
+
+@cocotb.test()
+async def test_csr_read_req(dut):
+    tb = TB(dut)
+    await tb.cycle_reset()
+
+    # can read from cr
+    GOLDEN_VAL = 0x5a
+    await tb.axi_write(AXI_CSR_ADDR, GOLDEN_VAL)
+
+    DUT_VAL = await tb.axi_read(AXI_CSR_ADDR)
+    assert GOLDEN_VAL == DUT_VAL, f"BAD CSR READ"
+
+    # # cant write to sr
+    # BAD_VAL = 0x5a
+    # await tb.axi_write(AXI_CSR_ADDR+1, BAD_VAL)
+
+    # # wait for a write request
+    # for _ in range(10):
+    #     assert not bool(dut.bridge.wr_req.value), "[CSR_WRITE_REQ] Trying to write to SR"
+    #     await RisingEdge(dut.vga_clk)
+
 
 '''
 TODO: 
