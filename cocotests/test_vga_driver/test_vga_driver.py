@@ -86,7 +86,8 @@ class TB:
             self.dut._log.error(str(e))
             raise
 
-        word = int.from_bytes(rd.data, "little")
+        print(f"DATA BUTES {rd.data}")
+        word = int.from_bytes(rd.data, "big")
         return word
 
 
@@ -370,16 +371,20 @@ async def test_csr_read_req(dut):
     await tb.axi_write(AXI_CSR_ADDR, GOLDEN_VAL)
 
     DUT_VAL = await tb.axi_read(AXI_CSR_ADDR)
-    assert GOLDEN_VAL == DUT_VAL, f"BAD CSR READ"
+    assert GOLDEN_VAL == DUT_VAL, f"BAD CR READ"
+
+    GOLDEN_VAL = 0xff
+    DUT_VAL = await tb.axi_read(AXI_CSR_ADDR+1)
+    assert GOLDEN_VAL == DUT_VAL, f"BAD SR READ"
 
     # # cant write to sr
     # BAD_VAL = 0x5a
     # await tb.axi_write(AXI_CSR_ADDR+1, BAD_VAL)
 
     # # wait for a write request
-    # for _ in range(10):
+    for _ in range(1):
     #     assert not bool(dut.bridge.wr_req.value), "[CSR_WRITE_REQ] Trying to write to SR"
-    #     await RisingEdge(dut.vga_clk)
+        await RisingEdge(dut.vga_clk)
 
 
 '''

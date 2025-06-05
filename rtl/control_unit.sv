@@ -132,7 +132,9 @@ module control_unit (
                 end 
                 else if (statuses.axi_comms.rd_req && statuses.axi_comms.rd_fb_csr == CSR) begin
                     controls.rd_re = 1;
-                    next_state_2 = RD_CSR_WAIT;
+                    controls.rd_data_sel = {1'b0, statuses.axi_comms.rd_cr_sr}; // FIXME: cr and sr diff
+                    controls.rd_we = 1;
+                    next_state_2 = IDLE;
                 end 
             end
 
@@ -153,12 +155,11 @@ module control_unit (
                 controls.fb_w_r = 0;
                 controls.fb_en  = 1;
                 next_state_2 = RD_FB_WAIT;
-                controls.rd_data_sel = 2'b10;
             end
 
             RD_FB_WAIT: begin
                 if (statuses.fb_valid) begin
-                    controls.rd_data_sel = 0;
+                    controls.rd_data_sel = 2'b10;
                     controls.rd_we = 1;
                     next_state_2 = IDLE;
                 end

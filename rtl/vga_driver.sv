@@ -120,8 +120,9 @@ module vga_driver (
     // rd data mux
     always_comb begin
         case (controls.rd_data_sel)
-            0: rd_data = fb_pixel_o;
+            0: rd_data = reg_sr;
             1: rd_data = reg_cr;
+            2: rd_data = fb_pixel_o;
         default: rd_data = 8'b1000_0001; 
         endcase
     end
@@ -146,7 +147,7 @@ module vga_driver (
     // * ======================================================================
 
     always_comb begin
-        reg_sr = 8'b0;
+        reg_sr = 8'b1111_1111;
     end
 
     always_ff @(posedge vga_clk) begin

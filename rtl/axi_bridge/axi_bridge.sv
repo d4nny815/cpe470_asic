@@ -203,7 +203,7 @@ module axi_bridge (
     logic [AXI_DATA_BITS-1:0] wr_data_axi;
 
     logic [AXI_ADDR_BITS-1:0] rd_addr_axi;
-    logic [DATA_BITS-1:0] rd_data_small;
+    logic [AXI_DATA_BITS-1:0] rd_data_small;
 
     // * WRITE REQUESTS 
     axi_wr_chan wr_chan (
@@ -277,7 +277,7 @@ module axi_bridge (
         .reset_n        (axi_reset_n),
         .axi_clk        (axi_clk),
         .rd_we          (axi_rd_waiting && ~rdd_fifo_empty),
-        .rd_data        ({24'b0, rd_data_small}),
+        .rd_data        (rd_data_small),
         .rd_ready_read  (~rdd_fifo_full),
         .rd_addr        (rd_addr_axi),
         .rd_valid       (axi_rd_recieved),
@@ -323,9 +323,25 @@ module axi_bridge (
         .wfull      (rda_fifo_full)       // Write full signal
     );
 
+    logic [1:0] rdd_byte_sel;
+    logic [AXI_DATA_BITS-1:0] rdd_data_i;
+
+    always_comb begin
+        case(rdd_byte_sel)
+            2'b00: rdd_data_i = {24'd0, rd_data};
+            2'b01: rdd_data_i = {16'd0, rd_data, 8'd0};
+            2'b10: rdd_data_i = {8'd0, rd_data, 16'd0};
+            2'b11: rdd_data_i = {rd_data, 24'd0};
+        endcase
+    end
+
+    always_ff @(posedge rd_fifo_valid_packet) begin
+        rdd_byte_sel <= rd_addr_sliced[1:0];
+    end
+
     // read data
     ASYNC_FIFO #( 
-        .DSIZE(DATA_BITS),
+        .DSIZE(AXI_DATA_BITS),
         .ASIZE(READ_REQ_FIFO_BITS)
     ) rd_data_fifo (
         .rrst_n     (axi_reset_n),         // Read increment, read clock, read reset
@@ -335,7 +351,7 @@ module axi_bridge (
         .wrst_n     (vga_reset_n),         // Write increment, write clock, write reset
         .wclk       (vga_clk), 
         .winc       (rdd_fifo_we), 
-        .wdata      (rd_data),              // Input data - data to be written
+        .wdata      (rdd_data_i),              // Input data - data to be written
         .rempty     (rdd_fifo_empty),       // Read empty signal
         .wfull      (rdd_fifo_full)         // Write full signal
     );
@@ -343,6 +359,7 @@ module axi_bridge (
     assign status.rd_req    = rd_req;
     assign status.rd_full   = rda_fifo_full;
     assign status.rd_fb_csr = rda_fifo_data_o.fb_csr;
+    assign status.rd_cr_sr  = rda_fifo_data_o.addr == CR_ADDR;
     assign rd_addr          = rda_fifo_data_o.addr;
 
 endmodule

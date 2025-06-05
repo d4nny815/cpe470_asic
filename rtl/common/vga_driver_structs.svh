@@ -35,6 +35,7 @@ typedef struct packed {
     logic rd_full; // TODO: talk to camille bout if needs 2 rda and rdd
     logic rd_req;
     fb_csr_t rd_fb_csr;
+    logic rd_cr_sr;
     
 } axi_comms_status_t;
 
