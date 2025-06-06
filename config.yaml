@@ -4,9 +4,8 @@ VERILOG_FILES:
   - "dir::rtl/vga_driver.sv"
   - "dir::rtl/vga_timing.sv"
   - "dir::rtl/control_unit.sv"
-  - "dir::rtl/framebuffer.sv"
   - "dir::rtl/pixel_addr_gen.sv"
-  - "dir::rtl/pixel_lut.sv"
+  - "dir::rtl/avsddac.sv"
   - "dir::rtl/axi_bridge/axi_bridge.sv"
   - "dir::rtl/axi_bridge/axi_wr_chan.sv"
   - "dir::rtl/axi_bridge/axi_rd_chan.sv"
@@ -15,14 +14,25 @@ VERILOG_FILES:
   - "dir::rtl/ip/async_fifo/wptr_full.sv"
   - "dir::rtl/ip/async_fifo/rptr_empty.sv"
   - "dir::rtl/ip/async_fifo/two_ff_sync.sv"
+  - "dir::rtl/ip/EF_SRAM_CTRL/EF_PSRAM_CTRL.sv"
+  - "dir::rtl/framebuffer/framebuffer.sv"
+  - "dir::rtl/framebuffer/line_cache.sv"
+  - "dir::rtl/pixel_LUT/color_lut_16.sv"
+  - "dir::rtl/pixel_LUT/color_lut_256.sv"
+  - "dir::rtl/pixel_LUT/pixel_lut_top.sv"
 
 
 VERILOG_INCLUDE_DIRS:
+  - "rtl/"
   - "rtl/common"
   - "rtl/axi_bridge"
+  - "rtl/framebuffer"
+  - "rtl/pixel_LUT"
   - "rtl/ip/async_fifo"
+  - "rtl/ip/EF_SRAM_CTRL"
 
 CLOCK_PORT: 
+  - CLK_200Mhz
   - axi_clk
   - vga_clk
 
