@@ -4,6 +4,8 @@
 
 https://github.com/efabless/EF_PSRAM_CTRL/tree/main 
 https://www.logic-fruit.com/blog/digital-interfaces/axi-full-axi-lite-interfaces/ 
+![alt text](images/avangelion.png)
+
 
 ## Who's AVA?
 
